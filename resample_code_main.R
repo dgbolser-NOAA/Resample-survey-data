@@ -7,7 +7,6 @@
 rm(list = ls())
 
 #### set wds
-#setwd("C:/Users/Derek.Bolser/Documents/Resample_survey_data/") #for local testing
 wd <- "/home/user/"
 basedir<-file.path(wd,'Resample-survey-data')
 output <- file.path(wd, "Resample-survey-data/Results")
@@ -30,22 +29,15 @@ widow <- file.path(output, "Widow_rockfish")
 yellowtail <- file.path(output, "Yellowtail_rockfish")
 
 # load packages
-library(sampling)
-library(ggplot2)
-library(dplyr)
-library(tidyr)
-library(forcats)
-library(purrr)
-library(readr)
-library(tibble)
-library(doParallel)
-library(sdmTMB)
+pkgs <- c("sampling", "ggplot2", "dplyr", "tidyr", "forcats", "purrr", "readr",
+          "tibble", "doParallel", "sdmTMB", "here")
+lapply(pkgs, require, character.only = TRUE)
 
 # read in data
-#catch <- read.csv(file.path(data,"nwfsc_bt_fmp_spp.csv"))
 catch <- read.csv(file.path(data,"nwfsc_bt_fmp_spp_updated.csv")) #pulled data again to get 2024
 load(file.path(data,"california_current_grid.rda"))
 
+# can use here::here() if using an R project for this instead of the file.path()
 source(file.path(basedir, "smaller_functions.R")) #need to edit to specify the code directory if running locally
 source(file.path(basedir, "cleanup_by_species.R"))
 source(file.path(basedir, "species_sdms.R"))
@@ -57,8 +49,11 @@ california_current_grid$Latitude_dd<- california_current_grid$latitude
 california_current_grid$Pass<- california_current_grid$pass_scaled
 california_current_grid$Depth_m<- california_current_grid$depth
 
-#make gridyrs
+#make grid_yrs
 grid_yrs <- replicate_df(california_current_grid, "Year", unique(catch$Year))
+
+#get rid of memory limits
+options(future.globals.maxSize = 1 * 1024^4)  # Allow up to 1 TB for globals
 
 #### Arrowtooth flounder ##########################################################################################################
 arrowtooth_dfs <- cleanup_by_species(df = catch, species = "arrowtooth flounder")

@@ -7,7 +7,6 @@
 rm(list = ls())
 
 #### set wds
-#setwd("C:/Users/Derek.Bolser/Documents/Resample_survey_data/") #for local testing
 wd <- "/home/user"
 basedir<-file.path(wd,'Resample-survey-data')
 output <- file.path(wd, "Resample-survey-data/Results")
@@ -29,30 +28,19 @@ shortspine <- file.path(output, "Shortspine_thornyhead")
 widow <- file.path(output, "Widow_rockfish")
 yellowtail <- file.path(output, "Yellowtail_rockfish")
 
+
 # load packages
-library(sampling)
-library(ggplot2)
-library(dplyr)
-library(tidyr)
-library(forcats)
-library(purrr)
-library(readr)
-library(tibble)
-library(doParallel)
-library(sdmTMB)
-library(future.apply)
-library(furrr)
-library(future.callr)
-library(readr)
-library(arrow)
-library(data.table)
+pkgs <- c("sampling", "ggplot2", "dplyr", "tidyr", "forcats", "purrr", "readr",
+          "tibble", "doParallel", "sdmTMB", "future.apply", "furrr", "future.callr",
+          "arrow", "data.table", "here")
+lapply(pkgs, require, character.only = TRUE)
 
 # read in data
-#catch <- read.csv(file.path(data,"nwfsc_bt_fmp_spp.csv"))
-catch <- read.csv(file.path(data,"nwfsc_bt_fmp_spp_updated.csv")) #pulled data again to get 2024
-#load(file.path(data,"california_current_grid.rda"))
+catch <- read.csv(file.path(data,"nwfsc_bt_fmp_spp_updated.csv"))
+load(file.path(data,"california_current_grid.rda"))
 
-source(file.path(basedir, "smaller_functions.R")) #need to edit to specify the code directory if running locally
+# can use here::here() if using an R project for this instead of the file.path()
+source(file.path(basedir, "smaller_functions.R"))
 source(file.path(basedir, "cleanup_by_species.R"))
 source(file.path(basedir, "species_sdms.R"))
 
@@ -63,11 +51,10 @@ california_current_grid$Latitude_dd<- california_current_grid$latitude
 california_current_grid$Pass<- california_current_grid$pass_scaled
 california_current_grid$Depth_m<- california_current_grid$depth
 
-#make gridyrs
+#make grid_yrs
 grid_yrs <- replicate_df(california_current_grid, "Year", unique(catch$Year))
 setwd(basedir)
-#saveRDS(grid_yrs,"grid_yrs.rds")
-write_parquet(grid_yrs, "grid_yrs.parquet")
+write_parquet(grid_yrs, "data/grid_yrs.parquet")
 rm(grid_yrs,california_current_grid)
 
 #get rid of memory limits
@@ -108,7 +95,7 @@ future_map(seq_along(arrowtooth_files), function(i) {
   # Load only the required dataframe
   arrowtooth_df <- read_parquet(file.path(arrowtooth, paste0("df_", i, ".parquet")))
   # Load grid_yrs once
-  grid_yrs <- read_parquet(file.path(basedir, "grid_yrs.parquet"))
+  grid_yrs <- read_parquet(file.path(basedir, "data/grid_yrs.parquet"))
   # Run species SDM function
   species_sdm_fn(arrowtooth_df, arrowtooth_files[[i]], grid_yrs)
   # Explicitly remove objects after processing
@@ -167,7 +154,7 @@ bocaccio_dfs <- lapply(bocaccio_dfs, depth_filter_500)
  setwd(bocaccio)
  
  # Load grid_yrs once outside the parallel loop
- grid_yrs <- read_parquet(file.path(basedir, "grid_yrs.parquet"))
+ grid_yrs <- read_parquet(file.path(basedir, "data/grid_yrs.parquet"))
  
  # Run SDMs in parallel
  future_imap(bocaccio_files, function(file_name, i) {
@@ -237,7 +224,7 @@ print("Starting parallel SDM processing")
 setwd(canary)
 
 # Load grid_yrs once outside the parallel loop
-grid_yrs <- read_parquet(file.path(basedir, "grid_yrs.parquet"))
+grid_yrs <- read_parquet(file.path(basedir, "data/grid_yrs.parquet"))
 
 # Run SDMs in parallel
 future_imap(canary_files, function(file_name, i) {
@@ -305,7 +292,7 @@ print("Starting parallel SDM processing")
 setwd(darkblotched)
 
 # Load grid_yrs once outside the parallel loop
-grid_yrs <- read_parquet(file.path(basedir, "grid_yrs.parquet"))
+grid_yrs <- read_parquet(file.path(basedir, "data/grid_yrs.parquet"))
 
 # Run SDMs in parallel
 future_imap(darkblotched_files, function(file_name, i) {
@@ -371,7 +358,7 @@ print("Starting parallel SDM processing")
 setwd(dover)
 
 # Load grid_yrs once outside the parallel loop
-grid_yrs <- read_parquet(file.path(basedir, "grid_yrs.parquet"))
+grid_yrs <- read_parquet(file.path(basedir, "data/grid_yrs.parquet"))
 
 # Run SDMs in parallel
 future_imap(dover_files, function(file_name, i) {
@@ -440,7 +427,7 @@ print("Starting parallel SDM processing")
 setwd(lingcod_n)
 
 # Load grid_yrs once outside the parallel loop
-grid_yrs <- read_parquet(file.path(basedir, "grid_yrs.parquet"))
+grid_yrs <- read_parquet(file.path(basedir, "data/grid_yrs.parquet"))
 
 # Run SDMs in parallel
 future_imap(lingcod_n_files, function(file_name, i) {
@@ -510,7 +497,7 @@ print("Starting parallel SDM processing")
 setwd(lingcod_s)
 
 # Load grid_yrs once outside the parallel loop
-grid_yrs <- read_parquet(file.path(basedir, "grid_yrs.parquet"))
+grid_yrs <- read_parquet(file.path(basedir, "data/grid_yrs.parquet"))
 
 # Run SDMs in parallel
 future_imap(lingcod_s_files, function(file_name, i) {
@@ -576,7 +563,7 @@ print("Starting parallel SDM processing")
 setwd(longnose)
 
 # Load grid_yrs once outside the parallel loop
-grid_yrs <- read_parquet(file.path(basedir, "grid_yrs.parquet"))
+grid_yrs <- read_parquet(file.path(basedir, "data/grid_yrs.parquet"))
 
 # Run SDMs in parallel
 future_imap(longnose_files, function(file_name, i) {
@@ -644,7 +631,7 @@ print("Starting parallel SDM processing")
 setwd(pop)
 
 # Load grid_yrs once outside the parallel loop
-grid_yrs <- read_parquet(file.path(basedir, "grid_yrs.parquet"))
+grid_yrs <- read_parquet(file.path(basedir, "data/grid_yrs.parquet"))
 
 # Run SDMs in parallel
 future_imap(pop_files, function(file_name, i) {
@@ -700,7 +687,7 @@ print("Starting parallel SDM processing")
 setwd(dogfish)
 
 # Load grid_yrs once outside the parallel loop
-grid_yrs <- read_parquet(file.path(basedir, "grid_yrs.parquet"))
+grid_yrs <- read_parquet(file.path(basedir, "data/grid_yrs.parquet"))
 
 # Run SDMs in parallel
 future_imap(dogfish_files, function(file_name, i) {
@@ -767,7 +754,7 @@ print("Starting parallel SDM processing")
 setwd(petrale)
 
 # Load grid_yrs once outside the parallel loop
-grid_yrs <- read_parquet(file.path(basedir, "grid_yrs.parquet"))
+grid_yrs <- read_parquet(file.path(basedir, "data/grid_yrs.parquet"))
 
 # Run SDMs in parallel
 future_imap(petrale_files, function(file_name, i) {
@@ -834,7 +821,7 @@ print("Starting parallel SDM processing")
 setwd(rex)
 
 # Load grid_yrs once outside the parallel loop
-grid_yrs <- read_parquet(file.path(basedir, "grid_yrs.parquet"))
+grid_yrs <- read_parquet(file.path(basedir, "data/grid_yrs.parquet"))
 
 # Run SDMs in parallel
 future_imap(rex_files, function(file_name, i) {
@@ -900,7 +887,7 @@ print("Starting parallel SDM processing")
 setwd(sablefish)
 
 # Load grid_yrs once outside the parallel loop
-grid_yrs <- read_parquet(file.path(basedir, "grid_yrs.parquet"))
+grid_yrs <- read_parquet(file.path(basedir, "data/grid_yrs.parquet"))
 
 # Run SDMs in parallel
 future_imap(sablefish_files, function(file_name, i) {
@@ -967,7 +954,7 @@ print("Starting parallel SDM processing")
 setwd(shortspine)
 
 # Load grid_yrs once outside the parallel loop
-grid_yrs <- read_parquet(file.path(basedir, "grid_yrs.parquet"))
+grid_yrs <- read_parquet(file.path(basedir, "data/grid_yrs.parquet"))
 
 # Run SDMs in parallel
 future_imap(shortspine_files, function(file_name, i) {
@@ -1035,7 +1022,7 @@ print("Starting parallel SDM processing")
 setwd(widow)
 
 # Load grid_yrs once outside the parallel loop
-grid_yrs <- read_parquet(file.path(basedir, "grid_yrs.parquet"))
+grid_yrs <- read_parquet(file.path(basedir, "data/grid_yrs.parquet"))
 
 # Run SDMs in parallel
 future_imap(widow_files, function(file_name, i) {
@@ -1103,7 +1090,7 @@ print("Starting parallel SDM processing")
 setwd(yellowtail)
 
 # Load grid_yrs once outside the parallel loop
-grid_yrs <- read_parquet(file.path(basedir, "grid_yrs.parquet"))
+grid_yrs <- read_parquet(file.path(basedir, "data/grid_yrs.parquet"))
 
 # Run SDMs in parallel
 future_imap(yellowtail_files, function(file_name, i) {
