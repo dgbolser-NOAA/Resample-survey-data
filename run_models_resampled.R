@@ -23,14 +23,7 @@ bio <- nwfscSurvey::pull_bio(
 )
 save(bio, file = here::here("data", "nwfsc_bt_fmp_spp_updated_bio.rda"))
 
-
-
-### only do 4 sampling effort (20, 40, 50, 100) with 3 random replicates out of the 10
-### and only do this for 3-5 species
-
-# TO_DO: randomly draw 3 replicates out of 10
-# TO_DO: select 4 sampling efforts (20, 40, 50, 100)
-# TO_DO: select all these first then have it all work in parallel
+# TO_DO: run effort level and replicate models in parallel
 
 #' Run the model for a given species
 #'
@@ -56,14 +49,16 @@ save(bio, file = here::here("data", "nwfsc_bt_fmp_spp_updated_bio.rda"))
 #' and runs the SS3 model.
 #'
 #' @examples
-#' dirs <- list.dirs(here::here("models"), recursive = FALSE)
-#' dirs <- lapply(dirs, function(x) file.path(x, "original")
+#' og_dir <- here::here("original_models"),
+#' dir.create(here::here("resampled_models"))
+#' resamp_dir <- here::here("resampled_models")
 #'
 #' sdm_dirs <- list.dirs(here::here("Results"), recursive = FALSE)
 #'
 #' df <- data.frame(
 #'       species_name = c("petrale sole", "arrowtooth flounder"),
-#'       dir = dirs,
+#'       original_model_dir = og_dir,
+#'       resampled_model_dir = resamp_dir,
 #'       sdm_dir = sdm_dirs,
 #'       lat_filter = c("lat_filter_34", "lat_filter_35"),
 #'       depth_filter = c("depth_filter_275", "depth_filter_425"),
@@ -79,7 +74,8 @@ save(bio, file = here::here("data", "nwfsc_bt_fmp_spp_updated_bio.rda"))
 #'
 run_model <- function(
   species_name,
-  dir,
+  original_model_dir,
+  resampled_model_dir,
   model_name,
   sdm_dir,
   catch_df = catch,
@@ -91,13 +87,9 @@ run_model <- function(
   fleet_number = 7
 ) {
   
-  # if resampled folder doesn't exist, create it
-  dirs <- list.dirs(dirname(dir), recursive = FALSE)
-  if (any(grepl(dirs, resampled) == FALSE)) {
-    dir.create(file.path(dir, "resampled"))
-  }
+
   
-  ss3_inputs_old <- r4ss::SS_read(file.path(dir, "Models", model_name))
+  ss3_inputs_old <- r4ss::SS_read(file.path(original_model_dir, model_name))
   
   #### Get sdm data frame #### -------------------------------------------------------------------
   list.files(sdm_dirs)
@@ -176,8 +168,6 @@ run_model <- function(
     bio_filtered <- bio_filtered
   }
   
-  # make the names file
-  model_iter <- as.list(names(catch_filtered))
   
   # choose correct strata
   if (strata_type == "mid") {
@@ -201,11 +191,13 @@ run_model <- function(
   for (i in 1:length(catch_filtered)) {
     # read in SS3 inputs
     # if replicate/effort folder doesn't exist
-    dirs <- list.dirs(file.path(dir, "resampled"), recursive = FALSE)
-    if (any(grepl(dirs, catch_filtered[[i]]$source) == FALSE)) {
+    dirs <- list.dirs(resampled_model_dir, recursive = FALSE)
+    new_dir <- file.path(resampled_model_dir, paste0(model_name, "_", catch_filtered[[i]]$source))
+  
+    if (any(grepl(dirs, paste0(model_name, "_", catch_filtered[[i]]$source)) == FALSE)) {
       copy_SS_inputs(
-        dir.old = file.path(dir, "Models", model_name),
-        dir.new = file.path(dir, "resampled", catch_filtered[[i]]$source),
+        dir.old = file.path(original_model_dir, model_name),
+        dir.new = new_dir,
         create.dir = TRUE,
         overwrite = TRUE,
         use_ss_new = FALSE,
@@ -213,7 +205,7 @@ run_model <- function(
       )
     }
     
-    ss3_inputs <- r4ss::SS_read(dir[[i]])
+    ss3_inputs <- r4ss::SS_read(new_dir)
     
     # calculate length compositions from resampled survey data
     len_comp_new <- nwfscSurvey::get_expanded_comps(
@@ -322,11 +314,11 @@ run_model <- function(
       # write the modified SS3 files
       r4ss::SS_write(
         ss3_inputs,
-        dir = file.path(dir, "../resampled", catch_filtered[[i]]$source),
+        dir = new_dir,
         overwrite = TRUE
       )
       
       # run SS3
-      r4ss::run(file.path(dir, "../resampled", catch_filtered[[i]]$source))
+      r4ss::run(new_dir)
   }
 }
