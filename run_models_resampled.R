@@ -24,6 +24,7 @@ bio <- nwfscSurvey::pull_bio(
 save(bio, file = here::here("data", "nwfsc_bt_fmp_spp_updated_bio.rda"))
 
 
+
 ### only do 4 sampling effort (20, 40, 50, 100) with 3 random replicates out of the 10
 ### and only do this for 3-5 species
 
@@ -96,6 +97,8 @@ run_model <- function(
     dir.create(file.path(dir, "resampled"))
   }
   
+  ss3_inputs_old <- r4ss::SS_read(file.path(dir, "Models", model_name))
+  
   #### Get sdm data frame #### -------------------------------------------------------------------
   list.files(sdm_dirs)
   
@@ -103,16 +106,34 @@ run_model <- function(
     sdm_dirs,
     pattern = "*._indices_df",
     full.names = TRUE
-  ))
+  )) |>
+    filter(effort %in% c(0.2, 0.4, 0.8, 1)) |>
+    mutate(model_iter =paste0(effort,"_", replicate))
   
-  sdm_model$model_iter <- paste0(sdm_model$effort,"_", sdm_model$replicate)
+  # randomly sample 3 replicates from each effort
+  sdm_model_reps <- sdm_model |>
+    distinct(model_iter, .keep_all = TRUE) |>
+    group_by(effort) |>
+    slice_sample(n = 3) |>
+    ungroup()
+  
+  sdm_model <- sdm_model |>
+    filter(model_iter %in% sdm_model_reps$model_iter)
 
   #### Get Bio data #### --------------------------------------------------------------------------
-  catch_filtered <- cleanup_by_species(catch_df, species = species_name) |>
-    filter(Year <= ss3_inputs$dat$endyr)
+  catch_filtered <- cleanup_by_species(catch_df, species = species_name)
+  catch_filtered[names(catch_filtered) %in% sdm_model_filt$model_iter]
+  catch_filtered <- lapply(catch_filtered, function(df) {
+    df <- df[df$Year <= ss3_inputs_old$dat$endyr, ]
+    return(df)
+  })
 
-  bio_filtered <- cleanup_by_species(bio_df, species = species_name) |>
-    filter(Year <= ss3_inputs$dat$endyr)
+  bio_filtered <- cleanup_by_species(bio_df, species = species_name)
+  bio_filtered[names(bio_filtered) %in% sdm_model_filt$model_iter]
+  bio_filtered <- lapply(bio_filtered, function(df) {
+    df <- df[df$Year <= ss3_inputs_old$dat$endyr, ]
+    return(df)
+    })
 
   # apply lat and depth filters
   if (lat_filter == "lat_filter_335") {
