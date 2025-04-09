@@ -1,27 +1,60 @@
 # Run resampled model
 
-catch <- read.csv(here::here("data/nwfsc_bt_fmp_spp_updated.csv"))
+catch <- read.csv(here::here("data/nwfsc_bt_fmp_spp_updated.csv")) |>
+  filter(species %in% c(
+    "longnose skate",
+    "petrale sole",
+    "sablefish",
+    "shortspine thornyhead",
+    "Pacific ocean perch"
+  ))
 bio <- nwfscSurvey::pull_bio(
   survey = "NWFSC.Combo",
   common_name = c(
-    "Pacific spiny dogfish",
     "longnose skate",
-    "arrowtooth flounder",
     "petrale sole",
-    "rex sole",
-    "Dover sole",
     "sablefish",
     "shortspine thornyhead",
     "Pacific ocean perch",
-    "darkblotched rockfish",
-    "widow rockfish",
-    "yellowtail rockfish",
-    "bocaccio",
-    "canary rockfish",
-    "lingcod"
   )
 )
 save(bio, file = here::here("data", "nwfsc_bt_fmp_spp_updated_bio.rda"))
+
+df_test <- data.frame(
+  species_name = "petrale sole",
+  original_model_dir = here::here("original_models", "petrale_sole"),
+  resampled_model_dir = here::here("resampled_models"),
+  sdm_dirs = here::here("Results", "Petrale_sole"),
+  lat_filter = NULL,
+  depth_filter = "depth_filter_675",
+  catch_df = catch,
+  bio_df = bio,
+  strata_type = "mid",
+  species_group = "flatfish",
+  fleet_number = 7
+)
+
+
+og_model_dirs <- list.dirs(here::here("original_models"), 
+                            full.names = TRUE, 
+                            recursive = FALSE)
+df <- data.frame(
+  species_name = c("longnose skate", "Pacific ocean perch", "petrale sole", 
+                   "sablefish", "shortspine thornyhead"),
+  original_model_dir = og_model_dirs,
+  sdm_dirs = here::here("Results", "Petrale_sole"),
+  lat_filter = NULL,
+  depth_filter = "depth_filter_675",
+  catch_df = catch,
+  bio_df = bio,
+  strata_type = "mid",
+  species_group = "flatfish",
+  fleet_number = 7
+  
+)
+# outside of df is
+# resampled_model_dir = here::here("resampled_models")
+# exe_location = here::here("ss3.exe")
 
 # TO_DO: run effort level and replicate models in parallel
 
@@ -32,17 +65,18 @@ save(bio, file = here::here("data", "nwfsc_bt_fmp_spp_updated_bio.rda"))
 #' and age compositions. It then writes the modified SS3 files and runs the SS3 model.
 #'
 #' @param species_name A string specifying the common name of the species.
-#' @param dir A string specifying the directory where the SS3 inputs are located.
+#' @param original_model_dir A string specifying the directory where the SS3 inputs are located.
+#' @param resampled_model_dir A string specifying the directory where the SS3 inputs are located.
 #' @param sdm_dirs A string specifying the directory where the indices are located.
-#' @param model_name A string specifying the name of the model in the Models folder.
-#' @param lat_filter
+#' @param lat_filter NULL
 #' @param depth_filter
 #' @param catch_df A data frame containing catch data. Default is `catch`.
 #' @param bio_df A data frame containing biological data. Default is `bio`.
 #' @param strata_type A string specifying the type of strata to use. Options are
 #' "mid" or others. Default is "mid".
 #' @param species_group A species group for input data.
-#' @param wcgbts_fleet_number An integer specifying the fleet number for the WCGBTS.
+#' @param fleet_number An integer specifying the fleet number for the WCGBTS.
+#' @param exe_location File path to where the ss3 executable is located.
 #' Default is 7.
 #'
 #' @return This function does not return a value. It writes modified SS3 files
@@ -67,7 +101,6 @@ save(bio, file = here::here("data", "nwfsc_bt_fmp_spp_updated_bio.rda"))
 #'       fleet_number = c(7, 7))
 #' df_list <- split(df, seq(nrow(df)))
 #' map(df_list, ~ run_model(species_name = .x$species_name,
-#'                                 dir = .x$dir,
 #'                                 strata_type = .x$strata_type,
 #'                                 species_group = .x$species_group,
 #'                                 fleet_number = .x$fleet_number))
@@ -76,24 +109,21 @@ run_model <- function(
   species_name,
   original_model_dir,
   resampled_model_dir,
-  model_name,
   sdm_dir,
   catch_df = catch,
+  bio_df = bio,
   lat_filter,
   depth_filter,
-  bio_df = bio,
   strata_type = "mid",
   species_group,
-  fleet_number = 7
+  fleet_number = 7,
+  exe_location
 ) {
+  model_name <- basename(original_model_dir)
   
-
-  
-  ss3_inputs_old <- r4ss::SS_read(file.path(original_model_dir, model_name))
+  ss3_inputs_old <- r4ss::SS_read(original_model_dir)
   
   #### Get sdm data frame #### -------------------------------------------------------------------
-  list.files(sdm_dirs)
-  
   sdm_model <- read.csv(list.files(
     sdm_dirs,
     pattern = "*._indices_df",
@@ -111,6 +141,8 @@ run_model <- function(
   
   sdm_model <- sdm_model |>
     filter(model_iter %in% sdm_model_reps$model_iter)
+  
+  rm(sdm_model_reps)
 
   #### Get Bio data #### --------------------------------------------------------------------------
   catch_filtered <- cleanup_by_species(catch_df, species = species_name)
@@ -250,6 +282,12 @@ run_model <- function(
       names(maal$female) <- names(ss3_inputs$dat$agecomp)
       names(maal$male) <- names(ss3_inputs$dat$agecomp)
       maal <- rbind(maal$female, maal$male)
+      maal <- maal |>
+        dplyr::rename(part = "partition", Nsamp = "input_n")
+      
+      maal$Nsamp <- input_n |>
+        dplyr::filter(sex_grouped == "sexed") |>
+        dplyr::pull(input_n)
       for (y in unique(maal$year)) {
         ageerr_y <- ss3_inputs$dat$agecomp |>
           dplyr::filter(year == y & fleet == fleet_number) |>
@@ -271,6 +309,8 @@ run_model <- function(
       names(caal$female) <- names(ss3_inputs$dat$agecomp)
       names(caal$male) <- names(ss3_inputs$dat$agecomp)
       caal <- rbind(caal$female, caal$male)
+      caal <- caal |>
+        dplyr::rename(part = "partition", Nsamp = "input_n")
       # figure out year-specific ageing error type
       # (petrale may be only species with multiple types due to WDFW ageing the survey fish in a few years)
       for (y in unique(caal$year)) {
@@ -319,6 +359,6 @@ run_model <- function(
       )
       
       # run SS3
-      r4ss::run(new_dir)
+      r4ss::run(new_dir, exe = exe_location)
   }
 }
