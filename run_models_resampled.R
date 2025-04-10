@@ -27,34 +27,52 @@ df_test <- data.frame(
   sdm_dirs = here::here("Results", "Petrale_sole"),
   lat_filter = NULL,
   depth_filter = "depth_filter_675",
-  catch_df = catch,
-  bio_df = bio,
   strata_type = "mid",
   species_group = "flatfish",
   fleet_number = 7
 )
 
+run_model(species_name = "petrale sole",
+          original_model_dir = here::here("original_models", "petrale_sole"),
+          sdm_dirs = here::here("Results", "Petrale_sole"),
+          lat_filter = NULL,
+          depth_filter = "depth_filter_675",
+          strata_type = "mid",
+          species_group = "flatfish",
+          fleet_number = 7,
+          resampled_model_dir = here::here("resampled_models"),
+          exe_location = here::here("ss3.exe"),
+          catch_df = catch,
+          bio_df = bio)
 
-og_model_dirs <- list.dirs(here::here("original_models"), 
-                            full.names = TRUE, 
-                            recursive = FALSE)
-df <- data.frame(
-  species_name = c("longnose skate", "Pacific ocean perch", "petrale sole", 
-                   "sablefish", "shortspine thornyhead"),
-  original_model_dir = og_model_dirs,
-  sdm_dirs = here::here("Results", "Petrale_sole"),
-  lat_filter = NULL,
-  depth_filter = "depth_filter_675",
-  catch_df = catch,
-  bio_df = bio,
-  strata_type = "mid",
-  species_group = "flatfish",
-  fleet_number = 7
-  
-)
-# outside of df is
-# resampled_model_dir = here::here("resampled_models")
-# exe_location = here::here("ss3.exe")
+# og_model_dirs <- list.dirs(here::here("original_models"), full.names = TRUE, recursive = FALSE)
+# sdm_dirs <- list.dirs(here::here("Results"), full.names = TRUE, recursive = FALSE)
+# sdm_dirs <- grep(paste(basename(og_model_dirs), collapse = "|"), sdm_dirs, value = TRUE)
+#   
+# df <- data.frame(
+#   species_name = c("longnose skate", "Pacific ocean perch", "petrale sole", 
+#                    "sablefish", "shortspine thornyhead"),
+#   original_model_dir = og_model_dirs,
+#   sdm_dirs = sdm_dirs,
+#   lat_filter = c(NULL, "lat_filter_35", NULL, NULL, NULL),
+#   depth_filter = c(NULL, "depth_filter_500", "depth_filter_675", NULL, NULL),
+#   strata_type = c("deep", "mid", "mid", "deep", "deep"),
+#   species_group = c("all", "all", "flatfish", "all", "thorny"),
+#   fleet_number = c(5, 8, 7, 7, 6)
+# )
+# 
+# map(df, ~ run_model(species_name = .x$species_name,
+#                     original_model_dir = .x$original_model_dir,
+#                     sdm_dirs = .x$sdm_dirs,
+#                     lat_filter = .x$lat_filter,
+#                     depth_filter = .x$depth_filter,
+#                     strata_type = .x$strata_type,
+#                     species_group = .x$species_group,
+#                     fleet_number = .x$fleet_number,
+#                     resampled_model_dir = here::here("resampled_models"),
+#                     exe_location = here::here("ss3.exe"),
+#                     catch_df = catch,
+#                     bio_df = bio))
 
 # TO_DO: run effort level and replicate models in parallel
 
@@ -160,16 +178,7 @@ run_model <- function(
     })
 
   # apply lat and depth filters
-  if (lat_filter == "lat_filter_335") {
-    catch_filtered <- lapply(catch_filtered, lat_filter_335)
-    bio_filtered <- lapply(bio_filtered, lat_filter_335)
-  } else if (lat_filter == "lat_filter_34") {
-    catch_filtered <- lapply(catch_filtered, lat_filter_34)
-    bio_filtered <- lapply(bio_filtered, lat_filter_34)
-  } else if (lat_filter == "lat_filter_34_max") {
-    catch_filtered <- lapply(catch_filtered, lat_filter_34_max)
-    bio_filtered <- lapply(bio_filtered, lat_filter_34_max)
-  } else if (lat_filter == "lat_filter_35") {
+  if (lat_filter == "lat_filter_35") {
     catch_filtered <- lapply(catch_filtered, lat_filter_35)
     bio_filtered <- lapply(bio_filtered, lat_filter_35)
   } else {
@@ -177,24 +186,12 @@ run_model <- function(
     bio_filtered <- bio_filtered
   }
 
-  if (depth_filter == "depth_filter_275") {
-    catch_filtered <- lapply(catch_filtered, depth_filter_275)
-    bio_filtered <- lapply(bio_filtered, depth_filter_275)
-  } else if (depth_filter == "depth_filter_425") {
-    catch_filtered <- lapply(catch_filtered, depth_filter_425)
-    bio_filtered <- lapply(bio_filtered, depth_filter_425)
-  } else if (depth_filter == "depth_filter_450") {
-    catch_filtered <- lapply(catch_filtered, depth_filter_450)
-    bio_filtered <- lapply(bio_filtered, depth_filter_450)
-  } else if (depth_filter == "depth_filter_500") {
+  if (depth_filter == "depth_filter_500") {
     catch_filtered <- lapply(catch_filtered, depth_filter_500)
     bio_filtered <- lapply(bio_filtered, depth_filter_500)
   } else if (depth_filter == "depth_filter_675") {
     catch_filtered <- lapply(catch_filtered, depth_filter_675)
     bio_filtered <- lapply(bio_filtered, depth_filter_675)
-  } else if (depth_filter == "depth_filter_700") {
-    catch_filtered <- lapply(catch_filtered, depth_filter_700)
-    bio_filtered <- lapply(bio_filtered, depth_filter_700)
   } else {
     catch_filtered <- catch_filtered
     bio_filtered <- bio_filtered
