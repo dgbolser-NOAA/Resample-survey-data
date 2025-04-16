@@ -59,7 +59,7 @@ run_model(species_name = "petrale sole",
           depth_filter = "depth_filter_675",
           strata_type = "mid",
           species_group = "flatfish",
-          fleet_number = 7,
+          fleet_number = 4,
           resampled_model_dir = resampled_model_dir,
           exe_location = exe_location,
           catch_df = catch,
@@ -71,7 +71,7 @@ lat_filter = NULL
 depth_filter = "depth_filter_675"
 strata_type = "mid"
 species_group = "flatfish"
-fleet_number = 7
+fleet_number = 4
 resampled_model_dir = resampled_model_dir
 exe_location = exe_location
 catch_df = catch
@@ -90,7 +90,7 @@ bio_df = bio
 #   depth_filter = c(NULL, "depth_filter_500", "depth_filter_675", NULL, NULL),
 #   strata_type = c("deep", "mid", "mid", "deep", "deep"),
 #   species_group = c("all", "all", "flatfish", "all", "thorny"),
-#   fleet_number = c(5, 8, 7, 7, 6)
+#   fleet_number = c(5, 8, 4, 7, 6)
 # )
 # 
 # resampled_model_dir <- here::here("resampled_models")
@@ -198,20 +198,22 @@ run_model <- function(
 
   #### Get Bio data #### --------------------------------------------------------------------------
   catch_filtered <- cleanup_by_species(catch_df, species = species_name)
-  catch_filtered[names(catch_filtered) %in% sdm_model_filt$model_iter]
+  catch_filtered <- catch_filtered[names(catch_filtered) %in% sdm_model_filt$model_iter]
   catch_filtered <- lapply(catch_filtered, function(df) {
     df <- df[df$Year <= ss3_inputs_old$dat$endyr, ]
     return(df)
   })
-
-  # Derek is getting me code to do this more efficiently. Will come back to this when he does
-  source_for_bio2 <- dplyr::bind_rows(catch_filtered, .id = "source")
   
-  
-  bio_filtered_full <- bio_df |>
-    full_join(source_for_bio2, by = "Trawl_id")
-  bio_filtered <- split(bio_filtered, bio_filtered$source)
-
+  bio_filtered <- lapply(catch_filtered, function(catch_data) {
+    replicate_id <- unique(catch_data$source) # Get replicate ID
+    bio_df$Trawl_id <- as.double(bio_df$Trawl_id)
+    bio_df <- bio_df |>
+              filter(Year <= ss3_inputs_old$dat$endyr)
+    matched_bio <- bio_df[bio_df$Trawl_id %in% catch_data$Trawl_id, ] # Filter bio data based on tow IDs
+    matched_bio <- matched_bio %>%
+      mutate(source = replicate_id) # Add replicate ID as a column
+    return(matched_bio)
+  })
   
   # apply lat and depth filters
   if (is.null(lat_filter)) {
@@ -296,8 +298,8 @@ run_model <- function(
     
     # calculate length compositions from resampled survey data
     len_comp_new <- nwfscSurvey::get_expanded_comps(
-      bio_data = bio_filtered[[1]],
-      catch_data = catch_filtered[[1]],
+      bio_data = bio_filtered[[i]],
+      catch_data = catch_filtered[[i]],
       comp_bins = ss3_inputs$dat$lbin_vector,
       comp_column_name = "Length_cm",
       strata = strata,
@@ -326,7 +328,7 @@ run_model <- function(
     # marginal age at length
     if (any(ss3_inputs$dat$agecomp$Lbin_hi == -1)) {
       maal <- nwfscSurvey::get_expanded_comps(
-        data = bio_filtered[[i]],
+        bio_data = bio_filtered[[i]],
         catch_data = catch_filtered[[i]],
         comp_bins = ss3_inputs$dat$agebin_vector,
         comp_column_name =  "age",
@@ -334,9 +336,7 @@ run_model <- function(
         fleet = fleet_number,
         month = 7
       )
-      names(maal$female) <- names(ss3_inputs$dat$agecomp)
-      names(maal$male) <- names(ss3_inputs$dat$agecomp)
-      maal <- rbind(maal$female, maal$male)
+      maal <- maal$sexed
       maal <- maal |>
         dplyr::rename(part = "partition", Nsamp = "input_n")
       
@@ -361,9 +361,6 @@ run_model <- function(
         fleet = fleet_number,
         month = 7
       )
-      names(caal$female) <- names(ss3_inputs$dat$agecomp)
-      names(caal$male) <- names(ss3_inputs$dat$agecomp)
-      caal <- rbind(caal$female, caal$male)
       caal <- caal |>
         dplyr::rename(part = "partition", Nsamp = "input_n")
       # figure out year-specific ageing error type
@@ -384,26 +381,27 @@ run_model <- function(
       # update age comps in the model
       ss3_inputs$dat$agecomp <- ss3_inputs$dat$agecomp |> 
           dplyr::filter(abs(fleet) != fleet_number) # leave all other as they were |>
-          tidyverse::bind_rows(caal) |> # new marginal age comps for WCGBTS fleet
-          tidyverse::bind_rows(maal) |> # new conditional-age-at-length comps for WCGBTS fleet
+          bind_rows(caal) |> # new marginal age comps for WCGBTS fleet
+          bind_rows(maal) |> # new conditional-age-at-length comps for WCGBTS fleet
           arrange(fleet)
  
       #### Add Index Data #### -----------------------------------------------------------------------
-      sdm_model_i <- sdm_model |>
-        filter(model_iter == bio_filtered[[i]]$source) |>
+      sdm_model_i <- sdm_model_filt |>
+        filter(model_iter == unique(bio_filtered[[i]]$source)) |>
         filter(Year <= ss3_inputs$dat$endyr) |>
         mutate(month = 7, index = fleet_number) |>
         # QUESTION:
         # Do we need log_est or se?
         # Is est in kg, T, or MT?
         select(Year, month, index, est, se) |>
-        rename(year = Year, obs = est, log_se = se)
+        rename(year = Year, obs = est, se_log = se)
       
       ss3_inputs$dat$CPUE <-
         rbind(
           ss3_inputs$dat$CPUE |> dplyr::filter(index != fleet_number), # leave all other as they were
           sdm_model_i # new index for WCGBTS fleet
-        )
+        ) |>
+        arrange(index)
       
       #### Write and Run SS3 #### --------------------------------------------------------------------
       # write the modified SS3 files
@@ -413,8 +411,11 @@ run_model <- function(
         overwrite = TRUE
       )
       
+      #
+      get_ss3_exe(new_dir)
+      
       # run SS3
-      r4ss::run(new_dir, exe = exe_location)
+      r4ss::run(new_dir)
       
       ### DO WE NEED TO RE-TUNE COMPS???
   }
