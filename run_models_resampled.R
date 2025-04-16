@@ -1,13 +1,24 @@
 # Run resampled model
 
+#### Load in required packages #### --------------------------------------------
+library(here)
+library(nwfscSurvey)
+library(dplyr)
+library(tidyverse)
+library(r4ss)
+source("cleanup_by_species.R")
+source("smaller_functions.R")
+
+#### Load in catch and bio data from nwfscSurvey package #### ------------------
 catch <- read.csv(here::here("data/nwfsc_bt_fmp_spp_updated.csv")) |>
-  filter(species %in% c(
+  filter(Common_name %in% c(
     "longnose skate",
     "petrale sole",
     "sablefish",
     "shortspine thornyhead",
     "Pacific ocean perch"
   ))
+
 bio <- nwfscSurvey::pull_bio(
   survey = "NWFSC.Combo",
   common_name = c(
@@ -15,45 +26,66 @@ bio <- nwfscSurvey::pull_bio(
     "petrale sole",
     "sablefish",
     "shortspine thornyhead",
-    "Pacific ocean perch",
+    "Pacific ocean perch"
   )
 )
-save(bio, file = here::here("data", "nwfsc_bt_fmp_spp_updated_bio.rda"))
+saveRDS(bio, file = here::here("data", "nwfsc_bt_fmp_spp_updated_bio.rds"))
+bio <- readRDS(here::here("data", "nwfsc_bt_fmp_spp_updated_bio.rds"))
+set.seed(49)
 
-df_test <- data.frame(
-  species_name = "petrale sole",
-  original_model_dir = here::here("original_models", "petrale_sole"),
-  resampled_model_dir = here::here("resampled_models"),
-  sdm_dirs = here::here("Results", "Petrale_sole"),
-  lat_filter = NULL,
-  depth_filter = "depth_filter_675",
-  strata_type = "mid",
-  species_group = "flatfish",
-  fleet_number = 7
-)
+# df_test <- data.frame(
+#   species_name = "petrale sole",
+#   original_model_dir = og_model_dir,
+#   resampled_model_dir = here::here("resampled_models"),
+#   sdm_dir = here::here("Results", "Petrale_sole"),
+#   lat_filter = NULL,
+#   depth_filter = "depth_filter_675",
+#   strata_type = "mid",
+#   species_group = "flatfish",
+#   fleet_number = 7
+# )
+
+# Run model test first
+# dir.create(here::here("resampled_models"))
+og_model_dir <- here::here("original_models/Petrale_sole")
+sdm_model_dir <- here::here("Results", "Petrale_sole")
+resampled_model_dir <- here::here("resampled_models")
+exe_location <- here::here("ss3.exe")
 
 run_model(species_name = "petrale sole",
-          original_model_dir = here::here("original_models", "petrale_sole"),
-          sdm_dirs = here::here("Results", "Petrale_sole"),
+          original_model_dir = og_model_dir,
+          sdm_dir = sdm_model_dir,
           lat_filter = NULL,
           depth_filter = "depth_filter_675",
           strata_type = "mid",
           species_group = "flatfish",
           fleet_number = 7,
-          resampled_model_dir = here::here("resampled_models"),
-          exe_location = here::here("ss3.exe"),
+          resampled_model_dir = resampled_model_dir,
+          exe_location = exe_location,
           catch_df = catch,
           bio_df = bio)
+species_name = "petrale sole"
+original_model_dir = og_model_dir
+sdm_dir = sdm_model_dir
+lat_filter = NULL
+depth_filter = "depth_filter_675"
+strata_type = "mid"
+species_group = "flatfish"
+fleet_number = 7
+resampled_model_dir = resampled_model_dir
+exe_location = exe_location
+catch_df = catch
+bio_df = bio
 
-# og_model_dirs <- list.dirs(here::here("original_models"), full.names = TRUE, recursive = FALSE)
-# sdm_dirs <- list.dirs(here::here("Results"), full.names = TRUE, recursive = FALSE)
-# sdm_dirs <- grep(paste(basename(og_model_dirs), collapse = "|"), sdm_dirs, value = TRUE)
+# og_model_dir <- list.dirs(here::here("original_models"), full.names = TRUE, recursive = FALSE)
+# sdm_dir <- list.dirs(here::here("Results"), full.names = TRUE, recursive = FALSE)
+# sdm_dir <- grep(paste(basename(og_model_dirs), collapse = "|"), sdm_dirs, value = TRUE)
 #   
 # df <- data.frame(
 #   species_name = c("longnose skate", "Pacific ocean perch", "petrale sole", 
 #                    "sablefish", "shortspine thornyhead"),
-#   original_model_dir = og_model_dirs,
-#   sdm_dirs = sdm_dirs,
+#   original_model_dir = og_model_dir,
+#   sdm_dir = sdm_dir,
 #   lat_filter = c(NULL, "lat_filter_35", NULL, NULL, NULL),
 #   depth_filter = c(NULL, "depth_filter_500", "depth_filter_675", NULL, NULL),
 #   strata_type = c("deep", "mid", "mid", "deep", "deep"),
@@ -61,15 +93,17 @@ run_model(species_name = "petrale sole",
 #   fleet_number = c(5, 8, 7, 7, 6)
 # )
 # 
+# resampled_model_dir <- here::here("resampled_models")
+# set.seed(49)
 # map(df, ~ run_model(species_name = .x$species_name,
 #                     original_model_dir = .x$original_model_dir,
-#                     sdm_dirs = .x$sdm_dirs,
+#                     sdm_dir = .x$sdm_dir,
 #                     lat_filter = .x$lat_filter,
 #                     depth_filter = .x$depth_filter,
 #                     strata_type = .x$strata_type,
 #                     species_group = .x$species_group,
 #                     fleet_number = .x$fleet_number,
-#                     resampled_model_dir = here::here("resampled_models"),
+#                     resampled_model_dir = resampled_model_dir,
 #                     exe_location = here::here("ss3.exe"),
 #                     catch_df = catch,
 #                     bio_df = bio))
@@ -85,7 +119,7 @@ run_model(species_name = "petrale sole",
 #' @param species_name A string specifying the common name of the species.
 #' @param original_model_dir A string specifying the directory where the SS3 inputs are located.
 #' @param resampled_model_dir A string specifying the directory where the SS3 inputs are located.
-#' @param sdm_dirs A string specifying the directory where the indices are located.
+#' @param sdm_dir A string specifying the directory where the indices are located.
 #' @param lat_filter NULL
 #' @param depth_filter
 #' @param catch_df A data frame containing catch data. Default is `catch`.
@@ -105,13 +139,13 @@ run_model(species_name = "petrale sole",
 #' dir.create(here::here("resampled_models"))
 #' resamp_dir <- here::here("resampled_models")
 #'
-#' sdm_dirs <- list.dirs(here::here("Results"), recursive = FALSE)
+#' sdm_dir <- list.dirs(here::here("Results"), recursive = FALSE)
 #'
 #' df <- data.frame(
 #'       species_name = c("petrale sole", "arrowtooth flounder"),
 #'       original_model_dir = og_dir,
 #'       resampled_model_dir = resamp_dir,
-#'       sdm_dir = sdm_dirs,
+#'       sdm_dir = sdm_dir,
 #'       lat_filter = c("lat_filter_34", "lat_filter_35"),
 #'       depth_filter = c("depth_filter_275", "depth_filter_425"),
 #'       strata_type = c("mid", "mid")
@@ -143,12 +177,12 @@ run_model <- function(
   
   #### Get sdm data frame #### -------------------------------------------------------------------
   sdm_model <- read.csv(list.files(
-    sdm_dirs,
+    sdm_dir,
     pattern = "*._indices_df",
     full.names = TRUE
   )) |>
     filter(effort %in% c(0.2, 0.4, 0.8, 1)) |>
-    mutate(model_iter =paste0(effort,"_", replicate))
+    mutate(model_iter = paste0(effort,"_", replicate))
   
   # randomly sample 3 replicates from each effort
   sdm_model_reps <- sdm_model |>
@@ -157,10 +191,10 @@ run_model <- function(
     slice_sample(n = 3) |>
     ungroup()
   
-  sdm_model <- sdm_model |>
+  sdm_model_filt <- sdm_model |>
     filter(model_iter %in% sdm_model_reps$model_iter)
   
-  rm(sdm_model_reps)
+  rm(sdm_model_reps, sdm_model)
 
   #### Get Bio data #### --------------------------------------------------------------------------
   catch_filtered <- cleanup_by_species(catch_df, species = species_name)
@@ -170,15 +204,20 @@ run_model <- function(
     return(df)
   })
 
-  bio_filtered <- cleanup_by_species(bio_df, species = species_name)
-  bio_filtered[names(bio_filtered) %in% sdm_model_filt$model_iter]
-  bio_filtered <- lapply(bio_filtered, function(df) {
-    df <- df[df$Year <= ss3_inputs_old$dat$endyr, ]
-    return(df)
-    })
+  # Derek is getting me code to do this more efficiently. Will come back to this when he does
+  source_for_bio2 <- dplyr::bind_rows(catch_filtered, .id = "source")
+  
+  
+  bio_filtered_full <- bio_df |>
+    full_join(source_for_bio2, by = "Trawl_id")
+  bio_filtered <- split(bio_filtered, bio_filtered$source)
 
+  
   # apply lat and depth filters
-  if (lat_filter == "lat_filter_35") {
+  if (is.null(lat_filter)) {
+    catch_filtered <- catch_filtered
+    bio_filtered <- bio_filtered
+  } else if (lat_filter == "lat_filter_35") {
     catch_filtered <- lapply(catch_filtered, lat_filter_35)
     bio_filtered <- lapply(bio_filtered, lat_filter_35)
   } else {
@@ -186,7 +225,10 @@ run_model <- function(
     bio_filtered <- bio_filtered
   }
 
-  if (depth_filter == "depth_filter_500") {
+  if (is.null(depth_filter)) {
+    catch_filtered <- catch_filtered
+    bio_filtered <- bio_filtered
+  } else if (depth_filter == "depth_filter_500") {
     catch_filtered <- lapply(catch_filtered, depth_filter_500)
     bio_filtered <- lapply(bio_filtered, depth_filter_500)
   } else if (depth_filter == "depth_filter_675") {
@@ -221,11 +263,26 @@ run_model <- function(
     # read in SS3 inputs
     # if replicate/effort folder doesn't exist
     dirs <- list.dirs(resampled_model_dir, recursive = FALSE)
-    new_dir <- file.path(resampled_model_dir, paste0(model_name, "_", catch_filtered[[i]]$source))
+    model_iter <- unique(catch_filtered[[1]]$source)
+    
+    new_dir <- file.path(resampled_model_dir, paste0(model_name, "_", model_iter))
   
-    if (any(grepl(dirs, paste0(model_name, "_", catch_filtered[[i]]$source)) == FALSE)) {
-      copy_SS_inputs(
-        dir.old = file.path(original_model_dir, model_name),
+    if (length(dirs) != 0) {
+      if (any(grepl(dirs, paste0(model_name, "_", model_iter))) == FALSE){
+        r4ss::copy_SS_inputs(
+          dir.old = file.path(original_model_dir),
+          dir.new = new_dir,
+          create.dir = TRUE,
+          overwrite = TRUE,
+          use_ss_new = FALSE,
+          verbose = TRUE
+        )
+      }
+    }
+              
+    if (length(dirs) == 0) {
+      r4ss::copy_SS_inputs(
+        dir.old = file.path(original_model_dir),
         dir.new = new_dir,
         create.dir = TRUE,
         overwrite = TRUE,
@@ -233,13 +290,14 @@ run_model <- function(
         verbose = TRUE
       )
     }
+      
     
     ss3_inputs <- r4ss::SS_read(new_dir)
     
     # calculate length compositions from resampled survey data
     len_comp_new <- nwfscSurvey::get_expanded_comps(
-      bio_data = bio_filtered[[i]],
-      catch_data = catch_filtered[[i]],
+      bio_data = bio_filtered[[1]],
+      catch_data = catch_filtered[[1]],
       comp_bins = ss3_inputs$dat$lbin_vector,
       comp_column_name = "Length_cm",
       strata = strata,
