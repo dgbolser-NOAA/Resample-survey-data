@@ -1,0 +1,6 @@
+Warning 1 : At least one block pattern ends in endyr. Check the output parameter value time series to see if the values in forecast years are as intended.
+Warning 2 : parameter init value is less than parameter min 0 < 0.001 for parm: 10; search for <now check> in echoinput.sso for parm_type
+Warning 3 : 1st iteration warning: ssb(endyr)/ssb(styr)= 3.17436e-08; suggest start with larger R0 to get near 0.4; or use depletion fleet option
+Warning 4 : 1st iteration warning: catch logL > 50% total logL; check configuration; suggest start with larger R0
+Note 1 Information: A revised protocol for the Fcast_yr specification is available and recommended.
+ 4 warnings  and 1 note 
