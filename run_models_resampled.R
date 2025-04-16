@@ -50,7 +50,6 @@ set.seed(49)
 og_model_dir <- here::here("original_models/Petrale_sole")
 sdm_model_dir <- here::here("Results", "Petrale_sole")
 resampled_model_dir <- here::here("resampled_models")
-exe_location <- here::here("ss3.exe")
 
 run_model(species_name = "petrale sole",
           original_model_dir = og_model_dir,
@@ -61,7 +60,6 @@ run_model(species_name = "petrale sole",
           species_group = "flatfish",
           fleet_number = 4,
           resampled_model_dir = resampled_model_dir,
-          exe_location = exe_location,
           catch_df = catch,
           bio_df = bio)
 species_name = "petrale sole"
@@ -73,7 +71,6 @@ strata_type = "mid"
 species_group = "flatfish"
 fleet_number = 4
 resampled_model_dir = resampled_model_dir
-exe_location = exe_location
 catch_df = catch
 bio_df = bio
 
@@ -104,7 +101,6 @@ bio_df = bio
 #                     species_group = .x$species_group,
 #                     fleet_number = .x$fleet_number,
 #                     resampled_model_dir = resampled_model_dir,
-#                     exe_location = here::here("ss3.exe"),
 #                     catch_df = catch,
 #                     bio_df = bio))
 
@@ -128,7 +124,6 @@ bio_df = bio
 #' "mid" or others. Default is "mid".
 #' @param species_group A species group for input data.
 #' @param fleet_number An integer specifying the fleet number for the WCGBTS.
-#' @param exe_location File path to where the ss3 executable is located.
 #' Default is 7.
 #'
 #' @return This function does not return a value. It writes modified SS3 files
@@ -168,8 +163,7 @@ run_model <- function(
   depth_filter,
   strata_type = "mid",
   species_group,
-  fleet_number = 7,
-  exe_location
+  fleet_number = 4,
 ) {
   model_name <- basename(original_model_dir)
   
@@ -353,70 +347,84 @@ run_model <- function(
     }
     
     # conditional-age-at-length comps
-    if (any(ss3_inputs$dat$agecomp$Lbin_hi != -1)) {
-      caal <- nwfscSurvey::get_raw_caal(
-        data = bio_filtered[[i]],
-        len_bins = ss3_inputs$dat$lbin_vector,
-        age_bins = ss3_inputs$dat$agebin_vector,
-        fleet = fleet_number,
-        month = 7
-      )
-      caal <- caal |>
-        dplyr::rename(part = "partition", Nsamp = "input_n")
-      # figure out year-specific ageing error type
-      # (petrale may be only species with multiple types due to WDFW ageing the survey fish in a few years)
-      for (y in unique(caal$year)) {
-        ageerr_y <- ss3_inputs$dat$agecomp |>
-          dplyr::filter(year == y & fleet == fleet_number) |>
-          dplyr::pull(ageerr) |>
-          unique()
-        caal$ageerr[caal$year == y] <- ageerr_y
-      }
-    }
-      ss3_inputs$dat$lencomp <- ss3_inputs$dat$lencomp |> 
-        dplyr::filter(fleet != fleet_number) |> # leave all other as they were
-        tidyverse::bind_rows(len_comp_new) |> # new length comps for WCGBTS fleet
-        arrange(fleet)
-      
-      # update age comps in the model
-      ss3_inputs$dat$agecomp <- ss3_inputs$dat$agecomp |> 
-          dplyr::filter(abs(fleet) != fleet_number) # leave all other as they were |>
-          bind_rows(caal) |> # new marginal age comps for WCGBTS fleet
-          bind_rows(maal) |> # new conditional-age-at-length comps for WCGBTS fleet
-          arrange(fleet)
- 
-      #### Add Index Data #### -----------------------------------------------------------------------
-      sdm_model_i <- sdm_model_filt |>
-        filter(model_iter == unique(bio_filtered[[i]]$source)) |>
-        filter(Year <= ss3_inputs$dat$endyr) |>
-        mutate(month = 7, index = fleet_number) |>
-        # QUESTION:
-        # Do we need log_est or se?
-        # Is est in kg, T, or MT?
-        select(Year, month, index, est, se) |>
-        rename(year = Year, obs = est, se_log = se)
-      
-      ss3_inputs$dat$CPUE <-
-        rbind(
-          ss3_inputs$dat$CPUE |> dplyr::filter(index != fleet_number), # leave all other as they were
-          sdm_model_i # new index for WCGBTS fleet
-        ) |>
-        arrange(index)
-      
-      #### Write and Run SS3 #### --------------------------------------------------------------------
-      # write the modified SS3 files
-      r4ss::SS_write(
-        ss3_inputs,
-        dir = new_dir,
-        overwrite = TRUE
-      )
-      
-      #
-      get_ss3_exe(new_dir)
-      
-      # run SS3
-      r4ss::run(new_dir)
-      
-      ### DO WE NEED TO RE-TUNE COMPS???
-  }
+    # setup multisession
+    furrr::future_map2(.x = catch_filtered, 
+                      .y = bio_filtered,
+                      .f = run_model_efforts,
+                       resampled_model_dir,
+                       original_model_dir,
+                       model_name = model_name,
+                       strata = strata,
+                       fleet_number = fleet_number,
+                       species_group = species_group
+                       )
+    
+  #   if (any(ss3_inputs$dat$agecomp$Lbin_hi != -1)) {
+  #     caal <- nwfscSurvey::get_raw_caal(
+  #       data = bio_filtered[[i]],
+  #       len_bins = ss3_inputs$dat$lbin_vector,
+  #       age_bins = ss3_inputs$dat$agebin_vector,
+  #       fleet = fleet_number,
+  #       month = 7
+  #     )
+  #     caal <- caal |>
+  #       dplyr::rename(part = "partition", Nsamp = "input_n")
+  #     # figure out year-specific ageing error type
+  #     # (petrale may be only species with multiple types due to WDFW ageing the survey fish in a few years)
+  #     for (y in unique(caal$year)) {
+  #       ageerr_y <- ss3_inputs$dat$agecomp |>
+  #         dplyr::filter(year == y & fleet == fleet_number) |>
+  #         dplyr::pull(ageerr) |>
+  #         unique()
+  #       caal$ageerr[caal$year == y] <- ageerr_y
+  #     }
+  #   }
+  #     ss3_inputs$dat$lencomp <- ss3_inputs$dat$lencomp |> 
+  #       dplyr::filter(fleet != fleet_number) |> # leave all other as they were
+  #       tidyverse::bind_rows(len_comp_new) |> # new length comps for WCGBTS fleet
+  #       arrange(fleet)
+  #     
+  #     # update age comps in the model
+  #     ss3_inputs$dat$agecomp <- ss3_inputs$dat$agecomp |> 
+  #         dplyr::filter(abs(fleet) != fleet_number) # leave all other as they were |>
+  #         bind_rows(caal) |> # new marginal age comps for WCGBTS fleet
+  #         bind_rows(maal) |> # new conditional-age-at-length comps for WCGBTS fleet
+  #         arrange(fleet)
+  # 
+  #     #### Add Index Data #### -----------------------------------------------------------------------
+  #     sdm_model_i <- sdm_model_filt |>
+  #       filter(model_iter == unique(bio_filtered[[i]]$source)) |>
+  #       filter(Year <= ss3_inputs$dat$endyr) |>
+  #       mutate(month = 7, index = fleet_number) |>
+  #       # QUESTION:
+  #       # Do we need log_est or se?
+  #       # Is est in kg, T, or MT?
+  #       select(Year, month, index, est, se) |>
+  #       rename(year = Year, obs = est, se_log = se)
+  #     
+  #     ss3_inputs$dat$CPUE <-
+  #       rbind(
+  #         ss3_inputs$dat$CPUE |> dplyr::filter(index != fleet_number), # leave all other as they were
+  #         sdm_model_i # new index for WCGBTS fleet
+  #       ) |>
+  #       arrange(index)
+  #     
+  #     #### Write and Run SS3 #### --------------------------------------------------------------------
+  #     # write the modified SS3 files
+  #     r4ss::SS_write(
+  #       ss3_inputs,
+  #       dir = new_dir,
+  #       overwrite = TRUE
+  #     )
+  #     
+  #     # download exe if it isn't in the file path
+  #     if(file.exists(file.path(new_dir, "ss3")) == FALSE) {
+  #       get_ss3_exe(new_dir)
+  #     }
+  #     
+  #     # run SS3
+  #     r4ss::run(new_dir)
+  #     
+  #     ### DO WE NEED TO RE-TUNE COMPS???
+  # }
 }
