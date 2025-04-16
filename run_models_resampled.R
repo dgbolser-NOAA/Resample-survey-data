@@ -357,5 +357,7 @@ run_model <- function(
       
       # run SS3
       r4ss::run(new_dir, exe = exe_location)
+      
+      ### DO WE NEED TO RE-TUNE COMPS???
   }
 }
