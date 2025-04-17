@@ -32,6 +32,7 @@
 #' @param bio_filtered A data frame containing biological data. Default is `bio`.
 #' @param original_model_dir A string specifying the directory where the SS3 inputs are located.
 #' @param resampled_model_dir A string specifying the directory where the SS3 inputs are located.
+#' @param sdm_model_filt data frame of the the sdms for only the sampling efforts and replicates wanted
 #' @param model_name A string specifying the name of the model in the Models folder.
 #' @param strata A string specifying the type of strata to use. Options are
 #' "mid" or others. Default is "mid".
@@ -49,6 +50,7 @@
 #'                     resampled_model_dir,
 #'                     original_model_dir,
 #'                     model_name = ,
+#'                     sdm_model_filt = ,
 #'                     strata = ,
 #'                     fleet_number = ,
 #'                     species_group = 
@@ -59,6 +61,7 @@ run_model_efforts <- function(catch_filtered,
                                bio_filtered,
                                resampled_model_dir,
                                original_model_dir,
+                               sdm_model_filt,
                                model_name,
                                strata,
                                fleet_number,
@@ -73,7 +76,9 @@ run_model_efforts <- function(catch_filtered,
     new_dir <- file.path(resampled_model_dir, paste0(model_name, "_", model_iter))
     
     if (length(dirs) != 0) {
-      if (any(grepl(dirs, paste0(model_name, "_", model_iter))) == FALSE){
+      full_model_name <- paste0(model_name, "_", model_iter)
+      matches <- grepl(full_model_name, dirs)
+      if (any(matches) == FALSE){
         r4ss::copy_SS_inputs(
           dir.old = file.path(original_model_dir),
           dir.new = new_dir,
@@ -178,7 +183,7 @@ run_model_efforts <- function(catch_filtered,
     }
     ss3_inputs$dat$lencomp <- ss3_inputs$dat$lencomp |> 
       dplyr::filter(fleet != fleet_number) |> # leave all other as they were
-      tidyverse::bind_rows(len_comp_new) |> # new length comps for WCGBTS fleet
+      dplyr::bind_rows(len_comp_new) |> # new length comps for WCGBTS fleet
       arrange(fleet)
     
     # update age comps in the model
@@ -190,7 +195,7 @@ run_model_efforts <- function(catch_filtered,
     
     #### Add Index Data #### -----------------------------------------------------------------------
     sdm_model_i <- sdm_model_filt |>
-      filter(model_iter == unique(bio_filtered[[i]]$source)) |>
+      filter(model_iter == unique(bio_filtered$source)) |>
       filter(Year <= ss3_inputs$dat$endyr) |>
       mutate(month = 7, index = fleet_number) |>
       # QUESTION:

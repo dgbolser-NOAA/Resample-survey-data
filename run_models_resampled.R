@@ -69,6 +69,18 @@ purrr::map(df_list, ~ run_model(species_name = .x$species_name,
                     catch_df = catch,
                     bio_df = bio))
 
+species_name <- df_list[[1]]$species_name
+original_model_dir <- df_list[[1]]$original_model_dir
+sdm_dir <- df_list[[1]]$sdm_dir
+lat_filter <- df_list[[1]]$lat_filter
+depth_filter <- df_list[[1]]$depth_filter
+strata_type <- df_list[[1]]$strata_type
+species_group <- df_list[[1]]$species_group
+fleet_number <- df_list[[1]]$fleet_number
+resampled_model_dir = resampled_model_dir
+catch_df <- catch
+bio_df <- bio
+
 # run_model(species_name = "petrale sole",
 #           original_model_dir = og_model_dir,
 #           sdm_dir = sdm_model_dir,
@@ -205,7 +217,7 @@ run_model <- function(
   })
   
   # apply lat and depth filters
-  if (is.null(lat_filter)) {
+  if (is.null(lat_filter) || is.na(lat_filter)) {
     catch_filtered <- catch_filtered
     bio_filtered <- bio_filtered
   } else if (lat_filter == "lat_filter_35") {
@@ -216,7 +228,7 @@ run_model <- function(
     bio_filtered <- bio_filtered
   }
 
-  if (is.null(depth_filter)) {
+  if (is.null(depth_filter) || is.na(depth_filter)) {
     catch_filtered <- catch_filtered
     bio_filtered <- bio_filtered
   } else if (depth_filter == "depth_filter_500") {
@@ -251,18 +263,27 @@ run_model <- function(
     
   plan(multisession, workers = 11)
   
-  # conditional-age-at-length comps
-  # setup multisession
   furrr::future_map2(.x = catch_filtered, 
                      .y = bio_filtered,
                      .f = run_model_efforts,
                      resampled_model_dir,
                      original_model_dir,
+                     sdm_model_filt = sdm_model_filt,
                      model_name = model_name,
                      strata = strata,
                      fleet_number = fleet_number,
                      species_group = species_group
   )
+  # run_model_efforts(catch_filtered[[1]], 
+  #                   bio_filtered[[1]],
+  #                   resampled_model_dir[[1]],
+  #                   original_model_dir[[1]],
+  #                   sdm_model_filt = sdm_model_filt[[1]],
+  #                   model_name = model_name[[1]],
+  #                   strata = strata[[1]],
+  #                   fleet_number = fleet_number[[1]],
+  #                   species_group = species_group[[1]]
+  # )
   plan(sequential)
 }
 
@@ -378,7 +399,7 @@ run_model <- function(
   #   }
   #     ss3_inputs$dat$lencomp <- ss3_inputs$dat$lencomp |> 
   #       dplyr::filter(fleet != fleet_number) |> # leave all other as they were
-  #       tidyverse::bind_rows(len_comp_new) |> # new length comps for WCGBTS fleet
+  #       dplyr::bind_rows(len_comp_new) |> # new length comps for WCGBTS fleet
   #       arrange(fleet)
   #     
   #     # update age comps in the model
