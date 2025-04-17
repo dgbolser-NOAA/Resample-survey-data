@@ -1,28 +1,3 @@
-# library(purrr)
-# library(tidyverse)
-# 
-# test_filter <- test_cleanup_bio[names(test_cleanup_bio) %in% sdm_model_filt$model_iter]
-# 
-# 
-# sdm_model <- read.csv(list.files(
-#   here::here("Results","Petrale_sole"),
-#   pattern = "*._indices_df",
-#   full.names = TRUE
-# )) |>
-#   filter(effort %in% c(0.2, 0.4, 0.8, 1)) |>
-#   mutate(model_iter =paste0(effort,"_", replicate))
-# 
-# # randomly sample 3 replicates from each effort
-# sdm_model_reps <- sdm_model |>
-#   distinct(model_iter, .keep_all = TRUE) |>
-#   group_by(effort) |>
-#   slice_sample(n = 3) |>
-#   ungroup()
-# 
-# sdm_model_filt <- sdm_model |>
-#   filter(model_iter %in% sdm_model_reps$model_iter)
-
-
 #' Run the models of a given species for each of the effort levels and replicates
 #'
 #' This function reads in SS3 inputs, filters catch and biological data for the specified species,
@@ -43,17 +18,18 @@
 #' and runs the SS3 model.
 #'
 #' @examples
-#' plan(multisession)
+#' This function is meant to be run exclusively within run_models_resampled()
+#' plan(multisession,  workers = 11)
 #' furrr::future_map2(.x = catch_filtered, 
 #'                    .y = bio_filtered,
 #'                    .f = run_model_efforts,
 #'                     resampled_model_dir,
 #'                     original_model_dir,
-#'                     model_name = ,
-#'                     sdm_model_filt = ,
-#'                     strata = ,
-#'                     fleet_number = ,
-#'                     species_group = 
+#'                     model_name = model_name,
+#'                     sdm_model_filt = sdm_model_filt,
+#'                     strata = strata,
+#'                     fleet_number = fleet_number,
+#'                     species_group = species_group
 #'                     )
 #'
 
