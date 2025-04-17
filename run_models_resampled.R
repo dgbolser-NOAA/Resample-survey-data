@@ -69,17 +69,17 @@ purrr::map(df_list, ~ run_model(species_name = .x$species_name,
                     catch_df = catch,
                     bio_df = bio))
 
-species_name <- df_list[[1]]$species_name
-original_model_dir <- df_list[[1]]$original_model_dir
-sdm_dir <- df_list[[1]]$sdm_dir
-lat_filter <- df_list[[1]]$lat_filter
-depth_filter <- df_list[[1]]$depth_filter
-strata_type <- df_list[[1]]$strata_type
-species_group <- df_list[[1]]$species_group
-fleet_number <- df_list[[1]]$fleet_number
-resampled_model_dir = resampled_model_dir
-catch_df <- catch
-bio_df <- bio
+# species_name <- df_list[[1]]$species_name
+# original_model_dir <- df_list[[1]]$original_model_dir
+# sdm_dir <- df_list[[1]]$sdm_dir
+# lat_filter <- df_list[[1]]$lat_filter
+# depth_filter <- df_list[[1]]$depth_filter
+# strata_type <- df_list[[1]]$strata_type
+# species_group <- df_list[[1]]$species_group
+# fleet_number <- df_list[[1]]$fleet_number
+# resampled_model_dir = resampled_model_dir
+# catch_df <- catch
+# bio_df <- bio
 
 # run_model(species_name = "petrale sole",
 #           original_model_dir = og_model_dir,
@@ -183,6 +183,7 @@ run_model <- function(
     full.names = TRUE
   )) |>
     filter(effort %in% c(0.2, 0.4, 0.8, 1)) |>
+    filter(effort != 0.1) |>
     mutate(model_iter = paste0(effort,"_", replicate))
   
   # randomly sample 3 replicates from each effort
