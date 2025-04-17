@@ -92,24 +92,11 @@ run_model_efforts <- function(catch_filtered,
         month = 7
       )
       
-      # QUESTION: @iantaylor-NOAA - do we need this function, can we just use the
-      # input_n param in get_expanded_comps?
-      input_n <- nwfscSurvey::get_input_n(
-        data = bio_filtered,
-        species_group = species_group
-      )
-      
       len_comp_new <- len_comp_new$sexed
-      # change capitalization and a few headers to match r4ss notation
-      names(len_comp_new) <- tolower(names(len_comp_new))
       len_comp_new <- len_comp_new |>
         dplyr::rename(part = "partition", Nsamp = "input_n")
       
-      # modify length data
-      len_comp_new$Nsamp <- input_n |>
-        dplyr::filter(sex_grouped == "sexed") |>
-        dplyr::pull(input_n)
-      
+      # Add length comp back into data file
       ss3_inputs$dat$lencomp <- ss3_inputs$dat$lencomp |> 
         dplyr::filter(fleet != fleet_number) |> # leave all other as they were
         dplyr::bind_rows(len_comp_new) |> # new length comps for WCGBTS fleet
@@ -129,10 +116,6 @@ run_model_efforts <- function(catch_filtered,
         maal <- maal$sexed
         maal <- maal |>
           dplyr::rename(part = "partition", Nsamp = "input_n")
-        
-        maal$Nsamp <- input_n |>
-          dplyr::filter(sex_grouped == "sexed") |>
-          dplyr::pull(input_n)
         
         for (y in unique(maal$year)) {
           ageerr_y <- ss3_inputs$dat$agecomp |>
@@ -165,11 +148,14 @@ run_model_efforts <- function(catch_filtered,
         }
       }
       
+      ages <- data.frame()
+      if (exists("caal")) { ages <- dplyr::bind_rows(ages, caal) }
+      if (exists("maal")) { ages <- dplyr::bind_rows(ages, maal) }
+      
       # update age comps in the model
       ss3_inputs$dat$agecomp <- ss3_inputs$dat$agecomp |> 
-        dplyr::filter(abs(fleet) != fleet_number) # leave all other as they were |>
-        bind_rows(caal) |> # new marginal age comps for WCGBTS fleet
-        bind_rows(maal) |> # new conditional-age-at-length comps for WCGBTS fleet
+        dplyr::filter(fleet != fleet_number) |>
+        bind_rows(ages) |> 
         arrange(fleet)
     }
     
@@ -203,6 +189,16 @@ run_model_efforts <- function(catch_filtered,
     if(file.exists(file.path(new_dir, "ss3")) == FALSE) {
       get_ss3_exe(new_dir)
     }
-    # run SS3
-    r4ss::run(new_dir, skipfinished = FALSE)
+    # run SS3 
+    r4ss::run(new_dir, skipfinished = FALSE, extras = "-nohess")
+    
+    replist <- r4ss::SS_output(new_dir)
+    
+    r4ss::tune_comps(
+      replist,
+      niters_tuning = 2, 
+      option = "Francis",
+      dir = new_dir,
+      exe = "ss3"
+    )
 }
