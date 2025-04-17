@@ -8,6 +8,8 @@ library(tidyverse)
 library(r4ss)
 source("cleanup_by_species.R")
 source("smaller_functions.R")
+source("run_model_efforts.R")
+
 
 #### Load in catch and bio data from nwfscSurvey package #### ------------------
 catch <- read.csv(here::here("data/nwfsc_bt_fmp_spp_updated.csv")) |>
@@ -19,60 +21,61 @@ catch <- read.csv(here::here("data/nwfsc_bt_fmp_spp_updated.csv")) |>
     "Pacific ocean perch"
   ))
 
-bio <- nwfscSurvey::pull_bio(
-  survey = "NWFSC.Combo",
-  common_name = c(
-    "longnose skate",
-    "petrale sole",
-    "sablefish",
-    "shortspine thornyhead",
-    "Pacific ocean perch"
-  )
-)
-saveRDS(bio, file = here::here("data", "nwfsc_bt_fmp_spp_updated_bio.rds"))
+# bio <- nwfscSurvey::pull_bio(
+#   survey = "NWFSC.Combo",
+#   common_name = c(
+#     "longnose skate",
+#     "petrale sole",
+#     "sablefish",
+#     "shortspine thornyhead",
+#     "Pacific ocean perch"
+#   )
+# )
+# saveRDS(bio, file = here::here("data", "nwfsc_bt_fmp_spp_updated_bio.rds"))
+
 bio <- readRDS(here::here("data", "nwfsc_bt_fmp_spp_updated_bio.rds"))
+
 set.seed(49)
 
-# df_test <- data.frame(
-#   species_name = "petrale sole",
-#   original_model_dir = og_model_dir,
-#   resampled_model_dir = here::here("resampled_models"),
-#   sdm_dir = here::here("Results", "Petrale_sole"),
-#   lat_filter = NULL,
-#   depth_filter = "depth_filter_675",
-#   strata_type = "mid",
-#   species_group = "flatfish",
-#   fleet_number = 7
-# )
-
-# Run model test first
 # dir.create(here::here("resampled_models"))
 og_model_dir <- here::here("original_models/Petrale_sole")
 sdm_model_dir <- here::here("Results", "Petrale_sole")
 resampled_model_dir <- here::here("resampled_models")
 
-run_model(species_name = "petrale sole",
-          original_model_dir = og_model_dir,
-          sdm_dir = sdm_model_dir,
-          lat_filter = NULL,
-          depth_filter = "depth_filter_675",
-          strata_type = "mid",
-          species_group = "flatfish",
-          fleet_number = 4,
-          resampled_model_dir = resampled_model_dir,
-          catch_df = catch,
-          bio_df = bio)
-species_name = "petrale sole"
-original_model_dir = og_model_dir
-sdm_dir = sdm_model_dir
-lat_filter = NULL
-depth_filter = "depth_filter_675"
-strata_type = "mid"
-species_group = "flatfish"
-fleet_number = 4
-resampled_model_dir = resampled_model_dir
-catch_df = catch
-bio_df = bio
+df_test <- data.frame(
+  species_name = c("petrale sole"),
+  original_model_dir = og_model_dir,
+  sdm_dir = sdm_model_dir,
+  lat_filter = c(NA),
+  depth_filter = c("depth_filter_675"),
+  strata_type = c("mid"),
+  species_group = c("flatfish"),
+  fleet_number = c(4)
+)
+
+map(df, ~ run_model(species_name = .x$species_name,
+                    original_model_dir = .x$original_model_dir,
+                    sdm_dir = .x$sdm_dir,
+                    lat_filter = .x$lat_filter,
+                    depth_filter = .x$depth_filter,
+                    strata_type = .x$strata_type,
+                    species_group = .x$species_group,
+                    fleet_number = .x$fleet_number,
+                    resampled_model_dir = resampled_model_dir,
+                    catch_df = catch,
+                    bio_df = bio))
+
+# run_model(species_name = "petrale sole",
+#           original_model_dir = og_model_dir,
+#           sdm_dir = sdm_model_dir,
+#           lat_filter = NA,
+#           depth_filter = "depth_filter_675",
+#           strata_type = "mid",
+#           species_group = "flatfish",
+#           fleet_number = 4,
+#           resampled_model_dir = resampled_model_dir,
+#           catch_df = catch,
+#           bio_df = bio)
 
 # og_model_dir <- list.dirs(here::here("original_models"), full.names = TRUE, recursive = FALSE)
 # sdm_dir <- list.dirs(here::here("Results"), full.names = TRUE, recursive = FALSE)
@@ -92,19 +95,6 @@ bio_df = bio
 # 
 # resampled_model_dir <- here::here("resampled_models")
 # set.seed(49)
-# map(df, ~ run_model(species_name = .x$species_name,
-#                     original_model_dir = .x$original_model_dir,
-#                     sdm_dir = .x$sdm_dir,
-#                     lat_filter = .x$lat_filter,
-#                     depth_filter = .x$depth_filter,
-#                     strata_type = .x$strata_type,
-#                     species_group = .x$species_group,
-#                     fleet_number = .x$fleet_number,
-#                     resampled_model_dir = resampled_model_dir,
-#                     catch_df = catch,
-#                     bio_df = bio))
-
-# TO_DO: run effort level and replicate models in parallel
 
 #' Run the model for a given species
 #'
@@ -117,7 +107,7 @@ bio_df = bio
 #' @param resampled_model_dir A string specifying the directory where the SS3 inputs are located.
 #' @param sdm_dir A string specifying the directory where the indices are located.
 #' @param lat_filter NULL
-#' @param depth_filter
+#' @param depth_filter NULL
 #' @param catch_df A data frame containing catch data. Default is `catch`.
 #' @param bio_df A data frame containing biological data. Default is `bio`.
 #' @param strata_type A string specifying the type of strata to use. Options are
@@ -159,12 +149,13 @@ run_model <- function(
   sdm_dir,
   catch_df = catch,
   bio_df = bio,
-  lat_filter,
-  depth_filter,
+  lat_filter = NA,
+  depth_filter = NA,
   strata_type = "mid",
   species_group,
-  fleet_number = 4,
-) {
+  fleet_number = 4
+  ) 
+{
   model_name <- basename(original_model_dir)
   
   ss3_inputs_old <- r4ss::SS_read(original_model_dir)
@@ -235,7 +226,6 @@ run_model <- function(
     bio_filtered <- bio_filtered
   }
   
-  
   # choose correct strata
   if (strata_type == "mid") {
     strata <- nwfscSurvey::CreateStrataDF.fn(
@@ -255,110 +245,113 @@ run_model <- function(
     )
   }
     
-  for (i in 1:length(catch_filtered)) {
-    # read in SS3 inputs
-    # if replicate/effort folder doesn't exist
-    dirs <- list.dirs(resampled_model_dir, recursive = FALSE)
-    model_iter <- unique(catch_filtered[[1]]$source)
-    
-    new_dir <- file.path(resampled_model_dir, paste0(model_name, "_", model_iter))
+  plan(multisession, workers = 11)
   
-    if (length(dirs) != 0) {
-      if (any(grepl(dirs, paste0(model_name, "_", model_iter))) == FALSE){
-        r4ss::copy_SS_inputs(
-          dir.old = file.path(original_model_dir),
-          dir.new = new_dir,
-          create.dir = TRUE,
-          overwrite = TRUE,
-          use_ss_new = FALSE,
-          verbose = TRUE
-        )
-      }
-    }
-              
-    if (length(dirs) == 0) {
-      r4ss::copy_SS_inputs(
-        dir.old = file.path(original_model_dir),
-        dir.new = new_dir,
-        create.dir = TRUE,
-        overwrite = TRUE,
-        use_ss_new = FALSE,
-        verbose = TRUE
-      )
-    }
-      
-    
-    ss3_inputs <- r4ss::SS_read(new_dir)
-    
-    # calculate length compositions from resampled survey data
-    len_comp_new <- nwfscSurvey::get_expanded_comps(
-      bio_data = bio_filtered[[i]],
-      catch_data = catch_filtered[[i]],
-      comp_bins = ss3_inputs$dat$lbin_vector,
-      comp_column_name = "Length_cm",
-      strata = strata,
-      fleet = fleet_number,
-      month = 7
-    )
+  # conditional-age-at-length comps
+  # setup multisession
+  furrr::future_map2(.x = catch_filtered, 
+                     .y = bio_filtered,
+                     .f = run_model_efforts,
+                     resampled_model_dir,
+                     original_model_dir,
+                     model_name = model_name,
+                     strata = strata,
+                     fleet_number = fleet_number,
+                     species_group = species_group
+  )
+  plan(sequential)
+}
 
-    # QUESTION: @iantaylor-NOAA - do we need this function, can we just use the
-    # input_n param in get_expanded_comps?
-    input_n <- nwfscSurvey::get_input_n(
-      data = bio_filtered[[i]],
-      species_group = species_group
-    )
-
-    len_comp_new <- len_comp_new$sexed
-    # change capitalization and a few headers to match r4ss notation
-    names(len_comp_new) <- tolower(names(len_comp_new))
-    len_comp_new <- len_comp_new |>
-      dplyr::rename(part = "partition", Nsamp = "input_n")
-
-    # modify length data
-    len_comp_new$Nsamp <- input_n |>
-      dplyr::filter(sex_grouped == "sexed") |>
-      dplyr::pull(input_n)
-
-    # marginal age at length
-    if (any(ss3_inputs$dat$agecomp$Lbin_hi == -1)) {
-      maal <- nwfscSurvey::get_expanded_comps(
-        bio_data = bio_filtered[[i]],
-        catch_data = catch_filtered[[i]],
-        comp_bins = ss3_inputs$dat$agebin_vector,
-        comp_column_name =  "age",
-        strata = strata,
-        fleet = fleet_number,
-        month = 7
-      )
-      maal <- maal$sexed
-      maal <- maal |>
-        dplyr::rename(part = "partition", Nsamp = "input_n")
-      
-      maal$Nsamp <- input_n |>
-        dplyr::filter(sex_grouped == "sexed") |>
-        dplyr::pull(input_n)
-      for (y in unique(maal$year)) {
-        ageerr_y <- ss3_inputs$dat$agecomp |>
-          dplyr::filter(year == y & fleet == fleet_number) |>
-          dplyr::pull(ageerr) |>
-          unique()
-        maal$ageerr[maal$year == y] <- ageerr_y
-      }
-    }
-    
-    # conditional-age-at-length comps
-    # setup multisession
-    furrr::future_map2(.x = catch_filtered, 
-                      .y = bio_filtered,
-                      .f = run_model_efforts,
-                       resampled_model_dir,
-                       original_model_dir,
-                       model_name = model_name,
-                       strata = strata,
-                       fleet_number = fleet_number,
-                       species_group = species_group
-                       )
-    
+  # for (i in 1:length(catch_filtered)) {
+  #   # read in SS3 inputs
+  #   # if replicate/effort folder doesn't exist
+  #   dirs <- list.dirs(resampled_model_dir, recursive = FALSE)
+  #   model_iter <- unique(catch_filtered[[1]]$source)
+  #   
+  #   new_dir <- file.path(resampled_model_dir, paste0(model_name, "_", model_iter))
+  # 
+  #   if (length(dirs) != 0) {
+  #     if (any(grepl(dirs, paste0(model_name, "_", model_iter))) == FALSE){
+  #       r4ss::copy_SS_inputs(
+  #         dir.old = file.path(original_model_dir),
+  #         dir.new = new_dir,
+  #         create.dir = TRUE,
+  #         overwrite = TRUE,
+  #         use_ss_new = FALSE,
+  #         verbose = TRUE
+  #       )
+  #     }
+  #   }
+  #             
+  #   if (length(dirs) == 0) {
+  #     r4ss::copy_SS_inputs(
+  #       dir.old = file.path(original_model_dir),
+  #       dir.new = new_dir,
+  #       create.dir = TRUE,
+  #       overwrite = TRUE,
+  #       use_ss_new = FALSE,
+  #       verbose = TRUE
+  #     )
+  #   }
+  #     
+  #   
+  #   ss3_inputs <- r4ss::SS_read(new_dir)
+  #   
+  #   # calculate length compositions from resampled survey data
+  #   len_comp_new <- nwfscSurvey::get_expanded_comps(
+  #     bio_data = bio_filtered[[i]],
+  #     catch_data = catch_filtered[[i]],
+  #     comp_bins = ss3_inputs$dat$lbin_vector,
+  #     comp_column_name = "Length_cm",
+  #     strata = strata,
+  #     fleet = fleet_number,
+  #     month = 7
+  #   )
+  # 
+  #   # QUESTION: @iantaylor-NOAA - do we need this function, can we just use the
+  #   # input_n param in get_expanded_comps?
+  #   input_n <- nwfscSurvey::get_input_n(
+  #     data = bio_filtered[[i]],
+  #     species_group = species_group
+  #   )
+  # 
+  #   len_comp_new <- len_comp_new$sexed
+  #   # change capitalization and a few headers to match r4ss notation
+  #   names(len_comp_new) <- tolower(names(len_comp_new))
+  #   len_comp_new <- len_comp_new |>
+  #     dplyr::rename(part = "partition", Nsamp = "input_n")
+  # 
+  #   # modify length data
+  #   len_comp_new$Nsamp <- input_n |>
+  #     dplyr::filter(sex_grouped == "sexed") |>
+  #     dplyr::pull(input_n)
+  # 
+  #   # marginal age at length
+  #   if (any(ss3_inputs$dat$agecomp$Lbin_hi == -1)) {
+  #     maal <- nwfscSurvey::get_expanded_comps(
+  #       bio_data = bio_filtered[[i]],
+  #       catch_data = catch_filtered[[i]],
+  #       comp_bins = ss3_inputs$dat$agebin_vector,
+  #       comp_column_name =  "age",
+  #       strata = strata,
+  #       fleet = fleet_number,
+  #       month = 7
+  #     )
+  #     maal <- maal$sexed
+  #     maal <- maal |>
+  #       dplyr::rename(part = "partition", Nsamp = "input_n")
+  #     
+  #     maal$Nsamp <- input_n |>
+  #       dplyr::filter(sex_grouped == "sexed") |>
+  #       dplyr::pull(input_n)
+  #     for (y in unique(maal$year)) {
+  #       ageerr_y <- ss3_inputs$dat$agecomp |>
+  #         dplyr::filter(year == y & fleet == fleet_number) |>
+  #         dplyr::pull(ageerr) |>
+  #         unique()
+  #       maal$ageerr[maal$year == y] <- ageerr_y
+  #     }
+  #   }
   #   if (any(ss3_inputs$dat$agecomp$Lbin_hi != -1)) {
   #     caal <- nwfscSurvey::get_raw_caal(
   #       data = bio_filtered[[i]],
@@ -427,4 +420,3 @@ run_model <- function(
   #     
   #     ### DO WE NEED TO RE-TUNE COMPS???
   # }
-}

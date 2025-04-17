@@ -62,8 +62,7 @@ run_model_efforts <- function(catch_filtered,
                                model_name,
                                strata,
                                fleet_number,
-                               species_group,
-                               exe_location
+                               species_group
                                )
   {
     # read in SS3 inputs
