@@ -6,6 +6,8 @@ library(nwfscSurvey)
 library(dplyr)
 library(tidyverse)
 library(r4ss)
+library(purrr)
+library(furrr)
 source("cleanup_by_species.R")
 source("smaller_functions.R")
 source("run_model_efforts.R")
@@ -53,7 +55,9 @@ df_test <- data.frame(
   fleet_number = c(4)
 )
 
-map(df, ~ run_model(species_name = .x$species_name,
+df_list <- split(df_test, seq(nrow(df_test)))
+
+purrr::map(df_list, ~ run_model(species_name = .x$species_name,
                     original_model_dir = .x$original_model_dir,
                     sdm_dir = .x$sdm_dir,
                     lat_filter = .x$lat_filter,
