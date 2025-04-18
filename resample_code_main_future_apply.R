@@ -58,20 +58,25 @@ source(file.path(basedir, "species_sdms.R"))
 
 # set up grid
 #rename x and y cols
-california_current_grid$Longitude_dd<- california_current_grid$longitude
-california_current_grid$Latitude_dd<- california_current_grid$latitude
-california_current_grid$Pass<- california_current_grid$pass_scaled
-california_current_grid$Depth_m<- california_current_grid$depth
+# california_current_grid$Longitude_dd<- california_current_grid$longitude
+# california_current_grid$Latitude_dd<- california_current_grid$latitude
+# california_current_grid$Pass<- california_current_grid$pass_scaled
+# california_current_grid$Depth_m<- california_current_grid$depth
 
 #make gridyrs
-grid_yrs <- replicate_df(california_current_grid, "Year", unique(catch$Year))
-setwd(basedir)
-#saveRDS(grid_yrs,"grid_yrs.rds")
-write_parquet(grid_yrs, "grid_yrs.parquet")
-rm(grid_yrs,california_current_grid)
+# grid_yrs <- replicate_df(california_current_grid, "Year", unique(catch$Year))
+# setwd(basedir)
+# #saveRDS(grid_yrs,"grid_yrs.rds")
+# write_parquet(grid_yrs, "grid_yrs.parquet")
+# rm(grid_yrs,california_current_grid)
 
 #get rid of memory limits
 options(future.globals.maxSize = 1 * 1024^4)  # Allow up to 1 TB for globals
+
+#verify use of ropenblas upon starting new VM session. 
+
+extSoftVersion()["BLAS"] #should be: "opt/OpenBlas/lib/libopenblas_haswellp-r0.3.13.so" or a newer version. If not, uncomment the code below
+ropenblas::ropenblas(x = "0.3.13")
 
 #### Arrowtooth flounder ##########################################################################################################
 arrowtooth_dfs <- cleanup_by_species(df = catch, species = "arrowtooth flounder")
@@ -137,29 +142,30 @@ files_to_remove <- setdiff(all_files, file.path(".", files_to_keep))  # Exclude 
 file.remove(files_to_remove)  # Delete the files
 
 #### Bocaccio #############################################################################################################
-#### some models did not converge; likely a true result but double check #####
+#singularity warning. Still need to double check if there were true errors with all that did not fit.
 setwd(bocaccio)
 bocaccio_dfs <- cleanup_by_species(df = catch, species = "bocaccio")
 bocaccio_dfs <- lapply(bocaccio_dfs, depth_filter_500)
-#bocaccio_dfs <- bocaccio_dfs[90:91] # reduce DFs for testing
+bocaccio_dfs <- bocaccio_dfs[2:15] # reduce DFs to only get fit leftovers
 
  # make the names file
- bocaccio_files <- as.list(names(bocaccio_dfs))
- 
+bocaccio_files <- as.list(names(bocaccio_dfs))
+
+
  #save some space
  setwd(bocaccio)
  #saveRDS(bocaccio_dfs,"bocaccio_dfs.rds")
  # Save each dataframe separately
- for (i in seq_along(bocaccio_dfs)) {
+ for (i in seq_along(bocaccio_dfs)) {                                         
    write_parquet(bocaccio_dfs[[i]], file.path(bocaccio, paste0("df_", i, ".parquet")))
- }
- 
+ }               
+                                                                                                                                                                                                                        
  # Optional: Remove from memory
  rm(bocaccio_dfs)
  gc()
  
  # Set up parallel processing
- plan(callr, workers = 6)  # Adjust workers based on memory
+ plan(callr, workers = 24)  # Adjust workers based on memory
  
  gc()  # Free memory before execution
  
@@ -190,15 +196,39 @@ bocaccio_dfs <- lapply(bocaccio_dfs, depth_filter_500)
  rm(grid_yrs)
 
  ##### process fit files
- process_and_save_fits(bocaccio,"bocaccio")
+#process_and_save_fits(bocaccio,"bocaccio")
+process_and_save_fits(bocaccio,"bocaccio_leftovers")
  
  ##### process index files
  bocaccio_indices <- pull_files(bocaccio, "index")
  bocaccio_indices_df <- bind_index_fn(bocaccio_indices)
- write.csv(bocaccio_indices_df, "bocaccio_indices_df.csv", row.names = F)
+#write.csv(bocaccio_indices_df, "bocaccio_indices_df.csv", row.names = F)
+write.csv(bocaccio_indices_df, "bocaccio_leftover_indices_df.csv", row.names = F)
  
  # Remove the rest of the files
  rm("bocaccio_files", "bocaccio_indices", "bocaccio_indices_df")
+ 
+ #combine leftovers with other results
+ setwd(bocaccio)
+ fc<- read.csv("bocaccio_fit_check_df.csv")
+ fd<- read.csv("bocaccio_fit_df.csv")
+ pd<- read.csv("bocaccio_pars_df.csv")
+ id<- read.csv("bocaccio_indices_df.csv")
+ 
+ fcl<- read.csv("bocaccio_leftovers_fit_check_df.csv")
+ fdl<- read.csv("bocaccio_leftovers_fit_df.csv")
+ pdl<- read.csv("bocaccio_leftovers_pars_df.csv")
+ idl<- read.csv("bocaccio_leftover_indices_df.csv")
+ 
+ fcc<- rbind(fc,fcl)
+ fdc<- rbind(fd,fdl)
+ pdc<- rbind(pd,pdl)
+ idc<- rbind(id,idl)
+ 
+ write.csv(fcc,"bocaccio_fit_check_df.csv",row.names = F)
+ write.csv(fdc,"bocaccio_fit_df.csv",row.names = F)
+ write.csv(pdc,"bocaccio_pars_df.csv",row.names = F)
+ write.csv(idc,"bocaccio_indices_df.csv",row.names = F)
  
  #remove from memory
  files_to_keep <- c("bocaccio_fit_check_df.csv", "bocaccio_fit_df.csv", "bocaccio_pars_df.csv", "bocaccio_indices_df.csv")
@@ -207,7 +237,6 @@ bocaccio_dfs <- lapply(bocaccio_dfs, depth_filter_500)
  file.remove(files_to_remove)  # Delete the files
  
 #### Canary rockfish ##########################################################################################################
-#### double check those that did not run, e.g., everything at 0.3 effort
 setwd(canary)
 canary_dfs <- cleanup_by_species(df = catch, species = "canary rockfish")
 canary_dfs <- lapply(canary_dfs, depth_filter_275)
@@ -229,7 +258,7 @@ rm(canary_dfs)
 gc()
 
 # Set up parallel processing
-plan(callr, workers = 6)  # Adjust workers based on memory
+plan(callr, workers = 12)  # Adjust workers based on memory
 
 gc()  # Free memory before execution
 
@@ -615,11 +644,12 @@ files_to_remove <- setdiff(all_files, file.path(".", files_to_keep))  # Exclude 
 file.remove(files_to_remove)  # Delete the files
 
 #### Pacific ocean perch ######################################################################################################
+#### may need to fit more leftovers
 setwd(pop)
 pop_dfs <- cleanup_by_species(df = catch, species = "Pacific ocean perch")
 pop_dfs <- lapply(pop_dfs, lat_filter_35)
 pop_dfs <- lapply(pop_dfs, depth_filter_500)
-# pop_dfs <- pop_dfs[90:91] # reduce DFs for testing
+pop_dfs <- pop_dfs[11:15] # only fit leftovers
 # make the names file
 pop_files <- as.list(names(pop_dfs))
 
@@ -636,7 +666,7 @@ rm(pop_dfs)
 gc()
 
 # Set up parallel processing
-plan(callr, workers = 6)  # Adjust workers based on memory
+plan(callr, workers = 24)  # Adjust workers based on memory
 
 gc()  # Free memory before execution
 
@@ -666,15 +696,39 @@ future_imap(pop_files, function(file_name, i) {
 print("SDM processing complete")
 
 ##### process fit files
-process_and_save_fits(pop,"pop")
+#process_and_save_fits(pop,"pop")
+process_and_save_fits(pop,"pop_leftovers")
 
 ##### process index files
 pop_indices <- pull_files(pop, "index")
 pop_indices_df <- bind_index_fn(pop_indices)
-write.csv(pop_indices_df, "pop_indices_df.csv", row.names = F)
+#write.csv(pop_indices_df, "pop_indices_df.csv", row.names = F)
+write.csv(pop_indices_df, "pop_leftover_indices_df.csv", row.names = F)
 
 # Remove the rest of the files
 rm("pop_files", "pop_indices", "pop_indices_df")
+
+#combine leftovers with other results
+setwd(pop)
+fc<- read.csv("pop_fit_check_df.csv")
+fd<- read.csv("pop_fit_df.csv")
+pd<- read.csv("pop_pars_df.csv")
+id<- read.csv("pop_indices_df.csv")
+
+fcl<- read.csv("pop_leftovers_fit_check_df.csv")
+fdl<- read.csv("pop_leftovers_fit_df.csv")
+pdl<- read.csv("pop_leftovers_pars_df.csv")
+idl<- read.csv("pop_leftovers_indices_df.csv")
+
+fcc<- rbind(fc,fcl)
+fdc<- rbind(fd,fdl)
+pdc<- rbind(pd,pdl)
+idc<- rbind(id,idl)
+
+write.csv(fcc,"pop_fit_check_df.csv",row.names = F)
+write.csv(fdc,"pop_fit_df.csv",row.names = F)
+write.csv(pdc,"pop_pars_df.csv",row.names = F)
+write.csv(idc,"pop_indices_df.csv",row.names = F)
 
 #remove from memory
 files_to_keep <- c("pop_fit_check_df.csv", "pop_fit_df.csv", "pop_pars_df.csv", "pop_indices_df.csv")
@@ -742,7 +796,8 @@ file.remove(files_to_remove)  # Delete the files
 setwd(petrale)
 petrale_dfs <- cleanup_by_species(df = catch, species = "petrale sole")
 petrale_dfs <- lapply(petrale_dfs, depth_filter_675)
-# petrale_dfs <- petrale_dfs[90:91] # reduce DFs for testing
+#petrale_dfs <- petrale_dfs[32:46] # reduce DFs to only fit to leftovers
+
 # make the names file
 petrale_files <- as.list(names(petrale_dfs))
 
@@ -759,7 +814,7 @@ rm(petrale_dfs)
 gc()
 
 # Set up parallel processing
-plan(callr, workers = 6)  # Adjust workers based on memory
+plan(callr, workers = 24)  # Adjust workers based on memory
 
 gc()  # Free memory before execution
 
@@ -789,18 +844,43 @@ future_imap(petrale_files, function(file_name, i) {
 print("SDM processing complete")
 
 ##### process fit files
-process_and_save_fits(petrale,"petrale")
+#process_and_save_fits(petrale,"petrale")
+process_and_save_fits(petrale,"petrale_leftovers")
 
 ##### process index files
 petrale_indices <- pull_files(petrale, "index")
 petrale_indices_df <- bind_index_fn(petrale_indices)
-write.csv(petrale_indices_df, "petrale_indices_df.csv", row.names = F)
+#write.csv(petrale_indices_df, "petrale_indices_df.csv", row.names = F)
+write.csv(petrale_indices_df, "petrale_leftover_indices_df.csv", row.names = F)
 
 # Remove the rest of the files
 rm("petrale_files", "petrale_indices", "petrale_indices_df")
 
+#combine leftovers with other results
+setwd(petrale)
+fc<- read.csv("petrale_fit_check_df.csv")
+fd<- read.csv("petrale_fit_df.csv")
+pd<- read.csv("petrale_pars_df.csv")
+id<- read.csv("petrale_indices_df.csv")
+
+fcl<- read.csv("petrale_leftovers_fit_check_df.csv")
+fdl<- read.csv("petrale_leftovers_fit_df.csv")
+pdl<- read.csv("petrale_leftovers_pars_df.csv")
+idl<- read.csv("petrale_leftovers_indices_df.csv")
+
+fcc<- rbind(fc,fcl)
+fdc<- rbind(fd,fdl)
+pdc<- rbind(pd,pdl)
+idc<- rbind(id,idl)
+
+write.csv(fcc,"petrale_fit_check_df.csv",row.names = F)
+write.csv(fdc,"petrale_fit_df.csv",row.names = F)
+write.csv(pdc,"petrale_pars_df.csv",row.names = F)
+write.csv(idc,"petrale_indices_df.csv",row.names = F)
+
 #remove from memory
 files_to_keep <- c("petrale_fit_check_df.csv", "petrale_fit_df.csv", "petrale_pars_df.csv", "petrale_indices_df.csv")
+
 all_files <- list.files(path = ".", full.names = TRUE)  # Get all files
 files_to_remove <- setdiff(all_files, file.path(".", files_to_keep))  # Exclude files to keep
 file.remove(files_to_remove)  # Delete the files
@@ -875,7 +955,8 @@ file.remove(files_to_remove)  # Delete the files
 #### Sablefish ##################################################################################################################
 setwd(sablefish)
 sablefish_dfs <- cleanup_by_species(df = catch, species = "sablefish")
-# sablefish_dfs <- sablefish_dfs[90:91] # reduce DFs for testing
+sablefish_dfs <- sablefish_dfs[15] # fit to leftover dfs. 
+
 # make the names file
 sablefish_files <- as.list(names(sablefish_dfs))
 
@@ -892,7 +973,7 @@ rm(sablefish_dfs)
 gc()
 
 # Set up parallel processing
-plan(callr, workers = 6)  # Adjust workers based on memory
+plan(callr, workers = 24)  # Adjust workers based on memory
 
 gc()  # Free memory before execution
 
@@ -922,15 +1003,39 @@ future_imap(sablefish_files, function(file_name, i) {
 print("SDM processing complete")
 
 ##### process fit files
-process_and_save_fits(sablefish,"sablefish")
+#process_and_save_fits(sablefish,"sablefish")
+process_and_save_fits(sablefish,"sablefish_leftovers")
 
 ##### process index files
 sablefish_indices <- pull_files(sablefish, "index")
 sablefish_indices_df <- bind_index_fn(sablefish_indices)
-write.csv(sablefish_indices_df, "sablefish_indices_df.csv", row.names = F)
+#write.csv(sablefish_indices_df, "sablefish_indices_df.csv", row.names = F)
+write.csv(sablefish_indices_df, "sablefish_leftover_indices_df.csv", row.names = F)
 
 # Remove the rest of the files
 rm("sablefish_files", "sablefish_indices", "sablefish_indices_df")
+
+#combine leftovers with other results
+setwd(sablefish)
+fc<- read.csv("sablefish_fit_check_df.csv")
+fd<- read.csv("sablefish_fit_df.csv")
+pd<- read.csv("sablefish_pars_df.csv")
+id<- read.csv("sablefish_indices_df.csv")
+
+fcl<- read.csv("sablefish_leftovers_fit_check_df.csv")
+fdl<- read.csv("sablefish_leftovers_fit_df.csv")
+pdl<- read.csv("sablefish_leftovers_pars_df.csv")
+idl<- read.csv("sablefish_leftovers_indices_df.csv")
+
+fcc<- rbind(fc,fcl)
+fdc<- rbind(fd,fdl)
+pdc<- rbind(pd,pdl)
+idc<- rbind(id,idl)
+
+write.csv(fcc,"sablefish_fit_check_df.csv",row.names = F)
+write.csv(fdc,"sablefish_fit_df.csv",row.names = F)
+write.csv(pdc,"sablefish_pars_df.csv",row.names = F)
+write.csv(idc,"sablefish_indices_df.csv",row.names = F)
 
 #remove from memory
 files_to_keep <- c("sablefish_fit_check_df.csv", "sablefish_fit_df.csv", "sablefish_pars_df.csv", "sablefish_indices_df.csv")
@@ -939,10 +1044,9 @@ files_to_remove <- setdiff(all_files, file.path(".", files_to_keep))  # Exclude 
 file.remove(files_to_remove)  # Delete the files
 
 #### Shortspine thornyhead ####################################################################################################
-# This took over 7.5 hours to run and still didn't finish; do widow and yellowtail 1st
 setwd(shortspine)
 shortspine_dfs <- cleanup_by_species(df = catch, species = "shortspine thornyhead")
-# shortspine_dfs <- shortspine_dfs[90:91] # reduce DFs for testing
+shortspine_dfs <- shortspine_dfs[c(19:30,40,56:61,70:76,88:91)] # reduce DFs to only the leftovers
 # make the names file
 shortspine_files <- as.list(names(shortspine_dfs))
 
@@ -959,7 +1063,7 @@ rm(shortspine_dfs)
 gc()
 
 # Set up parallel processing
-plan(callr, workers = 6)  # Adjust workers based on memory
+plan(callr, workers = 18)  # Adjust workers based on memory
 
 gc()  # Free memory before execution
 
@@ -989,18 +1093,21 @@ future_imap(shortspine_files, function(file_name, i) {
 print("SDM processing complete")
 
 ##### process fit files
-process_and_save_fits(shortspine,"shortspine")
+process_and_save_fits(shortspine,"shortspine_leftovers")
 
 ##### process index files
 shortspine_indices <- pull_files(shortspine, "index")
 shortspine_indices_df <- bind_index_fn(shortspine_indices)
-write.csv(shortspine_indices_df, "shortspine_indices_df.csv", row.names = F)
+write.csv(shortspine_indices_df, "shortspine_leftovers_indices_df.csv", row.names = F)
 
 # Remove the rest of the files
 rm("shortspine_files", "shortspine_indices", "shortspine_indices_df")
 
 #remove from memory
-files_to_keep <- c("shortspine_fit_check_df.csv", "shortspine_fit_df.csv", "shortspine_pars_df.csv", "shortspine_indices_df.csv")
+files_to_keep <- c("shortspine_fit_check_df.csv", "shortspine_fit_df.csv", "shortspine_pars_df.csv", "shortspine_indices_df.csv",
+                   "shortspine_leftovers_fit_check_df.csv", "shortspine_leftovers_fit_df.csv", "shortspine_leftovers_pars_df.csv",
+                   "shortspine_leftovers_indices_df.csv")
+
 all_files <- list.files(path = ".", full.names = TRUE)  # Get all files
 files_to_remove <- setdiff(all_files, file.path(".", files_to_keep))  # Exclude files to keep
 file.remove(files_to_remove)  # Delete the files
