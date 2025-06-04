@@ -99,7 +99,7 @@ rm(arrowtooth_dfs)
 gc()
 
 #set up parallel processing
-plan(callr, workers = 6)  # Adjust the number of workers based on available memory
+plan( multisession, workers = 6)  # Adjust the number of workers based on available memory
 
 # Remove large objects before parallel execution
 gc()
@@ -146,7 +146,7 @@ file.remove(files_to_remove)  # Delete the files
 setwd(bocaccio)
 bocaccio_dfs <- cleanup_by_species(df = catch, species = "bocaccio")
 bocaccio_dfs <- lapply(bocaccio_dfs, depth_filter_500)
-bocaccio_dfs <- bocaccio_dfs[2:15] # reduce DFs to only get fit leftovers
+bocaccio_dfs <- bocaccio_dfs[c(2:4,6,10)] # reduce DFs to only get fit leftovers
 
  # make the names file
 bocaccio_files <- as.list(names(bocaccio_dfs))
@@ -165,7 +165,7 @@ bocaccio_files <- as.list(names(bocaccio_dfs))
  gc()
  
  # Set up parallel processing
- plan(callr, workers = 24)  # Adjust workers based on memory
+ plan( multisession, workers = 5)  # Adjust workers based on memory
  
  gc()  # Free memory before execution
  
@@ -258,7 +258,7 @@ rm(canary_dfs)
 gc()
 
 # Set up parallel processing
-plan(callr, workers = 12)  # Adjust workers based on memory
+plan( multisession, workers = 12)  # Adjust workers based on memory
 
 gc()  # Free memory before execution
 
@@ -326,7 +326,7 @@ rm(darkblotched_dfs)
 gc()
 
 # Set up parallel processing
-plan(callr, workers = 6)  # Adjust workers based on memory
+plan( multisession, workers = 6)  # Adjust workers based on memory
 
 gc()  # Free memory before execution
 
@@ -392,7 +392,7 @@ rm(dover_dfs)
 gc()
 
 # Set up parallel processing
-plan(callr, workers = 6)  # Adjust workers based on memory
+plan( multisession, workers = 6)  # Adjust workers based on memory
 
 gc()  # Free memory before execution
 
@@ -461,7 +461,7 @@ rm(lingcod_n_dfs)
 gc()
 
 # Set up parallel processing
-plan(callr, workers = 4)  # Adjust workers based on memory
+plan( multisession, workers = 4)  # Adjust workers based on memory
 
 gc()  # Free memory before execution
 
@@ -531,7 +531,7 @@ rm(lingcod_s_dfs)
 gc()
 
 # Set up parallel processing
-plan(callr, workers = 6)  # Adjust workers based on memory
+plan( multisession, workers = 6)  # Adjust workers based on memory
 
 gc()  # Free memory before execution
 
@@ -597,7 +597,7 @@ rm(longnose_dfs)
 gc()
 
 # Set up parallel processing
-plan(callr, workers = 6)  # Adjust workers based on memory
+plan( multisession, workers = 6)  # Adjust workers based on memory
 
 gc()  # Free memory before execution
 
@@ -649,7 +649,8 @@ setwd(pop)
 pop_dfs <- cleanup_by_species(df = catch, species = "Pacific ocean perch")
 pop_dfs <- lapply(pop_dfs, lat_filter_35)
 pop_dfs <- lapply(pop_dfs, depth_filter_500)
-pop_dfs <- pop_dfs[11:15] # only fit leftovers
+pop_dfs <- pop_dfs[c(5,8)] # only fit leftovers
+
 # make the names file
 pop_files <- as.list(names(pop_dfs))
 
@@ -666,7 +667,7 @@ rm(pop_dfs)
 gc()
 
 # Set up parallel processing
-plan(callr, workers = 24)  # Adjust workers based on memory
+plan( multisession, workers = 2)  # Adjust workers based on memory
 
 gc()  # Free memory before execution
 
@@ -703,11 +704,10 @@ process_and_save_fits(pop,"pop_leftovers")
 pop_indices <- pull_files(pop, "index")
 pop_indices_df <- bind_index_fn(pop_indices)
 #write.csv(pop_indices_df, "pop_indices_df.csv", row.names = F)
-write.csv(pop_indices_df, "pop_leftover_indices_df.csv", row.names = F)
+write.csv(pop_indices_df, "pop_leftovers_indices_df.csv", row.names = F)
 
 # Remove the rest of the files
 rm("pop_files", "pop_indices", "pop_indices_df")
-
 #combine leftovers with other results
 setwd(pop)
 fc<- read.csv("pop_fit_check_df.csv")
@@ -746,7 +746,7 @@ dogfish_dfs <- lapply(dogfish_dfs, depth_filter_700)
 dogfish_files <- as.list(names(dogfish_dfs))
 
 # Set up parallel processing
-plan(callr, workers = 6)  # Adjust workers based on memory
+plan( multisession, workers = 6)  # Adjust workers based on memory
 
 gc()  # Free memory before execution
 
@@ -814,7 +814,7 @@ rm(petrale_dfs)
 gc()
 
 # Set up parallel processing
-plan(callr, workers = 24)  # Adjust workers based on memory
+plan( multisession, workers = 24)  # Adjust workers based on memory
 
 gc()  # Free memory before execution
 
@@ -906,7 +906,7 @@ rm(rex_dfs)
 gc()
 
 # Set up parallel processing
-plan(callr, workers = 6)  # Adjust workers based on memory
+plan( multisession, workers = 6)  # Adjust workers based on memory
 
 gc()  # Free memory before execution
 
@@ -973,7 +973,7 @@ rm(sablefish_dfs)
 gc()
 
 # Set up parallel processing
-plan(callr, workers = 24)  # Adjust workers based on memory
+plan( multisession, workers = 24)  # Adjust workers based on memory
 
 gc()  # Free memory before execution
 
@@ -1046,7 +1046,7 @@ file.remove(files_to_remove)  # Delete the files
 #### Shortspine thornyhead ####################################################################################################
 setwd(shortspine)
 shortspine_dfs <- cleanup_by_species(df = catch, species = "shortspine thornyhead")
-shortspine_dfs <- shortspine_dfs[c(19:30,40,56:61,70:76,88:91)] # reduce DFs to only the leftovers
+shortspine_dfs <- shortspine_dfs[56] # fitting to DF 88 produces a singularity error, 56 is NA/NaN fn evaluation 
 # make the names file
 shortspine_files <- as.list(names(shortspine_dfs))
 
@@ -1063,7 +1063,7 @@ rm(shortspine_dfs)
 gc()
 
 # Set up parallel processing
-plan(callr, workers = 18)  # Adjust workers based on memory
+plan( multisession, workers = 8)  # Adjust workers based on memory
 
 gc()  # Free memory before execution
 
@@ -1093,21 +1093,42 @@ future_imap(shortspine_files, function(file_name, i) {
 print("SDM processing complete")
 
 ##### process fit files
+#process_and_save_fits(shortspine,"shortspine")
 process_and_save_fits(shortspine,"shortspine_leftovers")
 
 ##### process index files
 shortspine_indices <- pull_files(shortspine, "index")
 shortspine_indices_df <- bind_index_fn(shortspine_indices)
-write.csv(shortspine_indices_df, "shortspine_leftovers_indices_df.csv", row.names = F)
+#write.csv(shortspine_indices_df, "shortspine_indices_df.csv", row.names = F)
+write.csv(shortspine_indices_df, "shortspine_leftover_indices_df.csv", row.names = F)
 
 # Remove the rest of the files
 rm("shortspine_files", "shortspine_indices", "shortspine_indices_df")
 
-#remove from memory
-files_to_keep <- c("shortspine_fit_check_df.csv", "shortspine_fit_df.csv", "shortspine_pars_df.csv", "shortspine_indices_df.csv",
-                   "shortspine_leftovers_fit_check_df.csv", "shortspine_leftovers_fit_df.csv", "shortspine_leftovers_pars_df.csv",
-                   "shortspine_leftovers_indices_df.csv")
+#combine leftovers with other results
+setwd(shortspine)
+fc<- read.csv("shortspine_fit_check_df.csv")
+fd<- read.csv("shortspine_fit_df.csv")
+pd<- read.csv("shortspine_pars_df.csv")
+id<- read.csv("shortspine_indices_df.csv")
 
+fcl<- read.csv("shortspine_leftovers_fit_check_df.csv")
+fdl<- read.csv("shortspine_leftovers_fit_df.csv")
+pdl<- read.csv("shortspine_leftovers_pars_df.csv")
+idl<- read.csv("shortspine_leftover_indices_df.csv")
+
+fcc<- rbind(fc,fcl)
+fdc<- rbind(fd,fdl)
+pdc<- rbind(pd,pdl)
+idc<- rbind(id,idl)
+
+write.csv(fcc,"shortspine_fit_check_df.csv",row.names = F)
+write.csv(fdc,"shortspine_fit_df.csv",row.names = F)
+write.csv(pdc,"shortspine_pars_df.csv",row.names = F)
+write.csv(idc,"shortspine_indices_df.csv",row.names = F)
+
+#remove from memory
+files_to_keep <- c("shortspine_fit_check_df.csv", "shortspine_fit_df.csv", "shortspine_pars_df.csv", "shortspine_indices_df.csv")
 all_files <- list.files(path = ".", full.names = TRUE)  # Get all files
 files_to_remove <- setdiff(all_files, file.path(".", files_to_keep))  # Exclude files to keep
 file.remove(files_to_remove)  # Delete the files
@@ -1117,7 +1138,8 @@ setwd(widow)
 widow_dfs <- cleanup_by_species(df = catch, species = "widow rockfish")
 widow_dfs <- lapply(widow_dfs, lat_filter_335)
 widow_dfs <- lapply(widow_dfs, depth_filter_675)
-# widow_dfs <- widow_dfs[90:91] # reduce DFs for testing
+widow_dfs <- widow_dfs[c(11,13,64,66:68,72)] #fit to missing dfs
+
 # make the names file
 widow_files <- as.list(names(widow_dfs))
 
@@ -1134,7 +1156,7 @@ rm(widow_dfs)
 gc()
 
 # Set up parallel processing
-plan(callr, workers = 6)  # Adjust workers based on memory
+plan(multisession, workers = 7)  # Adjust workers based on memory and dfs
 
 gc()  # Free memory before execution
 
@@ -1164,15 +1186,39 @@ future_imap(widow_files, function(file_name, i) {
 print("SDM processing complete")
 
 ##### process fit files
-process_and_save_fits(widow,"widow")
+#process_and_save_fits(widow,"widow")
+process_and_save_fits(widow,"widow_leftovers")
 
 ##### process index files
 widow_indices <- pull_files(widow, "index")
 widow_indices_df <- bind_index_fn(widow_indices)
-write.csv(widow_indices_df, "widow_indices_df.csv", row.names = F)
+#write.csv(widow_indices_df, "widow_indices_df.csv", row.names = F)
+write.csv(widow_indices_df, "widow_leftover_indices_df.csv", row.names = F)
 
 # Remove the rest of the files
 rm("widow_files", "widow_indices", "widow_indices_df")
+
+#combine leftovers with other results
+setwd(widow)
+fc<- read.csv("widow_fit_check_df.csv")
+fd<- read.csv("widow_fit_df.csv")
+pd<- read.csv("widow_pars_df.csv")
+id<- read.csv("widow_indices_df.csv")
+
+fcl<- read.csv("widow_leftovers_fit_check_df.csv")
+fdl<- read.csv("widow_leftovers_fit_df.csv")
+pdl<- read.csv("widow_leftovers_pars_df.csv")
+idl<- read.csv("widow_leftover_indices_df.csv")
+
+fcc<- rbind(fc,fcl)
+fdc<- rbind(fd,fdl)
+pdc<- rbind(pd,pdl)
+idc<- rbind(id,idl)
+
+write.csv(fcc,"widow_fit_check_df.csv",row.names = F)
+write.csv(fdc,"widow_fit_df.csv",row.names = F)
+write.csv(pdc,"widow_pars_df.csv",row.names = F)
+write.csv(idc,"widow_indices_df.csv",row.names = F)
 
 #remove from memory
 files_to_keep <- c("widow_fit_check_df.csv", "widow_fit_df.csv", "widow_pars_df.csv", "widow_indices_df.csv")
@@ -1185,7 +1231,8 @@ setwd(yellowtail)
 yellowtail_dfs <- cleanup_by_species(df = catch, species = "yellowtail rockfish")
 yellowtail_dfs <- lapply(yellowtail_dfs, lat_filter_335)
 yellowtail_dfs <- lapply(yellowtail_dfs, depth_filter_425)
-# yellowtail_dfs <- yellowtail_dfs[90:91] # reduce DFs for testing
+yellowtail_dfs <- yellowtail_dfs[c(3,6)] # fit to leftovers
+
 # make the names file
 yellowtail_files <- as.list(names(yellowtail_dfs))
 
@@ -1202,7 +1249,7 @@ rm(yellowtail_dfs)
 gc()
 
 # Set up parallel processing
-plan(callr, workers = 6)  # Adjust workers based on memory
+plan(multisession, workers = 2)  # Adjust workers based on memory
 
 gc()  # Free memory before execution
 
@@ -1232,15 +1279,39 @@ future_imap(yellowtail_files, function(file_name, i) {
 print("SDM processing complete")
 
 ##### process fit files
-process_and_save_fits(yellowtail,"yellowtail")
+#process_and_save_fits(yellowtail,"yellowtail")
+process_and_save_fits(yellowtail,"yellowtail_leftovers")
 
 ##### process index files
 yellowtail_indices <- pull_files(yellowtail, "index")
 yellowtail_indices_df <- bind_index_fn(yellowtail_indices)
-write.csv(yellowtail_indices_df, "yellowtail_indices_df.csv", row.names = F)
+#write.csv(yellowtail_indices_df, "yellowtail_indices_df.csv", row.names = F)
+write.csv(yellowtail_indices_df, "yellowtail_leftover_indices_df.csv", row.names = F)
 
 # Remove the rest of the files
 rm("yellowtail_files", "yellowtail_indices", "yellowtail_indices_df")
+
+#combine leftovers with other results
+setwd(yellowtail)
+fc<- read.csv("yellowtail_fit_check_df.csv")
+fd<- read.csv("yellowtail_fit_df.csv")
+pd<- read.csv("yellowtail_pars_df.csv")
+id<- read.csv("yellowtail_indices_df.csv")
+
+fcl<- read.csv("yellowtail_leftovers_fit_check_df.csv")
+fdl<- read.csv("yellowtail_leftovers_fit_df.csv")
+pdl<- read.csv("yellowtail_leftovers_pars_df.csv")
+idl<- read.csv("yellowtail_leftover_indices_df.csv")
+
+fcc<- rbind(fc,fcl)
+fdc<- rbind(fd,fdl)
+pdc<- rbind(pd,pdl)
+idc<- rbind(id,idl)
+
+write.csv(fcc,"yellowtail_fit_check_df.csv",row.names = F)
+write.csv(fdc,"yellowtail_fit_df.csv",row.names = F)
+write.csv(pdc,"yellowtail_pars_df.csv",row.names = F)
+write.csv(idc,"yellowtail_indices_df.csv",row.names = F)
 
 #remove from memory
 files_to_keep <- c("yellowtail_fit_check_df.csv", "yellowtail_fit_df.csv", "yellowtail_pars_df.csv", "yellowtail_indices_df.csv")
