@@ -12,7 +12,6 @@
 #' @param strata A string specifying the type of strata to use. Options are
 #' "mid" or others. Default is "mid".
 #' @param fleet_number An integer specifying the fleet number for the WCGBTS.
-#' @param species_group A species group for input data.
 #'
 #' @return This function does not return a value. It writes modified SS3 files
 #' and runs the SS3 model.
@@ -28,21 +27,19 @@
 #'                     model_name = model_name,
 #'                     sdm_model_filt = sdm_model_filt,
 #'                     strata = strata,
-#'                     fleet_number = fleet_number,
-#'                     species_group = species_group
+#'                     fleet_number = fleet_number
 #'                     )
 #'
 
 run_model_efforts <- function(catch_filtered,
-                               bio_filtered,
-                               resampled_model_dir,
-                               original_model_dir,
-                               sdm_model_filt,
-                               model_name,
-                               strata,
-                               fleet_number,
-                               species_group
-                               )
+                              bio_filtered,
+                              resampled_model_dir,
+                              original_model_dir,
+                              sdm_model_filt,
+                              model_name,
+                              strata,
+                              fleet_number
+                              )
   {
     # read in SS3 inputs
     # if replicate/effort folder doesn't exist
@@ -51,37 +48,27 @@ run_model_efforts <- function(catch_filtered,
     
     new_dir <- file.path(resampled_model_dir, paste0(model_name, "_", model_iter))
     
-    if (length(dirs) != 0) {
-      full_model_name <- paste0(model_name, "_", model_iter)
-      matches <- grepl(full_model_name, dirs)
-      if (any(matches) == FALSE){
-        r4ss::copy_SS_inputs(
-          dir.old = file.path(original_model_dir),
-          dir.new = new_dir,
-          create.dir = TRUE,
-          overwrite = TRUE,
-          use_ss_new = FALSE,
-          verbose = TRUE
-        )
-      }
-    }
-    
-    if (length(dirs) == 0) {
-      r4ss::copy_SS_inputs(
-        dir.old = file.path(original_model_dir),
-        dir.new = new_dir,
-        create.dir = TRUE,
-        overwrite = TRUE,
-        use_ss_new = FALSE,
-        verbose = TRUE
+    r4ss::copy_SS_inputs(
+      dir.old = file.path(original_model_dir),
+      dir.new = new_dir,
+      create.dir = TRUE,
+      overwrite = TRUE,
+      use_ss_new = FALSE,
+      verbose = TRUE
       )
-    }
     
     
     ss3_inputs <- r4ss::SS_read(new_dir)
     
+    # determine the number of sexes to use when pulling data
+    if(ss3_inputs$dat$spawn_month == 2){
+      n_sexes <- TRUE
+    } else {
+      n_sexes <- FALSE
+    }
+    
     # calculate length compositions from resampled survey data
-    if(length(row.names(ss3_inputs$dat$agecomp |> filter(fleet == fleet_number)))){
+    if(length(row.names(ss3_inputs$dat$lencomp |> filter(fleet == fleet_number))) > 1){
       len_comp_new <- nwfscSurvey::get_expanded_comps(
         bio_data = bio_filtered,
         catch_data = catch_filtered,
@@ -89,19 +76,33 @@ run_model_efforts <- function(catch_filtered,
         comp_column_name = "Length_cm",
         strata = strata,
         fleet = fleet_number,
-        month = 7
+        month = 7,
+        two_sex_comps = n_sexes
       )
       
-      len_comp_new <- len_comp_new$sexed
+      if(ss3_inputs$dat$spawn_month == 2){
+        len_comp_new <- len_comp_new$sexed
+      } else {
+        len_comp_new <- len_comp_new$unsexed
+      }
+      
+      yrs_include <- ss3_inputs$dat$lencomp |> 
+        dplyr::filter(fleet == fleet_number)
+      
       len_comp_new <- len_comp_new |>
-        dplyr::rename(part = "partition", Nsamp = "input_n")
+        dplyr::rename(part = "partition", Nsamp = "input_n") |>
+        filter(year %in% yrs_include$year)
+      colnames(len_comp_new) <- colnames(ss3_inputs$dat$lencomp)
       
       # Add length comp back into data file
       ss3_inputs$dat$lencomp <- ss3_inputs$dat$lencomp |> 
         dplyr::filter(fleet != fleet_number) |> # leave all other as they were
         dplyr::bind_rows(len_comp_new) |> # new length comps for WCGBTS fleet
-        arrange(fleet)
+        arrange(abs(fleet))
+    }
       
+    # ages
+    if(length(row.names(ss3_inputs$dat$agecomp |> filter(abs(fleet) == fleet_number))) > 1){
       # marginal age at length
       if (any(ss3_inputs$dat$agecomp$Lbin_hi == -1)) {
         maal <- nwfscSurvey::get_expanded_comps(
@@ -111,19 +112,35 @@ run_model_efforts <- function(catch_filtered,
           comp_column_name =  "age",
           strata = strata,
           fleet = fleet_number,
-          month = 7
+          month = 7,
+          two_sex_comps = n_sexes
         )
-        maal <- maal$sexed
+        
+        if(ss3_inputs$dat$spawn_month == 2){
+          maal <- maal$sexed
+        } else {
+          maal <- maal$unsexed
+        }
         maal <- maal |>
           dplyr::rename(part = "partition", Nsamp = "input_n")
         
         for (y in unique(maal$year)) {
           ageerr_y <- ss3_inputs$dat$agecomp |>
-            dplyr::filter(year == y & fleet == fleet_number) |>
+            dplyr::filter(year == y & abs(fleet) == fleet_number) |>
+            dplyr::filter(Lbin_hi == -1) |>
             dplyr::pull(ageerr) |>
             unique()
-          maal$ageerr[maal$year == y] <- ageerr_y
+          
+          idx <- which(maal$year == y)
+          maal$ageerr[idx] <- rep(ageerr_y, length(idx))
         }
+        
+        yrs_include <- ss3_inputs$dat$agecomp |> 
+          dplyr::filter(abs(fleet) == fleet_number,
+                        Lbin_hi == -1)
+          
+        maal <- maal |>
+          dplyr::filter(year %in% yrs_include$year)
       }
       
       # conditional-age-at-length comps
@@ -137,38 +154,55 @@ run_model_efforts <- function(catch_filtered,
         )
         caal <- caal |>
           dplyr::rename(part = "partition", Nsamp = "input_n")
+        
+        yrs_include <- ss3_inputs$dat$agecomp |> 
+          dplyr::filter(abs(fleet) == fleet_number,
+                        Lbin_hi != -1)
+        
+        caal <- caal |>
+          dplyr::filter(year %in% yrs_include$year)
+        
         # figure out year-specific ageing error type
         # (petrale may be only species with multiple types due to WDFW ageing the survey fish in a few years)
+        
         for (y in unique(caal$year)) {
           ageerr_y <- ss3_inputs$dat$agecomp |>
-            dplyr::filter(year == y & fleet == fleet_number) |>
+            dplyr::filter(year == y & abs(fleet) == fleet_number) |>
+            dplyr::filter(Lbin_hi != -1) |>
             dplyr::pull(ageerr) |>
             unique()
-          caal$ageerr[caal$year == y] <- ageerr_y
+  
+          idx <- which(caal$year == y)
+          caal$ageerr[idx] <- rep(ageerr_y, length(idx))
         }
+        
+        yrs_include <- ss3_inputs$dat$agecomp |> 
+          dplyr::filter(abs(fleet) == fleet_number,
+                        Lbin_hi != -1)
+        
+        caal <- caal |>
+          dplyr::filter(year %in% yrs_include$year)
       }
       
       ages <- data.frame()
       if (exists("caal")) { ages <- dplyr::bind_rows(ages, caal) }
       if (exists("maal")) { ages <- dplyr::bind_rows(ages, maal) }
+      colnames(ages) <- colnames(ss3_inputs$dat$agecomp)
       
       # update age comps in the model
       ss3_inputs$dat$agecomp <- ss3_inputs$dat$agecomp |> 
         dplyr::filter(fleet != fleet_number) |>
         bind_rows(ages) |> 
-        arrange(fleet)
+        arrange(abs(fleet))
     }
     
     #### Add Index Data #### -----------------------------------------------------------------------
     sdm_model_i <- sdm_model_filt |>
-      filter(model_iter == unique(bio_filtered$source)) |>
-      filter(Year <= ss3_inputs$dat$endyr) |>
-      mutate(month = 7, index = fleet_number) |>
-      # QUESTION:
-      # Do we need log_est or se?
-      # Is est in kg, T, or MT?
-      select(Year, month, index, est, se) |>
-      rename(year = Year, obs = est, se_log = se)
+      dplyr::filter(model_iter == unique(bio_filtered$source)) |>
+      dplyr::filter(Year <= ss3_inputs$dat$endyr) |>
+      dplyr::mutate(month = 7, index = fleet_number) |>
+      dplyr::select(Year, month, index, est, se) |>
+      dplyr::rename(year = Year, obs = est, se_log = se)
     
     ss3_inputs$dat$CPUE <-
       rbind(

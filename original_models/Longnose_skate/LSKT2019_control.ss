@@ -191,8 +191,8 @@
 #Retention
 #_LO  HI    INIT  PRIOR PR_SD   PR_type PHASE   env-var use_dev dev_min dev_max dev_std Block   Block_Fxn
 15			150		27		35			 	99			0			 	 2			0				0				0					0							0				0				0				#Inflection               
-0.1			10		2			1				 	99			0			 	 2			0				0				0					0							0				0				0				#Slope                    # 1 means that parm’ = baseparm + blockparm
--10			10		10		10			 	99			0			 	-3			0				0				0					0							0				2				2				#Asymptotic retention     # 2 means that parm’ = blockparm
+0.1			10		2			1				 	99			0			 	 2			0				0				0					0							0				0				0				#Slope                    # 1 means that parm? = baseparm + blockparm
+-10			10		10		10			 	99			0			 	-3			0				0				0					0							0				2				2				#Asymptotic retention     # 2 means that parm? = blockparm
 0				0			0			0				 	99			0			 	-3			0				0				0					0							0				0				0	      #Male offset To inflection
 #Discard mortality
 #_LO  HI    INIT  PRIOR PR_SD   PR_type PHASE   env-var use_dev dev_min dev_max dev_std Block   Block_Fxn
