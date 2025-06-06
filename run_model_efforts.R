@@ -57,11 +57,10 @@ run_model_efforts <- function(catch_filtered,
       verbose = TRUE
       )
     
-    
     ss3_inputs <- r4ss::SS_read(new_dir)
     
     # determine the number of sexes to use when pulling data
-    if(ss3_inputs$dat$spawn_month == 2){
+    if(ss3_inputs$dat$Nsexes == 2){
       n_sexes <- TRUE
     } else {
       n_sexes <- FALSE
@@ -80,7 +79,7 @@ run_model_efforts <- function(catch_filtered,
         two_sex_comps = n_sexes
       )
       
-      if(ss3_inputs$dat$spawn_month == 2){
+      if(ss3_inputs$dat$Nsexes == 2){
         len_comp_new <- len_comp_new$sexed
       } else {
         len_comp_new <- len_comp_new$unsexed
@@ -102,100 +101,121 @@ run_model_efforts <- function(catch_filtered,
     }
       
     # ages
-    if(length(row.names(ss3_inputs$dat$agecomp |> filter(abs(fleet) == fleet_number))) > 1){
-      # marginal age at length
-      if (any(ss3_inputs$dat$agecomp$Lbin_hi == -1)) {
-        maal <- nwfscSurvey::get_expanded_comps(
-          bio_data = bio_filtered,
-          catch_data = catch_filtered,
-          comp_bins = ss3_inputs$dat$agebin_vector,
-          comp_column_name =  "age",
-          strata = strata,
-          fleet = fleet_number,
-          month = 7,
-          two_sex_comps = n_sexes
-        )
-        
-        if(ss3_inputs$dat$spawn_month == 2){
-          maal <- maal$sexed
-        } else {
-          maal <- maal$unsexed
-        }
-        maal <- maal |>
-          dplyr::rename(part = "partition", Nsamp = "input_n")
-        
-        for (y in unique(maal$year)) {
-          ageerr_y <- ss3_inputs$dat$agecomp |>
-            dplyr::filter(year == y & abs(fleet) == fleet_number) |>
-            dplyr::filter(Lbin_hi == -1) |>
-            dplyr::pull(ageerr) |>
-            unique()
+    if(!is.null(ss3_inputs$dat$agecomp)){
+      if(length(row.names(ss3_inputs$dat$agecomp |> filter(abs(fleet) == fleet_number))) > 1){
+        # marginal age at length
+        if (any(ss3_inputs$dat$agecomp$Lbin_hi == -1)) {
+          maal <- nwfscSurvey::get_expanded_comps(
+            bio_data = bio_filtered,
+            catch_data = catch_filtered,
+            comp_bins = ss3_inputs$dat$agebin_vector,
+            comp_column_name =  "age",
+            strata = strata,
+            fleet = fleet_number,
+            month = 7,
+            two_sex_comps = n_sexes
+          )
           
-          idx <- which(maal$year == y)
-          maal$ageerr[idx] <- rep(ageerr_y, length(idx))
-        }
-        
-        yrs_include <- ss3_inputs$dat$agecomp |> 
-          dplyr::filter(abs(fleet) == fleet_number,
-                        Lbin_hi == -1)
+          if(ss3_inputs$dat$Nsexes == 2){
+            maal <- maal$sexed
+          } else {
+            maal <- maal$unsexed
+          }
+          maal <- maal |>
+            dplyr::rename(part = "partition", Nsamp = "input_n")
           
-        maal <- maal |>
-          dplyr::filter(year %in% yrs_include$year)
-      }
-      
-      # conditional-age-at-length comps
-      if (any(ss3_inputs$dat$agecomp$Lbin_hi != -1)) {
-        caal <- nwfscSurvey::get_raw_caal(
-          data = bio_filtered,
-          len_bins = ss3_inputs$dat$lbin_vector,
-          age_bins = ss3_inputs$dat$agebin_vector,
-          fleet = fleet_number,
-          month = 7
-        )
-        caal <- caal |>
-          dplyr::rename(part = "partition", Nsamp = "input_n")
-        
-        yrs_include <- ss3_inputs$dat$agecomp |> 
-          dplyr::filter(abs(fleet) == fleet_number,
-                        Lbin_hi != -1)
-        
-        caal <- caal |>
-          dplyr::filter(year %in% yrs_include$year)
-        
-        # figure out year-specific ageing error type
-        # (petrale may be only species with multiple types due to WDFW ageing the survey fish in a few years)
-        
-        for (y in unique(caal$year)) {
-          ageerr_y <- ss3_inputs$dat$agecomp |>
-            dplyr::filter(year == y & abs(fleet) == fleet_number) |>
-            dplyr::filter(Lbin_hi != -1) |>
-            dplyr::pull(ageerr) |>
-            unique()
-  
-          idx <- which(caal$year == y)
-          caal$ageerr[idx] <- rep(ageerr_y, length(idx))
+          yrs_include <- ss3_inputs$dat$agecomp |> 
+            dplyr::filter(abs(fleet) == fleet_number,
+                          Lbin_hi == -1)
+          
+          maal <- maal |>
+            dplyr::filter(year %in% yrs_include$year)
+          
+          for (y in unique(maal$year)) {
+            ageerr_y <- ss3_inputs$dat$agecomp |>
+              dplyr::filter(year == y & abs(fleet) == fleet_number) |>
+              dplyr::filter(Lbin_hi == -1) |>
+              dplyr::select(ageerr, fleet) |>
+              unique()
+            
+            idx <- which(maal$year == y)
+            maal$ageerr[idx] <- rep(ageerr_y$ageerr, length(idx))
+            maal$fleet[idx] <- rep(ageerr_y$fleet, length(idx))
+          }
+          
+          colnames(maal) <- colnames(ss3_inputs$dat$agecomp)
         }
         
-        yrs_include <- ss3_inputs$dat$agecomp |> 
-          dplyr::filter(abs(fleet) == fleet_number,
-                        Lbin_hi != -1)
-        
-        caal <- caal |>
-          dplyr::filter(year %in% yrs_include$year)
-      }
-      
-      ages <- data.frame()
-      if (exists("caal")) { ages <- dplyr::bind_rows(ages, caal) }
-      if (exists("maal")) { ages <- dplyr::bind_rows(ages, maal) }
-      colnames(ages) <- colnames(ss3_inputs$dat$agecomp)
-      
-      # update age comps in the model
-      ss3_inputs$dat$agecomp <- ss3_inputs$dat$agecomp |> 
-        dplyr::filter(fleet != fleet_number) |>
-        bind_rows(ages) |> 
-        arrange(abs(fleet))
-    }
+        # conditional-age-at-length comps
+        if (any(ss3_inputs$dat$agecomp$Lbin_hi != -1)) {
+          caal <- nwfscSurvey::get_raw_caal(
+            data = bio_filtered,
+            len_bins = ss3_inputs$dat$lbin_vector,
+            age_bins = ss3_inputs$dat$agebin_vector,
+            fleet = fleet_number,
+            month = 7
+          )
+          caal <- caal |>
+            dplyr::rename(part = "partition", Nsamp = "input_n")
+          
+          yrs_include <- ss3_inputs$dat$agecomp |> 
+            dplyr::filter(abs(fleet) == fleet_number,
+                          Lbin_hi != -1)
+          
+          caal <- caal |>
+            dplyr::filter(year %in% yrs_include$year)
+          # figure out year-specific ageing error type
+          # (petrale may be only species with multiple types due to WDFW ageing the survey fish in a few years)
+          
+          for (y in unique(caal$year)) {
+            ageerr_y <- ss3_inputs$dat$agecomp |>
+              dplyr::filter(year == y & abs(fleet) == fleet_number) |>
+              dplyr::filter(Lbin_hi != -1) |>
+              dplyr::select(ageerr, fleet) |>
+              unique()
     
+            idx <- which(caal$year == y)
+            caal$ageerr[idx] <- rep(ageerr_y$ageerr, length(idx))
+            caal$fleet[idx] <- rep(ageerr_y$fleet, length(idx))
+          }
+          
+          if(abs(ss3_inputs$dat$Nsexes) == 1){
+            caal <- caal |>
+              dplyr::arrange(year, Lbin_lo) |>
+              tidyr::pivot_longer(cols = 10:length(colnames(caal)), names_to = "age", values_to = "count") |>
+              dplyr::mutate(Nsamp = case_when(
+                grepl("m", age) ~ 0,
+                grepl("f", age) ~ Nsamp
+              )) |>
+              mutate(age = as.numeric(stringr::str_remove_all(age, "f|m"))) |>
+              dplyr::group_by(year, Lbin_lo, age) |>
+              dplyr::summarize(month = unique(month),
+                               fleet = unique(fleet),
+                               sex = 0,
+                               partition = unique(part),
+                               ageerr = unique(ageerr),
+                               Lbin_hi = unique(Lbin_hi),
+                               Nsamp = sum(Nsamp),
+                               count = sum(count)) |>
+              dplyr::select(year, month, fleet, sex, partition, ageerr, Lbin_lo, Lbin_hi, Nsamp, age, count) |>
+              tidyr::pivot_wider(names_from = "age", values_from = "count")
+          }
+          colnames(caal) <- colnames(ss3_inputs$dat$agecomp)
+        }
+        
+        ages <- data.frame()
+        if (exists("caal")) { ages <- dplyr::bind_rows(ages, caal) }
+        if (exists("maal")) { ages <- dplyr::bind_rows(ages, maal) }
+        ages <- ages |>
+          dplyr::mutate(ageerr = as.integer(ageerr))
+        
+        # update age comps in the model
+        ss3_inputs$dat$agecomp <- ss3_inputs$dat$agecomp |> 
+          dplyr::filter(abs(fleet) != fleet_number) |>
+          bind_rows(ages) |> 
+          arrange(Lbin_hi, abs(fleet))
+      }
+    }
     #### Add Index Data #### -----------------------------------------------------------------------
     sdm_model_i <- sdm_model_filt |>
       dplyr::filter(model_iter == unique(bio_filtered$source)) |>

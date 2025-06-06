@@ -71,16 +71,16 @@ purrr::map(df_list, ~ run_model(species_name = .x$species_name,
                     catch_df = catch,
                     bio_df = bio))
 
-species_name <- df_list[[1]]$species_name
-original_model_dir <- df_list[[1]]$original_model_dir
-sdm_dir <- df_list[[1]]$sdm_dir
-lat_filter <- df_list[[1]]$lat_filter
-depth_filter <- df_list[[1]]$depth_filter
-strata_type <- df_list[[1]]$strata_type
-fleet_number <- df_list[[1]]$fleet_number
-resampled_model_dir = resampled_model_dir
-catch_df <- catch
-bio_df <- bio
+# species_name <- df_list[[5]]$species_name
+# original_model_dir <- df_list[[5]]$original_model_dir
+# sdm_dir <- df_list[[5]]$sdm_dir
+# lat_filter <- df_list[[5]]$lat_filter
+# depth_filter <- df_list[[5]]$depth_filter
+# strata_type <- df_list[[5]]$strata_type
+# fleet_number <- df_list[[5]]$fleet_number
+# resampled_model_dir = resampled_model_dir
+# catch_df <- catch
+# bio_df <- bio
 
 # run_model(species_name = "petrale sole",
 #           original_model_dir = og_model_dir,
@@ -255,14 +255,14 @@ run_model <- function(
                      fleet_number = fleet_number
   )
   # run_model_efforts(
-  catch_filtered <- catch_filtered[[1]]
-  bio_filtered <- bio_filtered[[1]]
-  resampled_model_dir <- resampled_model_dir[[1]]
-  original_model_dir <- original_model_dir[[1]]
-  sdm_model_filt <- sdm_model_filt
-  model_name <- model_name
-  strata <- strata
-  fleet_number <- fleet_number
+  # catch_filtered <- catch_filtered[[1]]
+  # bio_filtered <- bio_filtered[[1]]
+  # resampled_model_dir <- resampled_model_dir[[1]]
+  # original_model_dir <- original_model_dir[[1]]
+  # sdm_model_filt <- sdm_model_filt
+  # model_name <- model_name
+  # strata <- strata
+  # fleet_number <- fleet_number
   # )
   plan(sequential)
 }
