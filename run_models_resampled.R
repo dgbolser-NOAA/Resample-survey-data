@@ -71,29 +71,27 @@ purrr::map(df_list, ~ run_model(species_name = .x$species_name,
                     catch_df = catch,
                     bio_df = bio))
 
-# species_name <- df_list[[5]]$species_name
-# original_model_dir <- df_list[[5]]$original_model_dir
-# sdm_dir <- df_list[[5]]$sdm_dir
-# lat_filter <- df_list[[5]]$lat_filter
-# depth_filter <- df_list[[5]]$depth_filter
-# strata_type <- df_list[[5]]$strata_type
-# fleet_number <- df_list[[5]]$fleet_number
+species_name <- df_list[[5]]$species_name
+original_model_dir <- df_list[[5]]$original_model_dir
+sdm_dir <- df_list[[5]]$sdm_dir
+lat_filter <- df_list[[5]]$lat_filter
+depth_filter <- df_list[[5]]$depth_filter
+strata_type <- df_list[[5]]$strata_type
+fleet_number <- df_list[[5]]$fleet_number
 # resampled_model_dir = resampled_model_dir
 # catch_df <- catch
 # bio_df <- bio
 
-# run_model(species_name = "petrale sole",
-#           original_model_dir = og_model_dir,
-#           sdm_dir = sdm_model_dir,
-#           lat_filter = NA,
-#           depth_filter = "depth_filter_675",
-#           strata_type = "mid",
-#           fleet_number = 4,
-#           resampled_model_dir = resampled_model_dir,
-#           catch_df = catch,
-#           bio_df = bio)
-
-
+run_model(species_name = df_list[[5]]$species_name,
+          original_model_dir = df_list[[5]]$original_model_dir,
+          sdm_dir = df_list[[5]]$sdm_dir,
+          lat_filter = df_list[[5]]$lat_filter,
+          depth_filter = df_list[[5]]$depth_filter,
+          strata_type = df_list[[5]]$strata_type,
+          fleet_number = df_list[[5]]$fleet_number,
+          resampled_model_dir = resampled_model_dir,
+          catch_df = catch,
+          bio_df = bio)
 
 #' Run the model for a given species
 #'
@@ -265,4 +263,6 @@ run_model <- function(
   # fleet_number <- fleet_number
   # )
   plan(sequential)
+  
+  # Add get list of models that did not run/did not invert Hessian?
 }

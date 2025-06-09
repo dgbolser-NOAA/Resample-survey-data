@@ -42,9 +42,10 @@ run_model_efforts <- function(catch_filtered,
                               )
   {
     # read in SS3 inputs
-    # if replicate/effort folder doesn't exist
     dirs <- list.dirs(resampled_model_dir, recursive = FALSE)
     model_iter <- unique(catch_filtered$source)
+    
+    message("Starting ", model_name, model_iter)
     
     new_dir <- file.path(resampled_model_dir, paste0(model_name, "_", model_iter))
     
@@ -54,10 +55,12 @@ run_model_efforts <- function(catch_filtered,
       create.dir = TRUE,
       overwrite = TRUE,
       use_ss_new = FALSE,
-      verbose = TRUE
+      verbose = FALSE
       )
     
-    ss3_inputs <- r4ss::SS_read(new_dir)
+    ss3_inputs <- r4ss::SS_read(new_dir, verbose = FALSE)
+    
+    message("Insert resampled biology for: ", model_name, model_iter)
     
     # determine the number of sexes to use when pulling data
     if(ss3_inputs$dat$Nsexes == 2){
@@ -217,6 +220,7 @@ run_model_efforts <- function(catch_filtered,
       }
     }
     #### Add Index Data #### -----------------------------------------------------------------------
+    message("Insert resampled index for: ", model_name, model_iter)
     sdm_model_i <- sdm_model_filt |>
       dplyr::filter(model_iter == unique(bio_filtered$source)) |>
       dplyr::filter(Year <= ss3_inputs$dat$endyr) |>
@@ -236,14 +240,17 @@ run_model_efforts <- function(catch_filtered,
     r4ss::SS_write(
       ss3_inputs,
       dir = new_dir,
-      overwrite = TRUE
+      overwrite = TRUE,
+      verbose = FALSE
     )
     
     # download exe if it isn't in the file path
     if(file.exists(file.path(new_dir, "ss3")) == FALSE) {
       get_ss3_exe(new_dir)
     }
+    
     # run SS3 
+    message("Running model for ", model_name, model_iter)
     r4ss::run(new_dir, skipfinished = FALSE, extras = "-nohess")
     
     replist <- r4ss::SS_output(new_dir)
@@ -255,4 +262,6 @@ run_model_efforts <- function(catch_filtered,
       dir = new_dir,
       exe = "ss3"
     )
+    
+    message("Finished running for ", model_name, model_iter)
 }
