@@ -1,3 +1,5 @@
+# messy script created during co-working with Elizabeth and Ian
+# can be cleaned up later
 
 # temporary stuff for exploring scale of index estimates
 petrale_indices <- all_indices |>
@@ -32,7 +34,40 @@ SSplotComparisons(SSsummarize(petrale_models),
 petrale_summary <- SSsummarize(petrale_models)
 
 shortspine_dirs <- resampled_dirs[grepl("Shortspine", resampled_dirs)]
+
 shortspine_models <- r4ss::SSgetoutput(dirvec = shortspine_dirs)
 SSplotComparisons(SSsummarize(shortspine_models),
                   legendlabels = basename(shortspine_dirs))
 shortspine_summary <- SSsummarize(shortspine_models)
+# look at index uncertainty
+SSplotComparisons(SSsummarize(shortspine_models),
+                  subplots = 13, indexPlotEach = TRUE)
+
+# average input sample size is much lower for effort = 0.2 model
+petrale_effort1$condbase |> dplyr::filter(Fleet == 4) |> pull(Nsamp_in)  |> mean()
+# [1] 38.37296
+petrale_0.2_1$condbase |> dplyr::filter(Fleet == 4) |> pull(Nsamp_in)  |> mean()
+# [1] 9.448802
+
+# adjusted input sample sizes are more similar
+petrale_effort1$condbase |> dplyr::filter(Fleet == 4) |> pull(Nsamp_adj)  |> mean()
+# [1] 0.190236
+petrale_0.2_1$condbase |> dplyr::filter(Fleet == 4) |> pull(Nsamp_adj)  |> mean()
+# [1] 0.1372155
+
+# for lengths, the input sample size is about 20% for the 0.2 effort model
+petrale_effort1$lendbase |> dplyr::filter(Fleet == 4) |> pull(Nsamp_in)  |> mean()
+#[1] 1012.947
+petrale_0.2_1$lendbase |> dplyr::filter(Fleet == 4) |> pull(Nsamp_in)  |> mean()
+#[1] 215.4211
+# adjusted sample sizes are still pretty different
+petrale_effort1$lendbase |> dplyr::filter(Fleet == 4) |> pull(Nsamp_adj)  |> mean()
+#[1] 71.08765
+petrale_0.2_1$lendbase |> dplyr::filter(Fleet == 4) |> pull(Nsamp_adj)  |> mean()
+#[1] 42.30675
+
+shortspine_models$replist1$StartTime
+shortspine_models$replist2$StartTime
+
+library(purrr)
+start_times <- map(paste0("replist", 1:11), ~ shortspine_models[[.x]]$StartTime)
