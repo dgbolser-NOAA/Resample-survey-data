@@ -20,7 +20,8 @@ catch <- read.csv(here::here("data/nwfsc_bt_fmp_spp_updated.csv")) |>
     "petrale sole",
     "sablefish",
     "shortspine thornyhead",
-    "Pacific ocean perch"
+    "Pacific ocean perch",
+    "yellowtail rockfish"
   ))
 
 # Last pulled 6/5/2025
@@ -31,7 +32,8 @@ catch <- read.csv(here::here("data/nwfsc_bt_fmp_spp_updated.csv")) |>
 #     "petrale sole",
 #     "sablefish",
 #     "shortspine thornyhead",
-#     "Pacific ocean perch"
+#     "Pacific ocean perch",
+#     "yellowtail rockfish"
 #   )
 # )
 # saveRDS(bio, file = here::here("data", "nwfsc_bt_fmp_spp_updated_bio.rds"))
@@ -49,13 +51,13 @@ resampled_model_dir <- here::here("resampled_models")
 
 df <- data.frame(
   species_name = c("longnose skate", "Pacific ocean perch", "petrale sole",
-                   "sablefish", "shortspine thornyhead"),
+                   "sablefish", "shortspine thornyhead", "yellowtail rockfish"),
   original_model_dir = og_model_dir,
   sdm_dir = sdm_dir,
-  lat_filter = c(NA, "lat_filter_35", NA, NA, NA),
-  depth_filter = c(NA, "depth_filter_500", "depth_filter_675", NA, NA),
-  strata_type = c("deep", "mid", "mid", "deep", "deep"),
-  fleet_number = c(5, 8, 4, 7, 6)
+  lat_filter = c(NA, "lat_filter_35", NA, NA, NA, "lat_filter_335"),
+  depth_filter = c(NA, "depth_filter_500", "depth_filter_675", NA, NA, "depth_filter_425"),
+  strata_type = c("deep", "mid", "mid", "deep", "deep", "mid"),
+  fleet_number = c(5, 8, 4, 7, 6, 6)
 )
 
 df_list <- split(df, seq(nrow(df)))
@@ -71,24 +73,13 @@ purrr::map(df_list, ~ run_model(species_name = .x$species_name,
                     catch_df = catch,
                     bio_df = bio))
 
-species_name <- df_list[[5]]$species_name
-original_model_dir <- df_list[[5]]$original_model_dir
-sdm_dir <- df_list[[5]]$sdm_dir
-lat_filter <- df_list[[5]]$lat_filter
-depth_filter <- df_list[[5]]$depth_filter
-strata_type <- df_list[[5]]$strata_type
-fleet_number <- df_list[[5]]$fleet_number
-# resampled_model_dir = resampled_model_dir
-# catch_df <- catch
-# bio_df <- bio
-
-run_model(species_name = df_list[[5]]$species_name,
-          original_model_dir = df_list[[5]]$original_model_dir,
-          sdm_dir = df_list[[5]]$sdm_dir,
-          lat_filter = df_list[[5]]$lat_filter,
-          depth_filter = df_list[[5]]$depth_filter,
-          strata_type = df_list[[5]]$strata_type,
-          fleet_number = df_list[[5]]$fleet_number,
+run_model(species_name = df_list[[6]]$species_name,
+          original_model_dir = df_list[[6]]$original_model_dir,
+          sdm_dir = df_list[[6]]$sdm_dir,
+          lat_filter = df_list[[6]]$lat_filter,
+          depth_filter = df_list[[6]]$depth_filter,
+          strata_type = df_list[[6]]$strata_type,
+          fleet_number = df_list[[6]]$fleet_number,
           resampled_model_dir = resampled_model_dir,
           catch_df = catch,
           bio_df = bio)
@@ -162,7 +153,8 @@ run_model <- function(
   )) |>
     filter(effort %in% c(0.2, 0.4, 0.8, 1)) |>
     filter(effort != 0.1) |>
-    mutate(model_iter = paste0(effort,"_", replicate))
+    mutate(model_iter = paste0(effort,"_", replicate)) |>
+    filter(!is.na(se))
   
   # randomly sample 3 replicates from each effort
   sdm_model_reps <- sdm_model |>
@@ -202,6 +194,9 @@ run_model <- function(
   } else if (lat_filter == "lat_filter_35") {
     catch_filtered <- lapply(catch_filtered, lat_filter_35)
     bio_filtered <- lapply(bio_filtered, lat_filter_35)
+  } else if (lat_filter == "lat_filter_335") {
+    catch_filtered <- lapply(catch_filtered, lat_filter_335)
+    bio_filtered <- lapply(bio_filtered, lat_filter_335)
   } else {
     catch_filtered <- catch_filtered
     bio_filtered <- bio_filtered
@@ -216,6 +211,9 @@ run_model <- function(
   } else if (depth_filter == "depth_filter_675") {
     catch_filtered <- lapply(catch_filtered, depth_filter_675)
     bio_filtered <- lapply(bio_filtered, depth_filter_675)
+  } else if (depth_filter == "depth_filter_425") {
+    catch_filtered <- lapply(catch_filtered, depth_filter_425)
+    bio_filtered <- lapply(bio_filtered, depth_filter_425)
   } else {
     catch_filtered <- catch_filtered
     bio_filtered <- bio_filtered
@@ -253,10 +251,10 @@ run_model <- function(
                      fleet_number = fleet_number
   )
   # run_model_efforts(
-  # catch_filtered <- catch_filtered[[1]]
-  # bio_filtered <- bio_filtered[[1]]
-  # resampled_model_dir <- resampled_model_dir[[1]]
-  # original_model_dir <- original_model_dir[[1]]
+  # catch_filtered <- catch_filtered[[6]]
+  # bio_filtered <- bio_filtered[[6]]
+  # resampled_model_dir <- resampled_model_dir
+  # original_model_dir <- original_model_dir
   # sdm_model_filt <- sdm_model_filt
   # model_name <- model_name
   # strata <- strata
