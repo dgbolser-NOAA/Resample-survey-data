@@ -473,9 +473,16 @@ plot_composition_comparisons <- function(dir_list){
           effort = info$effort,
           replicate = info$replicate
         ) %>%
-        group_by(year) %>%
+        group_by(species, effort, year) %>%
         mutate(freq = freq / sum(freq)) %>%
         ungroup()
     }
   )
+  
+  comparison_plot <- lencomps %>%
+    filter(freq > 0) %>%
+    ggplot(aes(x = year, y = length, col = effort, size = freq)) +
+    geom_point(position = position_dodge(0.5)) +
+    facet_wrap(~species) +
+    theme_bw()
 }
