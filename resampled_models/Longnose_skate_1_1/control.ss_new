@@ -7,7 +7,7 @@
 
 #C LSKT control file
 #C file created using an r4ss function
-#C file write time: 2025-06-09  14:46:51
+#C file write time: 2025-06-12  19:47:22
 #_data_and_control_files: LSKT2019_data.ss // LSKT2019_control.ss
 0  # 0 means do not read wtatage.ss; 1 means read and use wtatage.ss and also read and use growth parameters
 1  #_N_Growth_Patterns (Growth Patterns, Morphs, Bio Patterns, GP are terms used interchangeably in SS3)
@@ -73,11 +73,11 @@
 #_growth_parms
 #_ LO HI INIT PRIOR PR_SD PR_type PHASE env_var&link dev_link dev_minyr dev_maxyr dev_PH Block Block_Fxn
 # Sex: 1  BioPattern: 1  NatMort
- 0.01 0.8 0.0717778 -1.57168 0.438438 3 2 0 0 0 0 0.5 0 0 # NatM_uniform_Fem_GP_1
+ 0.01 0.8 0.0657285 -1.57168 0.438438 3 2 0 0 0 0 0.5 0 0 # NatM_uniform_Fem_GP_1
 # Sex: 1  BioPattern: 1  Growth
- 0 40 19.2893 26.958 99 0 2 0 0 0 0 0.5 0 0 # L_at_Amin_Fem_GP_1
- 70 150 98.4382 109.74 99 0 2 0 0 0 0 0.5 0 0 # L_at_Amax_Fem_GP_1
- 0.035 0.15 0.0418787 0.047 99 0 1 0 0 0 0 0.5 0 0 # VonBert_K_Fem_GP_1
+ 0 40 19.1548 26.958 99 0 2 0 0 0 0 0.5 0 0 # L_at_Amin_Fem_GP_1
+ 70 150 95.4955 109.74 99 0 2 0 0 0 0 0.5 0 0 # L_at_Amax_Fem_GP_1
+ 0.035 0.15 0.035 0.047 99 0 1 0 0 0 0 0.5 0 0 # VonBert_K_Fem_GP_1
  0.5 15 15 2 99 0 5 0 0 0 0 0.5 0 0 # SD_young_Fem_GP_1
  0.5 15 15 8 99 0 5 0 0 0 0 0.5 0 0 # SD_old_Fem_GP_1
 # Sex: 1  BioPattern: 1  WtLen
@@ -111,7 +111,7 @@
 0  # 0/1 to use steepness in initial equ recruitment calculation
 0  #  future feature:  0/1 to make realized sigmaR a function of SR curvature
 #_          LO            HI          INIT         PRIOR         PR_SD       PR_type      PHASE    env-var    use_dev   dev_mnyr   dev_mxyr     dev_PH      Block    Blk_Fxn #  parm_name
-             5            15        12.163          11.1            10             0          1          0          0          0          0          0          0          0 # SR_LN(R0)
+             5            15       12.0888          11.1            10             0          1          0          0          0          0          0          0          0 # SR_LN(R0)
            0.2             1           0.4           0.6           0.2             0         -3          0          0          0          0          0          0          0 # SR_BH_steep
              0           0.4           0.3           0.3           0.8             0         -2          0          0          0          0          0          0          0 # SR_sigmaR
             -2             2             0             0            99             0         -1          0          0          0          0          0          0          0 # SR_regime
@@ -159,10 +159,10 @@
 # F rates by fleet x season
 #_year:  1916 1917 1918 1919 1920 1921 1922 1923 1924 1925 1926 1927 1928 1929 1930 1931 1932 1933 1934 1935 1936 1937 1938 1939 1940 1941 1942 1943 1944 1945 1946 1947 1948 1949 1950 1951 1952 1953 1954 1955 1956 1957 1958 1959 1960 1961 1962 1963 1964 1965 1966 1967 1968 1969 1970 1971 1972 1973 1974 1975 1976 1977 1978 1979 1980 1981 1982 1983 1984 1985 1986 1987 1988 1989 1990 1991 1992 1993 1994 1995 1996 1997 1998 1999 2000 2001 2002 2003 2004 2005 2006 2007 2008 2009 2010 2011 2012 2013 2014 2015 2016 2017 2018 2019 2020 2021 2022 2023 2024 2025 2026 2027 2028 2029 2030
 # seas:  1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
-# 1_Fishery_current 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.000286968 0.000328359 0.000419486 0.000236068 0.000300671 0.000270263 0.000259308 0.0001906 0.000215449 0.000174658 0.000190703 0.000212868 0.000247904 0.000285284 0.000247428 0.00024222 0.000183388 0.00019775 0.000196418 0.00017934 0.000165467 0.000180642 0.000170828 0.000145006 0.0311074 0.0311074 0.0311074 0.0311074 0.0311074 0.0311074 0.0311074 0.0311074 0.0311074 0.0311074 0.0311074 0.0311074
-# 2_Fishery_historical_discard 2.8509e-06 5.70183e-06 8.5528e-06 1.14038e-05 1.4255e-05 1.71062e-05 1.99575e-05 2.2809e-05 2.56607e-05 2.85125e-05 3.13645e-05 3.42168e-05 3.70692e-05 3.99219e-05 4.27749e-05 4.56281e-05 4.84816e-05 5.13354e-05 5.41896e-05 5.7044e-05 5.98988e-05 6.27539e-05 6.56094e-05 6.20739e-05 6.53664e-05 5.53847e-05 6.66963e-05 7.80232e-05 8.12324e-05 8.37647e-05 8.6475e-05 9.00223e-05 9.12176e-05 9.43348e-05 9.67769e-05 0.000102553 0.000111387 7.09042e-05 8.76792e-05 7.65935e-05 8.36728e-05 8.07972e-05 8.15616e-05 8.05953e-05 9.51981e-05 7.27011e-05 8.22326e-05 9.04586e-05 8.83882e-05 8.95473e-05 8.68684e-05 7.46313e-05 7.6313e-05 0.000107766 0.000125518 0.000121482 0.000154489 0.00015066 0.000140457 0.000150727 0.000148289 0.000140473 0.000145613 0.000181604 0.000152271 0.000169003 0.000219748 0.000210123 0.000214367 0.000223122 0.000194138 0.000205195 0.000204998 0.000212193 0.000180039 0.000203612 0.000180422 0.000163705 0.000113915 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-# 3_Fishery_historical_landings 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1.27848e-05 1.19111e-05 3.75876e-05 2.06806e-05 3.74419e-06 3.04187e-06 3.69572e-06 3.99291e-06 2.61682e-06 5.9457e-06 5.4317e-06 6.26886e-06 6.23123e-06 6.15377e-06 2.61203e-05 6.81758e-06 2.29976e-05 9.85686e-06 7.40746e-06 1.06188e-05 6.79012e-06 7.26522e-06 3.08619e-05 2.39492e-05 2.61327e-05 2.37252e-05 1.51922e-05 1.73247e-05 1.75901e-05 3.16934e-05 2.25431e-05 7.98142e-06 4.20492e-06 7.76308e-06 7.98682e-06 8.74012e-06 9.91616e-06 2.97348e-05 2.83025e-05 4.20395e-05 3.32366e-05 2.64839e-05 4.56084e-05 3.05579e-05 3.32617e-05 1.59159e-05 2.35464e-05 1.62322e-05 1.50932e-05 1.00831e-05 1.62099e-05 2.00303e-05 2.15257e-05 2.76714e-05 3.04193e-05 3.26487e-05 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-# 4_Fishery_tribal 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1.81514e-09 0 0 0 0 1.45302e-07 2.05259e-07 0 1.59879e-07 1.50809e-07 8.54054e-08 1.58103e-07 6.36073e-08 1.94463e-07 1.16325e-07 4.90834e-08 1.2909e-07 1.091e-07 1.05474e-07 5.09226e-08 6.80203e-07 2.80087e-06 7.62056e-07 1.40769e-06 2.54623e-06 6.584e-06 9.02346e-06 4.99675e-06 2.42299e-06 3.94746e-06 7.29651e-06 1.24303e-05 6.48903e-06 1.30908e-05 1.50538e-05 1.22323e-05 9.71261e-06 0.00208359 0.00208359 0.00208359 0.00208359 0.00208359 0.00208359 0.00208359 0.00208359 0.00208359 0.00208359 0.00208359 0.00208359
+# 1_Fishery_current 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.000286847 0.000328223 0.000419444 0.000236045 0.000300644 0.00027024 0.000259288 0.000190539 0.000215389 0.000174707 0.000190688 0.00021293 0.000247909 0.000285287 0.000246926 0.000242066 0.000183265 0.000197674 0.000196331 0.000179238 0.000165422 0.000180538 0.000170632 0.000144841 0.0294487 0.0294487 0.0294487 0.0294487 0.0294487 0.0294487 0.0294487 0.0294487 0.0294487 0.0294487 0.0294487 0.0294487
+# 2_Fishery_historical_discard 2.8493e-06 5.69862e-06 8.54799e-06 1.13974e-05 1.42469e-05 1.70965e-05 1.99463e-05 2.27962e-05 2.56462e-05 2.84965e-05 3.13469e-05 3.41975e-05 3.70484e-05 3.98995e-05 4.27509e-05 4.56025e-05 4.84545e-05 5.13067e-05 5.41593e-05 5.70121e-05 5.98654e-05 6.27189e-05 6.55729e-05 6.20394e-05 6.53302e-05 5.53541e-05 6.66594e-05 7.79802e-05 8.11877e-05 8.37188e-05 8.64276e-05 8.99731e-05 9.11679e-05 9.42836e-05 9.67245e-05 0.000102497 0.000111327 7.08662e-05 8.76323e-05 7.65526e-05 8.36284e-05 8.07544e-05 8.15185e-05 8.05529e-05 9.51482e-05 7.26632e-05 8.21898e-05 9.04117e-05 8.83426e-05 8.95012e-05 8.68239e-05 7.45933e-05 7.62742e-05 0.000107711 0.000125455 0.000121421 0.000154412 0.000150585 0.000140387 0.000150653 0.000148217 0.000140405 0.000145543 0.000181517 0.000152198 0.000168923 0.000219644 0.000210025 0.000214267 0.000223019 0.000194049 0.000205102 0.000204906 0.000212098 0.000179959 0.000203523 0.000180344 0.000163635 0.000113867 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+# 3_Fishery_historical_landings 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1.27777e-05 1.19045e-05 3.75667e-05 2.06691e-05 3.74212e-06 3.0402e-06 3.69369e-06 3.99072e-06 2.61539e-06 5.94247e-06 5.42875e-06 6.26546e-06 6.22786e-06 6.15046e-06 2.61063e-05 6.81393e-06 2.29853e-05 9.85163e-06 7.40354e-06 1.06132e-05 6.78655e-06 7.26141e-06 3.08458e-05 2.39367e-05 2.61192e-05 2.3713e-05 1.51844e-05 1.73159e-05 1.75811e-05 3.16773e-05 2.25316e-05 7.9774e-06 4.20281e-06 7.7592e-06 7.98284e-06 8.7358e-06 9.91128e-06 2.97202e-05 2.82887e-05 4.20192e-05 3.32206e-05 2.64712e-05 4.55867e-05 3.05435e-05 3.32462e-05 1.59085e-05 2.35355e-05 1.62247e-05 1.50864e-05 1.00786e-05 1.62027e-05 2.00215e-05 2.15163e-05 2.76594e-05 3.04063e-05 3.26349e-05 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+# 4_Fishery_tribal 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1.81428e-09 0 0 0 0 1.45236e-07 2.05167e-07 0 1.59809e-07 1.50743e-07 8.53685e-08 1.58035e-07 6.35803e-08 1.94382e-07 1.16277e-07 4.90632e-08 1.29037e-07 1.09056e-07 1.05432e-07 5.09026e-08 6.7994e-07 2.7998e-06 7.61768e-07 1.40716e-06 2.54529e-06 6.5816e-06 9.02019e-06 4.99496e-06 2.42213e-06 3.94607e-06 7.29396e-06 1.2426e-05 6.48681e-06 1.30864e-05 1.50487e-05 1.22282e-05 9.70941e-06 0.00197409 0.00197409 0.00197409 0.00197409 0.00197409 0.00197409 0.00197409 0.00197409 0.00197409 0.00197409 0.00197409 0.00197409
 #
 #_Q_setup for fleets with cpue or survey or deviation data
 #_1:  fleet number
@@ -183,19 +183,19 @@
 #
 #_Q_parameters
 #_          LO            HI          INIT         PRIOR         PR_SD       PR_type      PHASE    env-var    use_dev   dev_mnyr   dev_mxyr     dev_PH      Block    Blk_Fxn  #  parm_name
-            -7             5  -9.04992e-05         -0.19         0.187             6          1          0          0          0          0          0          0          0  #  LnQ_base_5_WCGBT(5)
+            -7             5    0.00109855         -0.19         0.187             6          1          0          0          0          0          0          0          0  #  LnQ_base_5_WCGBT(5)
              0             5             0          0.01            99             0         -5          0          0          0          0          0          0          0  #  Q_extraSD_5_WCGBT(5)
             -7             0            -7             0            99             0          1          0          0          0          0          0          1          2  #  LnQ_base_6_Triennial(6)
-             0             5      0.305832          0.01            99             0          5          0          0          0          0          0          0          0  #  Q_extraSD_6_Triennial(6)
-            -7             0      -7.28729             0            99             0         -1          0          0          0          0          0          0          0  #  LnQ_base_7_AFSC_slope(7)
+             0             5      0.306315          0.01            99             0          5          0          0          0          0          0          0          0  #  Q_extraSD_6_Triennial(6)
+            -7             0      -7.29698             0            99             0         -1          0          0          0          0          0          0          0  #  LnQ_base_7_AFSC_slope(7)
              0             5             0          0.01            99             0         -5          0          0          0          0          0          0          0  #  Q_extraSD_7_AFSC_slope(7)
-            -7             0       -4.7529             0            99             0         -1          0          0          0          0          0          0          0  #  LnQ_base_8_NWFSC_slope(8)
+            -7             0      -4.76258             0            99             0         -1          0          0          0          0          0          0          0  #  LnQ_base_8_NWFSC_slope(8)
              0             5             0          0.01            99             0         -5          0          0          0          0          0          0          0  #  Q_extraSD_8_NWFSC_slope(8)
-            -7             0      -18.6901             0            99             0         -1          0          0          0          0          0          0          0  #  LnQ_base_9_IPHC(9)
-             0             5      0.231299          0.01            99             0          5          0          0          0          0          0          0          0  #  Q_extraSD_9_IPHC(9)
+            -7             0      -18.7048             0            99             0         -1          0          0          0          0          0          0          0  #  LnQ_base_9_IPHC(9)
+             0             5      0.231284          0.01            99             0          5          0          0          0          0          0          0          0  #  Q_extraSD_9_IPHC(9)
 # timevary Q parameters 
 #_          LO            HI          INIT         PRIOR         PR_SD       PR_type     PHASE  #  parm_name
-            -7             0      -6.46667             0            99             0      1  # LnQ_base_6_Triennial(6)_BLK1repl_1995
+            -7             0      -6.46868             0            99             0      1  # LnQ_base_6_Triennial(6)_BLK1repl_1995
 # info on dev vectors created for Q parms are reported with other devs after tag parameter section 
 #
 #_size_selex_patterns
@@ -259,14 +259,14 @@
 #
 #_          LO            HI          INIT         PRIOR         PR_SD       PR_type      PHASE    env-var    use_dev   dev_mnyr   dev_mxyr     dev_PH      Block    Blk_Fxn  #  parm_name
 # 1   1_Fishery_current LenSelex
-            60           150       76.8475            85            99             0          4          0          0          0          0          0          0          0  #  Size_DblN_peak_1_Fishery_current(1)
+            60           150       76.6258            85            99             0          4          0          0          0          0          0          0          0  #  Size_DblN_peak_1_Fishery_current(1)
            -15             4           -15           -15            99             0         -5          0          0          0          0          0          0          0  #  Size_DblN_top_logit_1_Fishery_current(1)
-            -1             9       6.95385           5.8            99             0          4          0          0          0          0          0          0          0  #  Size_DblN_ascend_se_1_Fishery_current(1)
-            -1            20       10.2781           6.7            99             0          5          0          0          0          0          0          0          0  #  Size_DblN_descend_se_1_Fishery_current(1)
+            -1             9       6.92485           5.8            99             0          4          0          0          0          0          0          0          0  #  Size_DblN_ascend_se_1_Fishery_current(1)
+            -1            20       4.45132           6.7            99             0          5          0          0          0          0          0          0          0  #  Size_DblN_descend_se_1_Fishery_current(1)
             -5             9            -5            -5            99             0         -4          0          0          0          0          0          0          0  #  Size_DblN_start_logit_1_Fishery_current(1)
           -999             9             9             9            99             0         -5          0          0          0          0          0          0          0  #  Size_DblN_end_logit_1_Fishery_current(1)
-            15           150       71.3667            35            99             0          2          0          0          0          0          0          0          0  #  Retain_L_infl_1_Fishery_current(1)
-           0.1            10       6.81545             1            99             0          2          0          0          0          0          0          0          0  #  Retain_L_width_1_Fishery_current(1)
+            15           150       71.4161            35            99             0          2          0          0          0          0          0          0          0  #  Retain_L_infl_1_Fishery_current(1)
+           0.1            10       6.82565             1            99             0          2          0          0          0          0          0          0          0  #  Retain_L_width_1_Fishery_current(1)
            -10            10            10            10            99             0         -3          0          0          0          0          0          2          2  #  Retain_L_asymptote_logit_1_Fishery_current(1)
              0             0             0             0            99             0         -3          0          0          0          0          0          0          0  #  Retain_L_maleoffset_1_Fishery_current(1)
              5            15             5             5            99             0         -4          0          0          0          0          0          0          0  #  DiscMort_L_infl_1_Fishery_current(1)
@@ -277,32 +277,32 @@
 # 3   3_Fishery_historical_landings LenSelex
 # 4   4_Fishery_tribal LenSelex
 # 5   5_WCGBT LenSelex
-          22.5           100       23.8014            50            99             0          4          0          0          0          0          0          0          0  #  Size_DblN_peak_5_WCGBT(5)
+          22.5           100       24.6555            50            99             0          4          0          0          0          0          0          0          0  #  Size_DblN_peak_5_WCGBT(5)
            -15             4           -15           -15            99             0         -5          0          0          0          0          0          0          0  #  Size_DblN_top_logit_5_WCGBT(5)
-            -1             9       4.59129             9            99             0          4          0          0          0          0          0          0          0  #  Size_DblN_ascend_se_5_WCGBT(5)
-            -1            20       7.47169             6            99             0          5          0          0          0          0          0          0          0  #  Size_DblN_descend_se_5_WCGBT(5)
+            -1             9       4.73016             9            99             0          4          0          0          0          0          0          0          0  #  Size_DblN_ascend_se_5_WCGBT(5)
+            -1            20       7.42933             6            99             0          5          0          0          0          0          0          0          0  #  Size_DblN_descend_se_5_WCGBT(5)
             -5             9            -5            -5            99             0         -4          0          0          0          0          0          0          0  #  Size_DblN_start_logit_5_WCGBT(5)
           -999             9          -999          -999            99             0         -5          0          0          0          0          0          0          0  #  Size_DblN_end_logit_5_WCGBT(5)
 # 6   6_Triennial LenSelex
-            40           130       40.0183            75            99             0          4          0          0          0          0          0          0          0  #  Size_DblN_peak_6_Triennial(6)
+            40           130       40.0254            75            99             0          4          0          0          0          0          0          0          0  #  Size_DblN_peak_6_Triennial(6)
            -15             4           -15           -15            99             0         -5          0          0          0          0          0          0          0  #  Size_DblN_top_logit_6_Triennial(6)
-            -1            20       7.81347             9            99             0          4          0          0          0          0          0          0          0  #  Size_DblN_ascend_se_6_Triennial(6)
-            -1            20       8.34545           7.2            99             0          5          0          0          0          0          0          0          0  #  Size_DblN_descend_se_6_Triennial(6)
+            -1            20       7.51321             9            99             0          4          0          0          0          0          0          0          0  #  Size_DblN_ascend_se_6_Triennial(6)
+            -1            20       8.34137           7.2            99             0          5          0          0          0          0          0          0          0  #  Size_DblN_descend_se_6_Triennial(6)
             -5             9            -5            -5            99             0         -4          0          0          0          0          0          0          0  #  Size_DblN_start_logit_6_Triennial(6)
           -999             9          -999          -999            99             0         -5          0          0          0          0          0          0          0  #  Size_DblN_end_logit_6_Triennial(6)
 # 7   7_AFSC_slope LenSelex
-            20           100        39.522            45            99             0          4          0          0          0          0          0          0          0  #  Size_DblN_peak_7_AFSC_slope(7)
+            20           100       40.1814            45            99             0          4          0          0          0          0          0          0          0  #  Size_DblN_peak_7_AFSC_slope(7)
            -15             4           -15           -15            99             0         -5          0          0          0          0          0          0          0  #  Size_DblN_top_logit_7_AFSC_slope(7)
-            -1             9       5.70629             5            99             0          4          0          0          0          0          0          0          0  #  Size_DblN_ascend_se_7_AFSC_slope(7)
-            -1            20       7.96574           7.7            99             0          5          0          0          0          0          0          0          0  #  Size_DblN_descend_se_7_AFSC_slope(7)
+            -1             9       5.75436             5            99             0          4          0          0          0          0          0          0          0  #  Size_DblN_ascend_se_7_AFSC_slope(7)
+            -1            20       7.94853           7.7            99             0          5          0          0          0          0          0          0          0  #  Size_DblN_descend_se_7_AFSC_slope(7)
             -5             9            -5            -5            99             0         -4          0          0          0          0          0          0          0  #  Size_DblN_start_logit_7_AFSC_slope(7)
           -999             9          -999          -999            99             0         -5          0          0          0          0          0          0          0  #  Size_DblN_end_logit_7_AFSC_slope(7)
 # 8   8_NWFSC_slope LenSelex
 # 9   9_IPHC LenSelex
-            20           150       86.0645            45            99             0          4          0          0          0          0          0          0          0  #  Size_DblN_peak_9_IPHC(9)
+            20           150       85.9386            45            99             0          4          0          0          0          0          0          0          0  #  Size_DblN_peak_9_IPHC(9)
            -15             4           -15           -15            99             0         -5          0          0          0          0          0          0          0  #  Size_DblN_top_logit_9_IPHC(9)
-            -1             9       4.24633             5            99             0          4          0          0          0          0          0          0          0  #  Size_DblN_ascend_se_9_IPHC(9)
-            -1            20       8.81577           7.7            99             0          5          0          0          0          0          0          0          0  #  Size_DblN_descend_se_9_IPHC(9)
+            -1             9       4.23794             5            99             0          4          0          0          0          0          0          0          0  #  Size_DblN_ascend_se_9_IPHC(9)
+            -1            20       9.10847           7.7            99             0          5          0          0          0          0          0          0          0  #  Size_DblN_descend_se_9_IPHC(9)
             -5             9            -5            -5            99             0         -4          0          0          0          0          0          0          0  #  Size_DblN_start_logit_9_IPHC(9)
           -999             9          -999          -999            99             0         -5          0          0          0          0          0          0          0  #  Size_DblN_end_logit_9_IPHC(9)
 # 1   1_Fishery_current AgeSelex
@@ -317,29 +317,29 @@
 #_No_Dirichlet parameters
 # timevary selex parameters 
 #_          LO            HI          INIT         PRIOR         PR_SD       PR_type    PHASE  #  parm_name
-           -10            10     -0.975307          0.23            99             0      4  # Retain_L_asymptote_logit_1_Fishery_current(1)_BLK2repl_1995
-           -10            10       1.79227          0.78            99             0      4  # Retain_L_asymptote_logit_1_Fishery_current(1)_BLK2repl_1996
-           -10            10       9.70102             1            99             0      4  # Retain_L_asymptote_logit_1_Fishery_current(1)_BLK2repl_1997
-           -10            10       8.57554          0.88            99             0      4  # Retain_L_asymptote_logit_1_Fishery_current(1)_BLK2repl_1998
-           -10            10        9.6695             1            99             0      4  # Retain_L_asymptote_logit_1_Fishery_current(1)_BLK2repl_1999
-           -10            10       9.70104          0.95            99             0      4  # Retain_L_asymptote_logit_1_Fishery_current(1)_BLK2repl_2000
-           -10            10       9.70105             1            99             0      4  # Retain_L_asymptote_logit_1_Fishery_current(1)_BLK2repl_2001
-           -10            10      0.582359          0.53            99             0      4  # Retain_L_asymptote_logit_1_Fishery_current(1)_BLK2repl_2002
-           -10            10       2.13966          0.78            99             0      4  # Retain_L_asymptote_logit_1_Fishery_current(1)_BLK2repl_2003
-           -10            10      0.274946          0.44            99             0      4  # Retain_L_asymptote_logit_1_Fishery_current(1)_BLK2repl_2004
-           -10            10      0.854739          0.59            99             0      4  # Retain_L_asymptote_logit_1_Fishery_current(1)_BLK2repl_2005
-           -10            10       1.61837          0.85            99             0      4  # Retain_L_asymptote_logit_1_Fishery_current(1)_BLK2repl_2006
-           -10            10      0.563589          0.58            99             0      4  # Retain_L_asymptote_logit_1_Fishery_current(1)_BLK2repl_2007
-           -10            10       1.04283          0.68            99             0      4  # Retain_L_asymptote_logit_1_Fishery_current(1)_BLK2repl_2008
-           -10            10       1.52942          0.61            99             0      4  # Retain_L_asymptote_logit_1_Fishery_current(1)_BLK2repl_2009
-           -10            10       1.97514          0.75            99             0      4  # Retain_L_asymptote_logit_1_Fishery_current(1)_BLK2repl_2010
-           -10            10       2.78182          0.78            99             0      4  # Retain_L_asymptote_logit_1_Fishery_current(1)_BLK2repl_2011
-           -10            10       3.93961          0.83            99             0      4  # Retain_L_asymptote_logit_1_Fishery_current(1)_BLK2repl_2012
-           -10            10       3.95495          0.83            99             0      4  # Retain_L_asymptote_logit_1_Fishery_current(1)_BLK2repl_2013
-           -10            10       3.49505          0.81            99             0      4  # Retain_L_asymptote_logit_1_Fishery_current(1)_BLK2repl_2014
-           -10            10       4.62982          0.83            99             0      4  # Retain_L_asymptote_logit_1_Fishery_current(1)_BLK2repl_2015
-           -10            10       3.69204          0.81            99             0      4  # Retain_L_asymptote_logit_1_Fishery_current(1)_BLK2repl_2016
-           -10            10       3.87015          0.78            99             0      4  # Retain_L_asymptote_logit_1_Fishery_current(1)_BLK2repl_2017
+           -10            10     -0.974881          0.23            99             0      4  # Retain_L_asymptote_logit_1_Fishery_current(1)_BLK2repl_1995
+           -10            10       1.79444          0.78            99             0      4  # Retain_L_asymptote_logit_1_Fishery_current(1)_BLK2repl_1996
+           -10            10       9.70132             1            99             0      4  # Retain_L_asymptote_logit_1_Fishery_current(1)_BLK2repl_1997
+           -10            10       8.58947          0.88            99             0      4  # Retain_L_asymptote_logit_1_Fishery_current(1)_BLK2repl_1998
+           -10            10       9.66988             1            99             0      4  # Retain_L_asymptote_logit_1_Fishery_current(1)_BLK2repl_1999
+           -10            10       9.70134          0.95            99             0      4  # Retain_L_asymptote_logit_1_Fishery_current(1)_BLK2repl_2000
+           -10            10       9.70135             1            99             0      4  # Retain_L_asymptote_logit_1_Fishery_current(1)_BLK2repl_2001
+           -10            10      0.583048          0.53            99             0      4  # Retain_L_asymptote_logit_1_Fishery_current(1)_BLK2repl_2002
+           -10            10       2.14167          0.78            99             0      4  # Retain_L_asymptote_logit_1_Fishery_current(1)_BLK2repl_2003
+           -10            10      0.274148          0.44            99             0      4  # Retain_L_asymptote_logit_1_Fishery_current(1)_BLK2repl_2004
+           -10            10      0.854791          0.59            99             0      4  # Retain_L_asymptote_logit_1_Fishery_current(1)_BLK2repl_2005
+           -10            10       1.61628          0.85            99             0      4  # Retain_L_asymptote_logit_1_Fishery_current(1)_BLK2repl_2006
+           -10            10      0.563389          0.58            99             0      4  # Retain_L_asymptote_logit_1_Fishery_current(1)_BLK2repl_2007
+           -10            10       1.04261          0.68            99             0      4  # Retain_L_asymptote_logit_1_Fishery_current(1)_BLK2repl_2008
+           -10            10       1.54063          0.61            99             0      4  # Retain_L_asymptote_logit_1_Fishery_current(1)_BLK2repl_2009
+           -10            10       1.98003          0.75            99             0      4  # Retain_L_asymptote_logit_1_Fishery_current(1)_BLK2repl_2010
+           -10            10       2.79281          0.78            99             0      4  # Retain_L_asymptote_logit_1_Fishery_current(1)_BLK2repl_2011
+           -10            10       3.95812          0.83            99             0      4  # Retain_L_asymptote_logit_1_Fishery_current(1)_BLK2repl_2012
+           -10            10       3.97731          0.83            99             0      4  # Retain_L_asymptote_logit_1_Fishery_current(1)_BLK2repl_2013
+           -10            10       3.51351          0.81            99             0      4  # Retain_L_asymptote_logit_1_Fishery_current(1)_BLK2repl_2014
+           -10            10        4.6563          0.83            99             0      4  # Retain_L_asymptote_logit_1_Fishery_current(1)_BLK2repl_2015
+           -10            10       3.71523          0.81            99             0      4  # Retain_L_asymptote_logit_1_Fishery_current(1)_BLK2repl_2016
+           -10            10       3.92689          0.78            99             0      4  # Retain_L_asymptote_logit_1_Fishery_current(1)_BLK2repl_2017
 # info on dev vectors created for selex parms are reported with other devs after tag parameter section 
 #
 0   #  use 2D_AR1 selectivity? (0/1)
@@ -368,13 +368,13 @@
  #_6=mult_by_size-at-age_N
  #_7=mult_by_generalized_sizecomp
 #_factor  fleet  value
-      4      1  0.159226
-      4      5  0.037249
-      4      6   0.27331
+      4      1  0.165021
+      4      5  0.036933
+      4      6  0.247226
       4      7         1
       4      9         1
-      5      1  0.055796
-      5      5   0.01647
+      5      1  0.030908
+      5      5  0.013585
  -9999   1    0  # terminator
 #
 1 #_maxlambdaphase
