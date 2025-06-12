@@ -6,6 +6,10 @@ library(purrr)
 library(dplyr)
 library(here)
 library(r4ss)
+source(model_output_plots.R)
+
+
+# Plot indices
 species_fleet_df <- data.frame(
   name = c("Longnose_skate", "Pacific_ocean_perch", "Petrale_sole",
            "Sablefish", "Shortspine_thornyhead", "Yellowtail_rockfish"),
@@ -15,6 +19,8 @@ species_fleet_df <- data.frame(
 # Black dotted line is the original, need to figure out how to get ggplot to add that to the legend
 plot_effort_vs_og_indices(species_fleet_df, plot_save_dir = here::here("plots"))
 
+
+# Plot model results
 resampled_dirs <- list.dirs("resampled_models", full.names = TRUE, recursive = FALSE)
 all_models <- r4ss::SSgetoutput(dirvec = resampled_dirs)
 summaryoutput <- r4ss::SSsummarize(all_models)
@@ -24,9 +30,7 @@ plot_comparisons_ggplot(
     summaryoutput,
     subplots = c(1,2,3,4,5),
     models = "all",
-    endyrvec = NULL,
-    legendlabels = NULL,
-    rescale = TRUE,
+    legendlabels = basename(resampled_dirs),
     show_equilibrium = TRUE,
     summarize_by_species_effort = TRUE,
     plot_save_dir = here::here("plots")

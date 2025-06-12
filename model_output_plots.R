@@ -363,7 +363,7 @@ plot_comparisons_ggplot <- function(
         p <- ggplot(dat_summ, aes(x=Yr, y=mean_val, color=factor(effort), group=effort, fill=factor(effort))) +
           # geom_line() +
           geom_point() +
-          labs(x="Year", y="Fraction of unfished", color="Effort", fill="Effort") +
+          labs(x="Year", y=ylab, color="Effort", fill="Effort") +
           theme_minimal() +
           facet_wrap(~species, scales="free_y") + 
           geom_errorbar(aes(ymin=mean_val-se_val, ymax=mean_val+se_val), width = 0.2, alpha = 0.5)
@@ -371,14 +371,14 @@ plot_comparisons_ggplot <- function(
         p <- ggplot(dat_long_plot, aes(x=Yr, y=value, color=model, fill=model, group=model)) +
           geom_line() +
           geom_point() +
-          labs(x="Year", y="Fraction of unfished", color="Model", fill="Model") +
+          labs(x="Year", y=ylab, color="Model", fill="Model") +
           theme_minimal() + 
           geom_errorbar(aes(ymin=lower, ymax=upper), width = 0.2, alpha=0.5)
       }
-      plots$bratio <- p + ggtitle("Fraction of Unfished Comparison")
+      plots$bratio <- p + ggtitle("Recruits Comparison")
       
       ggsave(
-        filename = file.path(plot_save_dir, "fraction_unfished.png"),
+        filename = file.path(plot_save_dir, "Recruits.png"),
         plot = p
         # , width = png_width, height = png_height, dpi = png_dpi
       )
@@ -386,15 +386,17 @@ plot_comparisons_ggplot <- function(
     
     # --------- Recruitment Deviations --------------------------
     if (any(subplots == 5)) {
-      dat <- summaryoutput[["recdevs"]]
-      dat_lower <- summaryoutput[["recdevsLower"]]
-      dat_upper <- summaryoutput[["recdevsUpper"]]
+      dat <- summaryoutput[["recdevs"]] |> select(where(is.numeric)) |> select(where(~ any(abs(.) != 0, na.rm = TRUE)))
+      dat_lower <- summaryoutput[["recdevsLower"]] |> select(where(is.numeric)) |> select(where(~ any(abs(.) != 0, na.rm = TRUE)))
+      dat_upper <- summaryoutput[["recdevsUpper"]] |> select(where(is.numeric)) |> select(where(~ any(abs(.) != 0, na.rm = TRUE)))
       # Convert to long
       dat_long <- melt_model_table(dat, "value")
       dat_long$lower <- melt_model_table(dat_lower, "lower")$lower
       dat_long$upper <- melt_model_table(dat_upper, "upper")$upper
-      dat_long$model <- factor(dat_long$model, labels=model_names)
-      dat_long <- left_join(dat_long, species_effort_table, by = "model")
+      present_models <- intersect(model_names, unique(dat_long$model))
+      dat_long$model <- factor(dat_long$model, levels = present_models)
+      dat_long <- left_join(dat_long, species_effort_table, by = "model") |>
+        filter(!is.na(value))
       dat_long_plot <- dplyr::filter(dat_long, Yr > min(Yr) & Yr > sort(unique(Yr))[2])
       
       if (summarize_by_species_effort) {
@@ -411,29 +413,69 @@ plot_comparisons_ggplot <- function(
         
         p <- ggplot(dat_summ, aes(x=Yr, y=mean_val, color=factor(effort), group=effort, fill=factor(effort))) +
           # geom_line() +
+          geom_errorbar(aes(ymin=mean_lower, ymax=mean_upper), width = 0.2, alpha = 0.2)+
           geom_point() +
-          labs(x="Year", y="Fraction of unfished", color="Effort", fill="Effort") +
+          labs(x="Year", y="Recruitment deviations", color="Effort", fill="Effort") +
           theme_minimal() +
-          facet_wrap(~species, scales="free_y") + 
-          geom_errorbar(aes(ymin=mean_val-se_val, ymax=mean_val+se_val), width = 0.2, alpha = 0.5)
+          facet_wrap(~species, scales="free_y")
       } else {
         p <- ggplot(dat_long_plot, aes(x=Yr, y=value, color=model, fill=model, group=model)) +
           geom_line() +
           geom_point() +
-          labs(x="Year", y="Fraction of unfished", color="Model", fill="Model") +
+          labs(x="Year", y="Recruitment deviations", color="Model", fill="Model") +
           theme_minimal() + 
           geom_errorbar(aes(ymin=lower, ymax=upper), width=0.2, alpha=0.5)
       }
-      plots$bratio <- p + ggtitle("Fraction of Unfished Comparison")
+      plots$bratio <- p + ggtitle("Recruitment Deviations Comparison")
       
       ggsave(
-        filename = file.path(plot_save_dir, "fraction_unfished.png"),
+        filename = file.path(plot_save_dir, "recdevs.png"),
         plot = p
         # , width = png_width, height = png_height, dpi = png_dpi
       )
     }
-    # --- Repeat similar logic for other subplots (biomass ratio, etc.) as desired ---
-    # Make sure to use facet_wrap(~species) and color/group by effort when summarizing
     
     return(plots)
+}
+
+
+plot_composition_comparisons <- function(dir_list){
+  inputs <- setNames(
+    lapply(dir_list, r4ss::SS_read),
+    basename(dir_list)
+  )
+  
+  extract_model_info <- function(model_name) {
+    # Split by "_" and find the last 2 are effort and replicate, rest is species
+    parts <- str_split(model_name, "_", simplify = TRUE)
+    n <- ncol(parts)
+    list(
+      model = model_name,
+      species = paste(parts[1:(n-2)], collapse = "_"),
+      effort = parts[n-1],
+      replicate = parts[n]
+    )
   }
+  
+  lencomps <- imap_dfr(
+    inputs,
+    ~ {
+      info <- extract_model_info(.y)
+      .x$dat$lencomp %>%
+        filter(fleet == 11) %>%
+        mutate(assessment = "Previous") %>%
+        select(year, assessment, matches("^l\\d+$")) %>%
+        pivot_longer(cols = c(-year, -assessment), names_to = "length", values_to = "freq") %>%
+        mutate(
+          length = gsub("^l", "", length),
+          length = as.numeric(length),
+          species = info$species,
+          effort = info$effort,
+          replicate = info$replicate
+        ) %>%
+        group_by(year) %>%
+        mutate(freq = freq / sum(freq)) %>%
+        ungroup()
+    }
+  )
+}
