@@ -1,5 +1,5 @@
 # Plotting functions
-plot_effort_vs_og_indices <- function(species_fleet_df) {
+plot_effort_vs_og_indices <- function(species_fleet_df, plot_save_dir) {
   # Use pmap to iterate over the data frame rows
   results <- purrr::pmap(
     species_fleet_df,
@@ -84,6 +84,12 @@ plot_effort_vs_og_indices <- function(species_fleet_df) {
       color = "Model/Effort"
     )
   
+  ggsave(
+    filename = file.path(plot_save_dir, "effort_indices.png"),
+    plot = p
+    # , width = png_width, height = png_height, dpi = png_dpi
+  )
+  
   list(data = all_indices, plot = p)
 }
 
@@ -91,14 +97,14 @@ plot_effort_vs_og_indices <- function(species_fleet_df) {
 
 plot_comparisons_ggplot <- function(
   summaryoutput,
-  subplots = c(1,2,3,4),
+  subplots = c(1,2,3,4,5),
   models = "all",
   endyrvec = NULL,
   legendlabels = NULL,
-  uncertainty = TRUE,
   rescale = TRUE,
   show_equilibrium = TRUE,
-  summarize_by_species_effort = TRUE
+  summarize_by_species_effort = TRUE,
+  plot_save_dir
   ) {
     # Helper for extracting species and effort from model name
   extract_species_effort <- function(model_name) {
@@ -125,7 +131,7 @@ plot_comparisons_ggplot <- function(
     melt_model_table <- function(tbl, value_name = "value") {
       tbl_long <- tidyr::pivot_longer(
         tbl,
-        cols = -1,      # everything except first column (Yr or Label)
+        cols = -matches("Label|Yr"), # everything except first column (Yr or Label)
         names_to = "model",
         values_to = value_name
       )
@@ -136,7 +142,12 @@ plot_comparisons_ggplot <- function(
     n <- summaryoutput[["n"]]
     if (models[1] == "all") models <- 1:n
     nlines <- length(models)
-    model_names <- if (!is.null(legendlabels)) legendlabels else paste("model", models)
+    model_names <- if (!is.null(legendlabels)){legendlabels} else
+      if(any(grepl("replist", summaryoutput$modelnames))) {
+        paste("model", models)
+      } else {
+        summaryoutput$modelnames
+      }
     
     # Extract species and effort for each model
     parse_res <- lapply(model_names, extract_species_effort)
@@ -150,8 +161,27 @@ plot_comparisons_ggplot <- function(
       stringsAsFactors = FALSE
     )
     
-    # --------- Spawning Biomass (subplots 1 and 2) ----------
-    if (any(subplots %in% c(1,2))) {
+    summaryoutput <- purrr::map(summaryoutput, function(x) {
+      if (is.data.frame(x) && ncol(x) == length(summaryoutput$modelnames)) {
+        colnames(x) <- summaryoutput$modelnames
+      }
+      x
+    })
+    
+    summaryoutput <- modify_if(summaryoutput, is.data.frame, ~{
+      old_names <- colnames(.)
+      # Find which columns match the pattern
+      matches <- grepl("replist", old_names)
+      # Rename only matching columns using the replacements vector
+      old_names[matches] <- summaryoutput$modelnames[seq_len(sum(matches))]
+      colnames(.) <- old_names
+      .
+    })
+    
+    # --------- Spawning Biomass --------------------------
+    if (any(subplots == 1)) {
+      # All units are biomass so don't need to worry about anything in numbers
+      # but would to use this plot for r4ss
       dat <- summaryoutput[["SpawnBio"]]
       dat_lower <- summaryoutput[["SpawnBioLower"]]
       dat_upper <- summaryoutput[["SpawnBioUpper"]]
@@ -165,37 +195,243 @@ plot_comparisons_ggplot <- function(
       
       if (summarize_by_species_effort) {
         # Summarize across replicates for each species and effort
-        dat_summ <- dat_long_plot %>%
-          group_by(Yr, species, effort) %>%
+        dat_summ <- dat_long_plot |>
+          group_by(Yr, species, effort) |>
+          summarize(
+            mean_val = mean(value, na.rm = TRUE),
+            se_val = sd(value, na.rm = TRUE) / sqrt(sum(!is.na(value))),
+            mean_lower = mean(lower, na.rm = TRUE), # should this be the value used for the ribbon?
+            mean_upper = mean(upper, na.rm = TRUE) # should this be the value used for the ribbon?
+          ) |>
+          ungroup()
+        
+        p <- ggplot(dat_summ, aes(x=Yr, y=mean_val, color=factor(effort), group=effort, fill=factor(effort))) +
+          geom_line() +
+          labs(x="Year", y="Spawning biomass (t)", color="Effort", fill="Effort") +
+          theme_minimal() +
+          facet_wrap(~species, scales="free_y") + 
+          # geom_ribbon(aes(ymin=mean_lower, ymax=mean_upper), alpha=0.2, color=NA)
+          geom_ribbon(aes(ymin=mean_val-se_val, ymax=mean_val+se_val), alpha=0.2, color=NA)
+      } else {
+        p <- ggplot(dat_long_plot, aes(x=Yr, y=value, color=model, fill=model, group=model)) +
+          geom_line() +
+          labs(x="Year", y="Spawning biomass (t)", color="Model", fill="Model") +
+          theme_minimal() + 
+          geom_ribbon(aes(ymin=lower, ymax=upper), alpha=0.2, color=NA)
+        }
+      plots$spawning_biomass <- p + ggtitle("Spawning Biomass Comparison")
+      
+      ggsave(
+        filename = file.path(plot_save_dir, "spawning_biomass.png"),
+        plot = p
+        # , width = png_width, height = png_height, dpi = png_dpi
+      )
+    }
+    
+    # --------- Summary Biomass --------------------------
+    if (any(subplots == 2)) {
+      dat <- summaryoutput[["SmryBio"]]
+      dat_lower <- summaryoutput[["SmryBioLower"]]
+      dat_upper <- summaryoutput[["SmryBioUpper"]]
+      # Convert to long
+      dat_long <- melt_model_table(dat, "value")
+      dat_long$lower <- melt_model_table(dat_lower, "lower")$lower
+      dat_long$upper <- melt_model_table(dat_upper, "upper")$upper
+      dat_long$model <- factor(dat_long$model, labels=model_names)
+      dat_long <- left_join(dat_long, species_effort_table, by = "model")
+      dat_long_plot <- dplyr::filter(dat_long, Yr > min(Yr) & Yr > sort(unique(Yr))[2])
+      
+      if (summarize_by_species_effort) {
+        # Summarize across replicates for each species and effort
+        dat_summ <- dat_long_plot |>
+          group_by(Yr, species, effort) |>
           summarize(
             mean_val = mean(value, na.rm = TRUE),
             se_val = sd(value, na.rm = TRUE) / sqrt(sum(!is.na(value))),
             mean_lower = mean(lower, na.rm = TRUE),
             mean_upper = mean(upper, na.rm = TRUE)
-          ) %>%
+          ) |>
           ungroup()
+        
         p <- ggplot(dat_summ, aes(x=Yr, y=mean_val, color=factor(effort), group=effort, fill=factor(effort))) +
-          geom_line(size=1) +
-          geom_point(size=1.5) +
-          labs(x="Year", y="Spawning biomass (t)", color="Effort", fill="Effort") +
+          geom_line() +
+          labs(x="Year", y="Summary biomass (t)", color="Effort", fill="Effort") +
           theme_minimal() +
-          facet_wrap(~species, scales="free_y")
-        if (uncertainty) {
-          p <- p + geom_ribbon(aes(ymin=mean_val-se_val, ymax=mean_val+se_val), alpha=0.2, color=NA)
-        }
+          facet_wrap(~species, scales="free_y") + 
+          geom_ribbon(aes(ymin=mean_val-se_val, ymax=mean_val+se_val), alpha=0.2, color=NA)
+        
       } else {
         p <- ggplot(dat_long_plot, aes(x=Yr, y=value, color=model, fill=model, group=model)) +
-          geom_line(size=1) +
-          geom_point(size=1.5) +
-          labs(x="Year", y="Spawning biomass (t)", color="Model", fill="Model") +
-          theme_minimal()
-        if (uncertainty) {
-          p <- p + geom_ribbon(aes(ymin=lower, ymax=upper), alpha=0.2, color=NA)
-        }
+          geom_line() +
+          labs(x="Year", y="Summary biomass (t)", color="Model", fill="Model") +
+          theme_minimal() + 
+          geom_ribbon(aes(ymin=lower, ymax=upper), alpha=0.2, color=NA)
       }
-      plots$spawning_biomass <- p + ggtitle("Spawning Biomass Comparison")
+      plots$summary_biomass <- p + ggtitle("Summary Biomass Comparison")
+      
+      ggsave(
+        filename = file.path(plot_save_dir, "summary_biomass.png"),
+        plot = p
+        # , width = png_width, height = png_height, dpi = png_dpi
+      )
     }
     
+    # --------- Bratio --------------------------
+    if (any(subplots == 3)) {
+      dat <- summaryoutput[["Bratio"]]
+      dat_lower <- summaryoutput[["BratioLower"]]
+      dat_upper <- summaryoutput[["BratioUpper"]]
+      # Convert to long
+      dat_long <- melt_model_table(dat, "value")
+      dat_long$lower <- melt_model_table(dat_lower, "lower")$lower
+      dat_long$upper <- melt_model_table(dat_upper, "upper")$upper
+      dat_long$model <- factor(dat_long$model, labels=model_names)
+      dat_long <- left_join(dat_long, species_effort_table, by = "model")
+      dat_long_plot <- dplyr::filter(dat_long, Yr > min(Yr) & Yr > sort(unique(Yr))[2])
+      
+      if (summarize_by_species_effort) {
+        # Summarize across replicates for each species and effort
+        dat_summ <- dat_long_plot |>
+          group_by(Yr, species, effort) |>
+          summarize(
+            mean_val = mean(value, na.rm = TRUE),
+            se_val = sd(value, na.rm = TRUE) / sqrt(sum(!is.na(value))),
+            mean_lower = mean(lower, na.rm = TRUE), # should this be the value used for the ribbon?
+            mean_upper = mean(upper, na.rm = TRUE) # should this be the value used for the ribbon?
+          ) |>
+          ungroup()
+        
+        p <- ggplot(dat_summ, aes(x=Yr, y=mean_val, color=factor(effort), group=effort, fill=factor(effort))) +
+          geom_line() +
+          labs(x="Year", y="Fraction of unfished", color="Effort", fill="Effort") +
+          theme_minimal() +
+          facet_wrap(~species, scales="free_y") + 
+          geom_ribbon(aes(ymin=mean_val-se_val, ymax=mean_val+se_val), alpha=0.2, color=NA)
+      } else {
+        p <- ggplot(dat_long_plot, aes(x=Yr, y=value, color=model, fill=model, group=model)) +
+          geom_line() +
+          labs(x="Year", y="Fraction of unfished", color="Model", fill="Model") +
+          theme_minimal() + 
+          geom_ribbon(aes(ymin=lower, ymax=upper), alpha=0.2, color=NA)
+      }
+      plots$bratio <- p + ggtitle("Fraction of Unfished Comparison")
+      
+      ggsave(
+        filename = file.path(plot_save_dir, "fraction_unfished.png"),
+        plot = p
+        # , width = png_width, height = png_height, dpi = png_dpi
+      )
+    }
+    
+    # --------- Recruitment --------------------------
+    if (any(subplots == 4)) {
+      dat <- summaryoutput[["recruits"]]
+      dat_lower <- summaryoutput[["recruitsLower"]]
+      dat_upper <- summaryoutput[["recruitsUpper"]]
+      # Convert to long
+      dat_long <- melt_model_table(dat, "value")
+      dat_long$lower <- melt_model_table(dat_lower, "lower")$lower
+      dat_long$upper <- melt_model_table(dat_upper, "upper")$upper
+      dat_long$model <- factor(dat_long$model, labels=model_names)
+      dat_long <- left_join(dat_long, species_effort_table, by = "model")
+      dat_long_plot <- dplyr::filter(dat_long, Yr > min(Yr) & Yr > sort(unique(Yr))[2])
+      
+      # Adjust units if needed
+      ylab <- "Age-0 recruits (1,000s)"
+      yunits <- 1
+      maxrec <- max(dat_long_plot$value, na.rm = TRUE)
+      if (maxrec > 1e3 && maxrec < 1e6) {
+        yunits <- 1e3
+        dat_long_plot$value <- dat_long_plot$value / yunits
+        dat_long_plot$lower <- dat_long_plot$lower / yunits
+        dat_long_plot$upper <- dat_long_plot$upper / yunits
+        ylab <- gsub("1,000s", "millions", ylab)
+      }
+      
+      if (summarize_by_species_effort) {
+        # Summarize across replicates for each species and effort
+        dat_summ <- dat_long_plot |>
+          group_by(Yr, species, effort) |>
+          summarize(
+            mean_val = mean(value, na.rm = TRUE),
+            se_val = sd(value, na.rm = TRUE) / sqrt(sum(!is.na(value))),
+            mean_lower = mean(lower, na.rm = TRUE), # should this be the value used for the ribbon?
+            mean_upper = mean(upper, na.rm = TRUE) # should this be the value used for the ribbon?
+          ) |>
+          ungroup()
+        
+        p <- ggplot(dat_summ, aes(x=Yr, y=mean_val, color=factor(effort), group=effort, fill=factor(effort))) +
+          # geom_line() +
+          geom_point() +
+          labs(x="Year", y="Fraction of unfished", color="Effort", fill="Effort") +
+          theme_minimal() +
+          facet_wrap(~species, scales="free_y") + 
+          geom_errorbar(aes(ymin=mean_val-se_val, ymax=mean_val+se_val), width = 0.2, alpha = 0.5)
+      } else {
+        p <- ggplot(dat_long_plot, aes(x=Yr, y=value, color=model, fill=model, group=model)) +
+          geom_line() +
+          geom_point() +
+          labs(x="Year", y="Fraction of unfished", color="Model", fill="Model") +
+          theme_minimal() + 
+          geom_errorbar(aes(ymin=lower, ymax=upper), width = 0.2, alpha=0.5)
+      }
+      plots$bratio <- p + ggtitle("Fraction of Unfished Comparison")
+      
+      ggsave(
+        filename = file.path(plot_save_dir, "fraction_unfished.png"),
+        plot = p
+        # , width = png_width, height = png_height, dpi = png_dpi
+      )
+    }
+    
+    # --------- Recruitment Deviations --------------------------
+    if (any(subplots == 5)) {
+      dat <- summaryoutput[["recdevs"]]
+      dat_lower <- summaryoutput[["recdevsLower"]]
+      dat_upper <- summaryoutput[["recdevsUpper"]]
+      # Convert to long
+      dat_long <- melt_model_table(dat, "value")
+      dat_long$lower <- melt_model_table(dat_lower, "lower")$lower
+      dat_long$upper <- melt_model_table(dat_upper, "upper")$upper
+      dat_long$model <- factor(dat_long$model, labels=model_names)
+      dat_long <- left_join(dat_long, species_effort_table, by = "model")
+      dat_long_plot <- dplyr::filter(dat_long, Yr > min(Yr) & Yr > sort(unique(Yr))[2])
+      
+      if (summarize_by_species_effort) {
+        # Summarize across replicates for each species and effort
+        dat_summ <- dat_long_plot |>
+          group_by(Yr, species, effort) |>
+          summarize(
+            mean_val = mean(value, na.rm = TRUE),
+            se_val = sd(value, na.rm = TRUE) / sqrt(sum(!is.na(value))),
+            mean_lower = mean(lower, na.rm = TRUE), # should this be the value used for the ribbon?
+            mean_upper = mean(upper, na.rm = TRUE) # should this be the value used for the ribbon?
+          ) |>
+          ungroup()
+        
+        p <- ggplot(dat_summ, aes(x=Yr, y=mean_val, color=factor(effort), group=effort, fill=factor(effort))) +
+          # geom_line() +
+          geom_point() +
+          labs(x="Year", y="Fraction of unfished", color="Effort", fill="Effort") +
+          theme_minimal() +
+          facet_wrap(~species, scales="free_y") + 
+          geom_errorbar(aes(ymin=mean_val-se_val, ymax=mean_val+se_val), width = 0.2, alpha = 0.5)
+      } else {
+        p <- ggplot(dat_long_plot, aes(x=Yr, y=value, color=model, fill=model, group=model)) +
+          geom_line() +
+          geom_point() +
+          labs(x="Year", y="Fraction of unfished", color="Model", fill="Model") +
+          theme_minimal() + 
+          geom_errorbar(aes(ymin=lower, ymax=upper), width=0.2, alpha=0.5)
+      }
+      plots$bratio <- p + ggtitle("Fraction of Unfished Comparison")
+      
+      ggsave(
+        filename = file.path(plot_save_dir, "fraction_unfished.png"),
+        plot = p
+        # , width = png_width, height = png_height, dpi = png_dpi
+      )
+    }
     # --- Repeat similar logic for other subplots (biomass ratio, etc.) as desired ---
     # Make sure to use facet_wrap(~species) and color/group by effort when summarizing
     

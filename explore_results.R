@@ -13,12 +13,24 @@ species_fleet_df <- data.frame(
 )
 
 # Black dotted line is the original, need to figure out how to get ggplot to add that to the legend
-plot_effort_vs_og_indices(species_fleet_df)
+plot_effort_vs_og_indices(species_fleet_df, plot_save_dir = here::here("plots"))
 
 resampled_dirs <- list.dirs("resampled_models", full.names = TRUE, recursive = FALSE)
 all_models <- r4ss::SSgetoutput(dirvec = resampled_dirs)
-names(all_models) <- basename(resampled_dirs)
+summaryoutput <- r4ss::SSsummarize(all_models)
+summaryoutput$modelnames <- basename(resampled_dirs)
 
+plot_comparisons_ggplot(
+    summaryoutput,
+    subplots = c(1,2,3,4,5),
+    models = "all",
+    endyrvec = NULL,
+    legendlabels = NULL,
+    rescale = TRUE,
+    show_equilibrium = TRUE,
+    summarize_by_species_effort = TRUE,
+    plot_save_dir = here::here("plots")
+)
 
 ### All of Ian's stuff
 # temporary stuff for exploring scale of index estimates
