@@ -439,7 +439,15 @@ plot_comparisons_ggplot <- function(
 }
 
 
-plot_composition_comparisons <- function(dir_list){
+fleet_lookup <- c(
+  "Longnose_skate" = 11,
+  "Pacific_ocean_perch" = 12,
+  "Petrale_sole" = 4,
+  "Sablefish" = 14,
+  "Shortspine_thornyhead" = 15,
+  "Yellowtail_rockfish" = 16
+)
+plot_composition_comparisons <- function(dir_list, fleet_lookup, plot_save_dir){
   inputs <- setNames(
     lapply(dir_list, r4ss::SS_read),
     basename(dir_list)
@@ -461,11 +469,14 @@ plot_composition_comparisons <- function(dir_list){
     inputs,
     ~ {
       info <- extract_model_info(.y)
-      .x$dat$lencomp %>%
-        filter(fleet == 11) %>%
-        mutate(assessment = "Previous") %>%
-        select(year, assessment, matches("^l\\d+$")) %>%
-        pivot_longer(cols = c(-year, -assessment), names_to = "length", values_to = "freq") %>%
+      fleet_num <- fleet_lookup[[info$species]]
+      if (is.null(fleet_num)) {
+        stop(paste("Fleet not found for species:", info$species))
+      }
+      .x$dat$lencomp |>
+        filter(fleet == fleet_num) |>
+        select(year, matches("^l\\d+$")) |>
+        pivot_longer(cols = c(-year), names_to = "length", values_to = "freq") |>
         mutate(
           length = gsub("^l", "", length),
           length = as.numeric(length),
@@ -473,16 +484,62 @@ plot_composition_comparisons <- function(dir_list){
           effort = info$effort,
           replicate = info$replicate
         ) %>%
-        group_by(species, effort, year) %>%
-        mutate(freq = freq / sum(freq)) %>%
+        group_by(species, effort, year) |>
+        mutate(freq = freq / sum(freq)) |>
         ungroup()
     }
   )
   
-  comparison_plot <- lencomps %>%
-    filter(freq > 0) %>%
+  length_comparison_plot <- lencomps |>
+    filter(freq > 0) |>
     ggplot(aes(x = year, y = length, col = effort, size = freq)) +
     geom_point(position = position_dodge(0.5)) +
     facet_wrap(~species) +
-    theme_bw()
+    theme_minimal() +
+    labs(x="Year", y="Length (cm)", color="Effort", size="Frequency") 
+  
+  ggsave(
+    filename = file.path(plot_save_dir, "length_comparisons.png"),
+    plot = length_comparison_plot
+    # , width = png_width, height = png_height, dpi = png_dpi
+  )
+  
+  agecomps <- imap_dfr(
+    inputs,
+    ~ {
+      info <- extract_model_info(.y)
+      fleet_num <- fleet_lookup[[info$species]]
+      if (is.null(fleet_num)) {
+        stop(paste("Fleet not found for species:", info$species))
+      }
+      .x$dat$agecomp %>%
+        filter(fleet == fleet_num) |>
+        select(year, matches("^a\\d+$")) |>
+        pivot_longer(cols = c(-year), names_to = "age", values_to = "freq") |>
+        mutate(
+          age = gsub("^a", "", age),
+          age = as.numeric(age),
+          species = info$species,
+          effort = info$effort,
+          replicate = info$replicate
+        ) %>%
+        group_by(species, effort, year) |>
+        mutate(freq = freq / sum(freq)) |>
+        ungroup()
+    }
+  )
+  
+  age_comparison_plot <- agecomps |>
+    filter(freq > 0) |>
+    ggplot(aes(x = year, y = age, col = effort, size = freq)) +
+    geom_point(position = position_dodge(0.5)) +
+    facet_wrap(~species) +
+    theme_minimal() +
+    labs(x="Year", y="Age", color="Effort", size="Frequency") 
+  
+  ggsave(
+    filename = file.path(plot_save_dir, "age_comparisons.png"),
+    plot = age_comparison_plot
+    # , width = png_width, height = png_height, dpi = png_dpi
+  )
 }
