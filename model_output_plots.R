@@ -667,7 +667,7 @@ plot_composition_comparisons <- function(dir_list, fleet_lookup, plot_save_dir){
       acols <- grep("^a\\d+$", names(agecomp_df), value = TRUE)
       agecomp_df |>
         select(year, all_of(acols)) |>
-        pivot_longer(cols = all_of(acols), names_to = "length", values_to = "freq") |>
+        pivot_longer(cols = all_of(acols), names_to = "age", values_to = "freq") |>
         mutate(
           age = gsub("^a", "", age),
           age = as.numeric(age),
@@ -693,6 +693,5 @@ plot_composition_comparisons <- function(dir_list, fleet_lookup, plot_save_dir){
   ggsave(
     filename = file.path(plot_save_dir, "age_comparisons.png"),
     plot = age_comparison_plot
-    # , width = png_width, height = png_height, dpi = png_dpi
   )
 }

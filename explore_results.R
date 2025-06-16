@@ -41,6 +41,18 @@ all_models <- r4ss::SSgetoutput(dirvec = resampled_dirs)
 summaryoutput <- r4ss::SSsummarize(all_models)
 summaryoutput$modelnames <- basename(resampled_dirs)
 
+# The following models did not invert the hessian and need to be sorted out
+# Make sure that the uncertainty plots are working correctly when there are iterations
+# that did not run
+# summaryoutput$modelnames[which(summaryoutput$BratioSD |> dpl 
+#                                yr::filter(Yr == 2010) == 0)]
+# [1] "Pacific_ocean_perch_0.4_9" "Sablefish_0.2_3"
+# [3] "Sablefish_0.2_7"           "Sablefish_0.4_6"
+# [5] "Sablefish_0.4_8"           "Sablefish_0.4_9"
+# [7] "Sablefish_0.8_1"           "Sablefish_0.8_2"
+# [9] "Sablefish_0.8_7"           "Sablefish_1_1"
+# [11] "Yellowtail_rockfish_0.8_1"
+
 plot_comparisons_ggplot(
     summaryoutput,
     subplots = c(1,2,3,4,5),
