@@ -55,20 +55,32 @@ plot_effort_vs_og_indices <- function(species_fleet_df, plot_save_dir) {
   original_model_data <- all_indices %>%
     dplyr::filter(effort == "original model")
   
+  effort_levels <- c("0.2", "0.4", "0.8", "1", "original model")
+  effort_colors <- c(
+    "0.2" = viridis(7)[1],
+    "0.4" = viridis(7)[3],
+    "0.8" = viridis(7)[5],
+    "1" = viridis(7)[7],
+    "original model" = "black"
+  )
+  effort_fills <- effort_colors
+  effort_fills["original model"] <- "NA"
+  
+  effort_summary$effort <- factor(effort_summary$effort, levels = effort_levels)
+  original_model_data$effort <- factor(original_model_data$effort, levels = effort_levels)
+  
   # Plot with facets for species
+  library(ggplot2)
   p <- ggplot() +
-    # SE ribbon
     geom_ribbon(
       data = effort_summary,
       aes(x = year, ymin = mean_obs - se_obs, ymax = mean_obs + se_obs, fill = effort, group = effort),
       alpha = 0.2
     ) +
-    # Mean points
     geom_line(
       data = effort_summary,
       aes(x = year, y = mean_obs, color = effort, group = effort)
     ) +
-    # Original model as line
     geom_line(
       data = original_model_data,
       aes(x = year, y = obs, color = effort, group = effort),
@@ -79,15 +91,14 @@ plot_effort_vs_og_indices <- function(species_fleet_df, plot_save_dir) {
     theme_bw() +
     labs(
       x = "Year",
-      y = "Index",
-      fill = "Model/Effort",
-      color = "Model/Effort"
-    )
+      y = "Index"
+    ) +
+    scale_color_manual(values = effort_colors, name = "Model/Effort") +
+    scale_fill_manual(values = effort_fills, name = "Model/Effort")
   
-  ggsave(
+  ggplot2::ggsave(
     filename = file.path(plot_save_dir, "effort_indices.png"),
     plot = p
-    # , width = png_width, height = png_height, dpi = png_dpi
   )
   
   list(data = all_indices, plot = p)
@@ -178,6 +189,14 @@ plot_comparisons_ggplot <- function(
       .
     })
     
+    effort_colors <- c(
+      "0.2" = viridis(7)[1],
+      "0.4" = viridis(7)[3],
+      "0.8" = viridis(7)[5],
+      "1" = viridis(7)[7]
+    )
+    effort_fills <- effort_colors
+    
     # --------- Spawning Biomass --------------------------
     if (any(subplots == 1)) {
       # All units are biomass so don't need to worry about anything in numbers
@@ -211,15 +230,21 @@ plot_comparisons_ggplot <- function(
           theme_minimal() +
           facet_wrap(~species, scales="free_y") + 
           # geom_ribbon(aes(ymin=mean_lower, ymax=mean_upper), alpha=0.2, color=NA)
-          geom_ribbon(aes(ymin=mean_val-se_val, ymax=mean_val+se_val), alpha=0.2, color=NA)
+          geom_ribbon(aes(ymin=mean_val-se_val, ymax=mean_val+se_val), alpha=0.2, color=NA) +
+          scale_color_manual(values = effort_colors, name = "Model/Effort") +
+          scale_fill_manual(values = effort_fills, name = "Model/Effort") + 
+          ggtitle("Spawning Biomass Comparison")
       } else {
         p <- ggplot(dat_long_plot, aes(x=Yr, y=value, color=model, fill=model, group=model)) +
           geom_line() +
           labs(x="Year", y="Spawning biomass (t)", color="Model", fill="Model") +
           theme_minimal() + 
-          geom_ribbon(aes(ymin=lower, ymax=upper), alpha=0.2, color=NA)
+          geom_ribbon(aes(ymin=lower, ymax=upper), alpha=0.2, color=NA) +
+          scale_color_manual(values = effort_colors, name = "Model/Effort") +
+          scale_fill_manual(values = effort_fills, name = "Model/Effort") + 
+          ggtitle("Spawning Biomass Comparison")
         }
-      plots$spawning_biomass <- p + ggtitle("Spawning Biomass Comparison")
+      plots$spawning_biomass <- p
       
       ggsave(
         filename = file.path(plot_save_dir, "spawning_biomass.png"),
@@ -258,21 +283,25 @@ plot_comparisons_ggplot <- function(
           labs(x="Year", y="Summary biomass (t)", color="Effort", fill="Effort") +
           theme_minimal() +
           facet_wrap(~species, scales="free_y") + 
-          geom_ribbon(aes(ymin=mean_val-se_val, ymax=mean_val+se_val), alpha=0.2, color=NA)
-        
+          geom_ribbon(aes(ymin=mean_val-se_val, ymax=mean_val+se_val), alpha=0.2, color=NA) +
+          scale_color_manual(values = effort_colors, name = "Model/Effort") +
+          scale_fill_manual(values = effort_fills, name = "Model/Effort") +
+          ggtitle("Summary Biomass Comparison")
       } else {
         p <- ggplot(dat_long_plot, aes(x=Yr, y=value, color=model, fill=model, group=model)) +
           geom_line() +
           labs(x="Year", y="Summary biomass (t)", color="Model", fill="Model") +
           theme_minimal() + 
-          geom_ribbon(aes(ymin=lower, ymax=upper), alpha=0.2, color=NA)
+          geom_ribbon(aes(ymin=lower, ymax=upper), alpha=0.2, color=NA) +
+          scale_color_manual(values = effort_colors, name = "Model/Effort") +
+          scale_fill_manual(values = effort_fills, name = "Model/Effort") +
+          ggtitle("Summary Biomass Comparison")
       }
-      plots$summary_biomass <- p + ggtitle("Summary Biomass Comparison")
+      plots$summary_biomass <- p
       
       ggsave(
         filename = file.path(plot_save_dir, "summary_biomass.png"),
         plot = p
-        # , width = png_width, height = png_height, dpi = png_dpi
       )
     }
     
@@ -306,20 +335,25 @@ plot_comparisons_ggplot <- function(
           labs(x="Year", y="Fraction of unfished", color="Effort", fill="Effort") +
           theme_minimal() +
           facet_wrap(~species, scales="free_y") + 
-          geom_ribbon(aes(ymin=mean_val-se_val, ymax=mean_val+se_val), alpha=0.2, color=NA)
+          geom_ribbon(aes(ymin=mean_val-se_val, ymax=mean_val+se_val), alpha=0.2, color=NA) +
+          scale_color_manual(values = effort_colors, name = "Model/Effort") +
+          scale_fill_manual(values = effort_fills, name = "Model/Effort") +
+          ggtitle("Fraction of Unfished Comparison")
       } else {
         p <- ggplot(dat_long_plot, aes(x=Yr, y=value, color=model, fill=model, group=model)) +
           geom_line() +
           labs(x="Year", y="Fraction of unfished", color="Model", fill="Model") +
           theme_minimal() + 
-          geom_ribbon(aes(ymin=lower, ymax=upper), alpha=0.2, color=NA)
+          geom_ribbon(aes(ymin=lower, ymax=upper), alpha=0.2, color=NA) +
+          scale_color_manual(values = effort_colors, name = "Model/Effort") +
+          scale_fill_manual(values = effort_fills, name = "Model/Effort") +
+          ggtitle("Fraction of Unfished Comparison")
       }
-      plots$bratio <- p + ggtitle("Fraction of Unfished Comparison")
+      plots$bratio <- p
       
       ggsave(
         filename = file.path(plot_save_dir, "fraction_unfished.png"),
         plot = p
-        # , width = png_width, height = png_height, dpi = png_dpi
       )
     }
     
@@ -366,21 +400,26 @@ plot_comparisons_ggplot <- function(
           labs(x="Year", y=ylab, color="Effort", fill="Effort") +
           theme_minimal() +
           facet_wrap(~species, scales="free_y") + 
-          geom_errorbar(aes(ymin=mean_val-se_val, ymax=mean_val+se_val), width = 0.2, alpha = 0.5)
+          geom_errorbar(aes(ymin=mean_val-se_val, ymax=mean_val+se_val), width = 0.2, alpha = 0.5) +
+          scale_color_manual(values = effort_colors, name = "Model/Effort") +
+          scale_fill_manual(values = effort_fills, name = "Model/Effort") +
+          ggtitle("Recruits Comparison")
       } else {
         p <- ggplot(dat_long_plot, aes(x=Yr, y=value, color=model, fill=model, group=model)) +
           geom_line() +
           geom_point() +
           labs(x="Year", y=ylab, color="Model", fill="Model") +
           theme_minimal() + 
-          geom_errorbar(aes(ymin=lower, ymax=upper), width = 0.2, alpha=0.5)
+          geom_errorbar(aes(ymin=lower, ymax=upper), width = 0.2, alpha=0.5)+
+          scale_color_manual(values = effort_colors, name = "Model/Effort") +
+          scale_fill_manual(values = effort_fills, name = "Model/Effort") +
+          ggtitle("Recruits Comparison")
       }
-      plots$bratio <- p + ggtitle("Recruits Comparison")
+      plots$bratio <- p
       
       ggsave(
         filename = file.path(plot_save_dir, "Recruits.png"),
         plot = p
-        # , width = png_width, height = png_height, dpi = png_dpi
       )
     }
     
@@ -417,36 +456,34 @@ plot_comparisons_ggplot <- function(
           geom_point() +
           labs(x="Year", y="Recruitment deviations", color="Effort", fill="Effort") +
           theme_minimal() +
-          facet_wrap(~species, scales="free_y")
+          facet_wrap(~species, scales="free_y") +
+          scale_color_manual(values = effort_colors, name = "Model/Effort") +
+          scale_fill_manual(values = effort_fills, name = "Model/Effort") +
+          ggtitle("Recruitment Deviations Comparison")
       } else {
         p <- ggplot(dat_long_plot, aes(x=Yr, y=value, color=model, fill=model, group=model)) +
           geom_line() +
           geom_point() +
           labs(x="Year", y="Recruitment deviations", color="Model", fill="Model") +
           theme_minimal() + 
-          geom_errorbar(aes(ymin=lower, ymax=upper), width=0.2, alpha=0.5)
+          geom_errorbar(aes(ymin=lower, ymax=upper), width=0.2, alpha=0.5) +
+          scale_color_manual(values = effort_colors, name = "Model/Effort") +
+          scale_fill_manual(values = effort_fills, name = "Model/Effort") +
+          ggtitle("Recruitment Deviations Comparison")
       }
-      plots$bratio <- p + ggtitle("Recruitment Deviations Comparison")
+      plots$bratio <- p
       
       ggsave(
         filename = file.path(plot_save_dir, "recdevs.png"),
         plot = p
-        # , width = png_width, height = png_height, dpi = png_dpi
       )
     }
+    ...
     
     return(plots)
 }
 
 
-fleet_lookup <- c(
-  "Longnose_skate" = 11,
-  "Pacific_ocean_perch" = 12,
-  "Petrale_sole" = 4,
-  "Sablefish" = 14,
-  "Shortspine_thornyhead" = 15,
-  "Yellowtail_rockfish" = 16
-)
 plot_composition_comparisons <- function(dir_list, fleet_lookup, plot_save_dir){
   inputs <- setNames(
     lapply(dir_list, r4ss::SS_read),
@@ -473,8 +510,9 @@ plot_composition_comparisons <- function(dir_list, fleet_lookup, plot_save_dir){
       if (is.null(fleet_num)) {
         stop(paste("Fleet not found for species:", info$species))
       }
+      colnames(.x$dat$lencomp)
       .x$dat$lencomp |>
-        filter(fleet == fleet_num) |>
+        filter(abs(fleet) == fleet_num) |>
         select(year, matches("^l\\d+$")) |>
         pivot_longer(cols = c(-year), names_to = "length", values_to = "freq") |>
         mutate(
@@ -496,12 +534,12 @@ plot_composition_comparisons <- function(dir_list, fleet_lookup, plot_save_dir){
     geom_point(position = position_dodge(0.5)) +
     facet_wrap(~species) +
     theme_minimal() +
-    labs(x="Year", y="Length (cm)", color="Effort", size="Frequency") 
+    labs(x="Year", y="Length (cm)", color="Effort", size="Frequency") +
+    scale_color_manual(values = effort_colors, name = "Model/Effort")
   
   ggsave(
     filename = file.path(plot_save_dir, "length_comparisons.png"),
     plot = length_comparison_plot
-    # , width = png_width, height = png_height, dpi = png_dpi
   )
   
   agecomps <- imap_dfr(
@@ -513,7 +551,7 @@ plot_composition_comparisons <- function(dir_list, fleet_lookup, plot_save_dir){
         stop(paste("Fleet not found for species:", info$species))
       }
       .x$dat$agecomp %>%
-        filter(fleet == fleet_num) |>
+        filter(abs(fleet) == fleet_num) |>
         select(year, matches("^a\\d+$")) |>
         pivot_longer(cols = c(-year), names_to = "age", values_to = "freq") |>
         mutate(
@@ -535,7 +573,8 @@ plot_composition_comparisons <- function(dir_list, fleet_lookup, plot_save_dir){
     geom_point(position = position_dodge(0.5)) +
     facet_wrap(~species) +
     theme_minimal() +
-    labs(x="Year", y="Age", color="Effort", size="Frequency") 
+    labs(x="Year", y="Age", color="Effort", size="Frequency")  +
+    scale_color_manual(values = effort_colors, name = "Model/Effort")
   
   ggsave(
     filename = file.path(plot_save_dir, "age_comparisons.png"),

@@ -6,6 +6,7 @@ library(purrr)
 library(dplyr)
 library(here)
 library(r4ss)
+library(viridis)
 source(model_output_plots.R)
 
 
@@ -18,6 +19,20 @@ species_fleet_df <- data.frame(
 
 # Black dotted line is the original, need to figure out how to get ggplot to add that to the legend
 plot_effort_vs_og_indices(species_fleet_df, plot_save_dir = here::here("plots"))
+
+# Plot biological composition comparisons
+resampled_dirs <- list.dirs("resampled_models", full.names = TRUE, recursive = FALSE)
+fleet_lookup <- c(
+  "Longnose_skate" = 11,
+  "Pacific_ocean_perch" = 12,
+  "Petrale_sole" = 4,
+  "Sablefish" = 14,
+  "Shortspine_thornyhead" = 15,
+  "Yellowtail_rockfish" = 16
+)
+plot_composition_comparisons(dir_list = resampled_dirs, 
+                             fleet_lookup, 
+                             plot_save_dir = here::here("plots"))
 
 
 # Plot model results
@@ -35,6 +50,9 @@ plot_comparisons_ggplot(
     summarize_by_species_effort = TRUE,
     plot_save_dir = here::here("plots")
 )
+
+
+
 
 ### All of Ian's stuff
 # temporary stuff for exploring scale of index estimates
