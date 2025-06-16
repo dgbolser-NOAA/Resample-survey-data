@@ -93,6 +93,7 @@ plot_effort_vs_og_indices <- function(species_fleet_df, plot_save_dir) {
       x = "Year",
       y = "Index"
     ) +
+    expand_limits(y = 0) +
     scale_color_manual(values = effort_colors, name = "Model/Effort") +
     scale_fill_manual(values = effort_fills, name = "Model/Effort")
   
@@ -114,7 +115,6 @@ plot_comparisons_ggplot <- function(
   legendlabels = NULL,
   rescale = TRUE,
   show_equilibrium = TRUE,
-  summarize_by_species_effort = TRUE,
   plot_save_dir
   ) {
     # Helper for extracting species and effort from model name
@@ -209,47 +209,67 @@ plot_comparisons_ggplot <- function(
       dat_long$lower <- melt_model_table(dat_lower, "lower")$lower
       dat_long$upper <- melt_model_table(dat_upper, "upper")$upper
       dat_long$model <- factor(dat_long$model, labels=model_names)
-      dat_long <- left_join(dat_long, species_effort_table, by = "model")
+      # Get model index of endyrs to remove any years after endyr (any forecast yrs)
+      dat_long <- left_join(dat_long, species_effort_table, by = "model") |>
+        group_by(model) |>
+        mutate(model_index = cur_group_id()) |>
+        ungroup()
+      dat_long$endyr <- summaryoutput$endyrs[dat_long$model_index]
+      dat_long <- dat_long |>
+        filter(Yr <= endyr)
       dat_long_plot <- dplyr::filter(dat_long, Yr > min(Yr) & Yr > sort(unique(Yr))[2])
       
-      if (summarize_by_species_effort) {
-        # Summarize across replicates for each species and effort
-        dat_summ <- dat_long_plot |>
-          group_by(Yr, species, effort) |>
-          summarize(
-            mean_val = mean(value, na.rm = TRUE),
-            se_val = sd(value, na.rm = TRUE) / sqrt(sum(!is.na(value))),
-            mean_lower = mean(lower, na.rm = TRUE), # should this be the value used for the ribbon?
-            mean_upper = mean(upper, na.rm = TRUE) # should this be the value used for the ribbon?
-          ) |>
-          ungroup()
-        
-        p <- ggplot(dat_summ, aes(x=Yr, y=mean_val, color=factor(effort), group=effort, fill=factor(effort))) +
-          geom_line() +
-          labs(x="Year", y="Spawning biomass (t)", color="Effort", fill="Effort") +
-          theme_minimal() +
-          facet_wrap(~species, scales="free_y") + 
-          # geom_ribbon(aes(ymin=mean_lower, ymax=mean_upper), alpha=0.2, color=NA)
-          geom_ribbon(aes(ymin=mean_val-se_val, ymax=mean_val+se_val), alpha=0.2, color=NA) +
-          scale_color_manual(values = effort_colors, name = "Model/Effort") +
-          scale_fill_manual(values = effort_fills, name = "Model/Effort") + 
-          ggtitle("Spawning Biomass Comparison")
-      } else {
-        p <- ggplot(dat_long_plot, aes(x=Yr, y=value, color=model, fill=model, group=model)) +
-          geom_line() +
-          labs(x="Year", y="Spawning biomass (t)", color="Model", fill="Model") +
-          theme_minimal() + 
-          geom_ribbon(aes(ymin=lower, ymax=upper), alpha=0.2, color=NA) +
-          scale_color_manual(values = effort_colors, name = "Model/Effort") +
-          scale_fill_manual(values = effort_fills, name = "Model/Effort") + 
-          ggtitle("Spawning Biomass Comparison")
-        }
+      # Summarize across replicates for each species and effort
+      dat_summ <- dat_long_plot |>
+        group_by(Yr, species, effort) |>
+        summarize(
+          mean_val = mean(value, na.rm = TRUE),
+          se_val = sd(value, na.rm = TRUE) / sqrt(sum(!is.na(value))),
+          mean_lower = mean(lower, na.rm = TRUE), # should this be the value used for the ribbon?
+          mean_upper = mean(upper, na.rm = TRUE) # should this be the value used for the ribbon?
+        ) |>
+        ungroup()
+      
+      p <- ggplot(dat_summ, aes(x=Yr, y=mean_val, color=factor(effort), group=effort, fill=factor(effort))) +
+        geom_line() +
+        labs(x="Year", y="Spawning biomass (t)", color="Effort", fill="Effort") +
+        theme_minimal() +
+        facet_wrap(~species, scales="free_y") + 
+        # geom_ribbon(aes(ymin=mean_lower, ymax=mean_upper), alpha=0.2, color=NA) +
+        geom_ribbon(aes(ymin=mean_val-se_val, ymax=mean_val+se_val), alpha=0.2, color=NA) +
+        scale_color_manual(values = effort_colors, name = "Model/Effort") +
+        scale_fill_manual(values = effort_fills, name = "Model/Effort") + 
+        ggtitle("Spawning Biomass Comparison") +
+        scale_x_continuous(breaks = seq(1875,2025, by = 20))
+      # Figure out how to plot model uncertainty, maybe as a boxplot of some sort for final yr or something
+      
       plots$spawning_biomass <- p
       
       ggsave(
         filename = file.path(plot_save_dir, "spawning_biomass.png"),
         plot = p
-        # , width = png_width, height = png_height, dpi = png_dpi
+      )
+      
+      # Model uncertainty plot
+      dat_end <- dat_summ %>%
+        group_by(species, effort) %>%
+        filter(Yr == max(Yr)) %>%
+        ungroup()
+      p2 <- ggplot(dat_end, aes(x=factor(effort), y=mean_val, color=factor(effort), fill=factor(effort))) +
+        geom_point(size=3, position=position_dodge(width=0.5)) +
+        geom_errorbar(aes(ymin=mean_lower, ymax=mean_upper), width=0.2, position=position_dodge(width=0.5)) +
+        labs(x="Effort", y="Spawning biomass (t)", color="Effort", fill="Effort") +
+        theme_minimal() +
+        facet_wrap(~species, scales="free_y") +
+        scale_color_manual(values = effort_colors, name = "Model/Effort") +
+        scale_fill_manual(values = effort_fills, name = "Model/Effort") +
+        ggtitle("Uncertainty in End Year Spawning Biomass") 
+      
+      plots$spawning_biomass_uncertainty <- p2
+      
+      ggsave(
+        filename = file.path(plot_save_dir, "spawning_biomass_uncertainty.png"),
+        plot = p2
       )
     }
     
@@ -263,45 +283,63 @@ plot_comparisons_ggplot <- function(
       dat_long$lower <- melt_model_table(dat_lower, "lower")$lower
       dat_long$upper <- melt_model_table(dat_upper, "upper")$upper
       dat_long$model <- factor(dat_long$model, labels=model_names)
-      dat_long <- left_join(dat_long, species_effort_table, by = "model")
+      dat_long <- left_join(dat_long, species_effort_table, by = "model") |>
+        group_by(model) |>
+        mutate(model_index = cur_group_id()) |>
+        ungroup()
+      dat_long$endyr <- summaryoutput$endyrs[dat_long$model_index]
+      dat_long <- dat_long |>
+        filter(Yr <= endyr)
       dat_long_plot <- dplyr::filter(dat_long, Yr > min(Yr) & Yr > sort(unique(Yr))[2])
       
-      if (summarize_by_species_effort) {
-        # Summarize across replicates for each species and effort
-        dat_summ <- dat_long_plot |>
-          group_by(Yr, species, effort) |>
-          summarize(
-            mean_val = mean(value, na.rm = TRUE),
-            se_val = sd(value, na.rm = TRUE) / sqrt(sum(!is.na(value))),
-            mean_lower = mean(lower, na.rm = TRUE),
-            mean_upper = mean(upper, na.rm = TRUE)
-          ) |>
-          ungroup()
-        
-        p <- ggplot(dat_summ, aes(x=Yr, y=mean_val, color=factor(effort), group=effort, fill=factor(effort))) +
-          geom_line() +
-          labs(x="Year", y="Summary biomass (t)", color="Effort", fill="Effort") +
-          theme_minimal() +
-          facet_wrap(~species, scales="free_y") + 
-          geom_ribbon(aes(ymin=mean_val-se_val, ymax=mean_val+se_val), alpha=0.2, color=NA) +
-          scale_color_manual(values = effort_colors, name = "Model/Effort") +
-          scale_fill_manual(values = effort_fills, name = "Model/Effort") +
-          ggtitle("Summary Biomass Comparison")
-      } else {
-        p <- ggplot(dat_long_plot, aes(x=Yr, y=value, color=model, fill=model, group=model)) +
-          geom_line() +
-          labs(x="Year", y="Summary biomass (t)", color="Model", fill="Model") +
-          theme_minimal() + 
-          geom_ribbon(aes(ymin=lower, ymax=upper), alpha=0.2, color=NA) +
-          scale_color_manual(values = effort_colors, name = "Model/Effort") +
-          scale_fill_manual(values = effort_fills, name = "Model/Effort") +
-          ggtitle("Summary Biomass Comparison")
-      }
+      # Summarize across replicates for each species and effort
+      dat_summ <- dat_long_plot |>
+        group_by(Yr, species, effort) |>
+        summarize(
+          mean_val = mean(value, na.rm = TRUE),
+          se_val = sd(value, na.rm = TRUE) / sqrt(sum(!is.na(value))),
+          mean_lower = mean(lower, na.rm = TRUE),
+          mean_upper = mean(upper, na.rm = TRUE)
+        ) |>
+        ungroup()
+      
+      p <- ggplot(dat_summ, aes(x=Yr, y=mean_val, color=factor(effort), group=effort, fill=factor(effort))) +
+        geom_line() +
+        labs(x="Year", y="Summary biomass (t)", color="Effort", fill="Effort") +
+        theme_minimal() +
+        facet_wrap(~species, scales="free_y") + 
+        geom_ribbon(aes(ymin=mean_val-se_val, ymax=mean_val+se_val), alpha=0.2, color=NA) +
+        scale_color_manual(values = effort_colors, name = "Model/Effort") +
+        scale_fill_manual(values = effort_fills, name = "Model/Effort") +
+        ggtitle("Summary Biomass Comparison") +
+          scale_x_continuous(breaks = seq(1875,2025, by = 20))
       plots$summary_biomass <- p
       
       ggsave(
         filename = file.path(plot_save_dir, "summary_biomass.png"),
         plot = p
+      )
+      
+      # Model uncertainty plot
+      dat_end <- dat_summ %>%
+        group_by(species, effort) %>%
+        filter(Yr == max(Yr)) %>%
+        ungroup()
+      p2 <- ggplot(dat_end, aes(x=factor(effort), y=mean_val, color=factor(effort), fill=factor(effort))) +
+        geom_point(size=3, position=position_dodge(width=0.5)) +
+        geom_errorbar(aes(ymin=mean_lower, ymax=mean_upper), width=0.2, position=position_dodge(width=0.5)) +
+        labs(x="Effort", y="Summary biomass (t)", color="Effort", fill="Effort") +
+        theme_minimal() +
+        facet_wrap(~species, scales="free_y") +
+        scale_color_manual(values = effort_colors, name = "Model/Effort") +
+        scale_fill_manual(values = effort_fills, name = "Model/Effort") +
+        ggtitle("Uncertainty in End Year Summary Biomass") 
+      
+      plots$summary_biomass_uncertainty <- p2
+      
+      ggsave(
+        filename = file.path(plot_save_dir, "summary_biomass_uncertainty.png"),
+        plot = p2
       )
     }
     
@@ -315,45 +353,64 @@ plot_comparisons_ggplot <- function(
       dat_long$lower <- melt_model_table(dat_lower, "lower")$lower
       dat_long$upper <- melt_model_table(dat_upper, "upper")$upper
       dat_long$model <- factor(dat_long$model, labels=model_names)
-      dat_long <- left_join(dat_long, species_effort_table, by = "model")
+      dat_long <- left_join(dat_long, species_effort_table, by = "model") |>
+        group_by(model) |>
+        mutate(model_index = cur_group_id()) |>
+        ungroup()
+      dat_long$endyr <- summaryoutput$endyrs[dat_long$model_index]
+      dat_long <- dat_long |>
+        filter(Yr <= endyr)
       dat_long_plot <- dplyr::filter(dat_long, Yr > min(Yr) & Yr > sort(unique(Yr))[2])
       
-      if (summarize_by_species_effort) {
-        # Summarize across replicates for each species and effort
-        dat_summ <- dat_long_plot |>
-          group_by(Yr, species, effort) |>
-          summarize(
-            mean_val = mean(value, na.rm = TRUE),
-            se_val = sd(value, na.rm = TRUE) / sqrt(sum(!is.na(value))),
-            mean_lower = mean(lower, na.rm = TRUE), # should this be the value used for the ribbon?
-            mean_upper = mean(upper, na.rm = TRUE) # should this be the value used for the ribbon?
-          ) |>
-          ungroup()
-        
-        p <- ggplot(dat_summ, aes(x=Yr, y=mean_val, color=factor(effort), group=effort, fill=factor(effort))) +
-          geom_line() +
-          labs(x="Year", y="Fraction of unfished", color="Effort", fill="Effort") +
-          theme_minimal() +
-          facet_wrap(~species, scales="free_y") + 
-          geom_ribbon(aes(ymin=mean_val-se_val, ymax=mean_val+se_val), alpha=0.2, color=NA) +
-          scale_color_manual(values = effort_colors, name = "Model/Effort") +
-          scale_fill_manual(values = effort_fills, name = "Model/Effort") +
-          ggtitle("Fraction of Unfished Comparison")
-      } else {
-        p <- ggplot(dat_long_plot, aes(x=Yr, y=value, color=model, fill=model, group=model)) +
-          geom_line() +
-          labs(x="Year", y="Fraction of unfished", color="Model", fill="Model") +
-          theme_minimal() + 
-          geom_ribbon(aes(ymin=lower, ymax=upper), alpha=0.2, color=NA) +
-          scale_color_manual(values = effort_colors, name = "Model/Effort") +
-          scale_fill_manual(values = effort_fills, name = "Model/Effort") +
-          ggtitle("Fraction of Unfished Comparison")
-      }
+      # Summarize across replicates for each species and effort
+      dat_summ <- dat_long_plot |>
+        group_by(Yr, species, effort) |>
+        summarize(
+          mean_val = mean(value, na.rm = TRUE),
+          se_val = sd(value, na.rm = TRUE) / sqrt(sum(!is.na(value))),
+          mean_lower = mean(lower, na.rm = TRUE), # should this be the value used for the ribbon?
+          mean_upper = mean(upper, na.rm = TRUE) # should this be the value used for the ribbon?
+        ) |>
+        ungroup()
+      
+      p <- ggplot(dat_summ, aes(x=Yr, y=mean_val, color=factor(effort), group=effort, fill=factor(effort))) +
+        geom_line() +
+        labs(x="Year", y="Fraction of unfished", color="Effort", fill="Effort") +
+        theme_minimal() +
+        facet_wrap(~species, scales="free_y") + 
+        geom_ribbon(aes(ymin=mean_val-se_val, ymax=mean_val+se_val), alpha=0.2, color=NA) +
+        scale_color_manual(values = effort_colors, name = "Model/Effort") +
+        scale_fill_manual(values = effort_fills, name = "Model/Effort") +
+        ggtitle("Fraction of Unfished Comparison") +
+        scale_x_continuous(breaks = seq(1875,2025, by = 20))
+      
       plots$bratio <- p
       
       ggsave(
         filename = file.path(plot_save_dir, "fraction_unfished.png"),
         plot = p
+      )
+      
+      # Model uncertainty plot
+      dat_end <- dat_summ %>%
+        group_by(species, effort) %>%
+        filter(Yr == max(Yr)) %>%
+        ungroup()
+      p2 <- ggplot(dat_end, aes(x=factor(effort), y=mean_val, color=factor(effort), fill=factor(effort))) +
+        geom_point(size=3, position=position_dodge(width=0.5)) +
+        geom_errorbar(aes(ymin=mean_lower, ymax=mean_upper), width=0.2, position=position_dodge(width=0.5)) +
+        labs(x="Effort", y="Fraction of unfished", color="Effort", fill="Effort") +
+        theme_minimal() +
+        facet_wrap(~species, scales="free_y") +
+        scale_color_manual(values = effort_colors, name = "Model/Effort") +
+        scale_fill_manual(values = effort_fills, name = "Model/Effort") +
+        ggtitle("Uncertainty in End Year Fraction of Unfished") 
+      
+      plots$bratio_uncertainty <- p2
+      
+      ggsave(
+        filename = file.path(plot_save_dir, "fraction_unfished_uncertainty.png"),
+        plot = p2
       )
     }
     
@@ -367,7 +424,13 @@ plot_comparisons_ggplot <- function(
       dat_long$lower <- melt_model_table(dat_lower, "lower")$lower
       dat_long$upper <- melt_model_table(dat_upper, "upper")$upper
       dat_long$model <- factor(dat_long$model, labels=model_names)
-      dat_long <- left_join(dat_long, species_effort_table, by = "model")
+      dat_long <- left_join(dat_long, species_effort_table, by = "model") |>
+        group_by(model) |>
+        mutate(model_index = cur_group_id()) |>
+        ungroup()
+      dat_long$endyr <- summaryoutput$endyrs[dat_long$model_index]
+      dat_long <- dat_long |>
+        filter(Yr <= endyr)
       dat_long_plot <- dplyr::filter(dat_long, Yr > min(Yr) & Yr > sort(unique(Yr))[2])
       
       # Adjust units if needed
@@ -382,44 +445,56 @@ plot_comparisons_ggplot <- function(
         ylab <- gsub("1,000s", "millions", ylab)
       }
       
-      if (summarize_by_species_effort) {
-        # Summarize across replicates for each species and effort
-        dat_summ <- dat_long_plot |>
-          group_by(Yr, species, effort) |>
-          summarize(
-            mean_val = mean(value, na.rm = TRUE),
-            se_val = sd(value, na.rm = TRUE) / sqrt(sum(!is.na(value))),
-            mean_lower = mean(lower, na.rm = TRUE), # should this be the value used for the ribbon?
-            mean_upper = mean(upper, na.rm = TRUE) # should this be the value used for the ribbon?
-          ) |>
-          ungroup()
-        
-        p <- ggplot(dat_summ, aes(x=Yr, y=mean_val, color=factor(effort), group=effort, fill=factor(effort))) +
-          # geom_line() +
-          geom_point() +
-          labs(x="Year", y=ylab, color="Effort", fill="Effort") +
-          theme_minimal() +
-          facet_wrap(~species, scales="free_y") + 
-          geom_errorbar(aes(ymin=mean_val-se_val, ymax=mean_val+se_val), width = 0.2, alpha = 0.5) +
-          scale_color_manual(values = effort_colors, name = "Model/Effort") +
-          scale_fill_manual(values = effort_fills, name = "Model/Effort") +
-          ggtitle("Recruits Comparison")
-      } else {
-        p <- ggplot(dat_long_plot, aes(x=Yr, y=value, color=model, fill=model, group=model)) +
-          geom_line() +
-          geom_point() +
-          labs(x="Year", y=ylab, color="Model", fill="Model") +
-          theme_minimal() + 
-          geom_errorbar(aes(ymin=lower, ymax=upper), width = 0.2, alpha=0.5)+
-          scale_color_manual(values = effort_colors, name = "Model/Effort") +
-          scale_fill_manual(values = effort_fills, name = "Model/Effort") +
-          ggtitle("Recruits Comparison")
-      }
-      plots$bratio <- p
+      # Summarize across replicates for each species and effort
+      dat_summ <- dat_long_plot |>
+        group_by(Yr, species, effort) |>
+        summarize(
+          mean_val = mean(value, na.rm = TRUE),
+          se_val = sd(value, na.rm = TRUE) / sqrt(sum(!is.na(value))),
+          mean_lower = mean(lower, na.rm = TRUE), # should this be the value used for the ribbon?
+          mean_upper = mean(upper, na.rm = TRUE) # should this be the value used for the ribbon?
+        ) |>
+        ungroup()
+      
+      p <- ggplot(dat_summ, aes(x=Yr, y=mean_val, color=factor(effort), group=effort, fill=factor(effort))) +
+        # geom_line() +
+        geom_point() +
+        labs(x="Year", y=ylab, color="Effort", fill="Effort") +
+        theme_minimal() +
+        facet_wrap(~species, scales="free_y") + 
+        geom_errorbar(aes(ymin=mean_val-se_val, ymax=mean_val+se_val), width = 0.2, alpha = 0.5) +
+        scale_color_manual(values = effort_colors, name = "Model/Effort") +
+        scale_fill_manual(values = effort_fills, name = "Model/Effort") +
+        ggtitle("Recruits Comparison") +
+        scale_x_continuous(breaks = seq(1875,2025, by = 20))
+      
+      plots$recruits <- p
       
       ggsave(
         filename = file.path(plot_save_dir, "Recruits.png"),
         plot = p
+      )
+      
+      # Model uncertainty plot
+      dat_end <- dat_summ %>%
+        group_by(species, effort) %>%
+        filter(Yr == max(Yr)) %>%
+        ungroup()
+      p2 <- ggplot(dat_end, aes(x=factor(effort), y=mean_val, color=factor(effort), fill=factor(effort))) +
+        geom_point(size=3, position=position_dodge(width=0.5)) +
+        geom_errorbar(aes(ymin=mean_lower, ymax=mean_upper), width=0.2, position=position_dodge(width=0.5)) +
+        labs(x="Effort", y=ylab, color="Effort", fill="Effort") +
+        theme_minimal() +
+        facet_wrap(~species, scales="free_y") +
+        scale_color_manual(values = effort_colors, name = "Model/Effort") +
+        scale_fill_manual(values = effort_fills, name = "Model/Effort") +
+        ggtitle("Uncertainty in End Year Recruits") 
+      
+      plots$recruits_uncertainty <- p2
+      
+      ggsave(
+        filename = file.path(plot_save_dir, "recruits_uncertainty.png"),
+        plot = p2
       )
     }
     
@@ -435,51 +510,65 @@ plot_comparisons_ggplot <- function(
       present_models <- intersect(model_names, unique(dat_long$model))
       dat_long$model <- factor(dat_long$model, levels = present_models)
       dat_long <- left_join(dat_long, species_effort_table, by = "model") |>
-        filter(!is.na(value))
+        filter(!is.na(value)) |>
+        group_by(model) |>
+        mutate(model_index = cur_group_id()) |>
+        ungroup()
+      dat_long$endyr <- summaryoutput$endyrs[dat_long$model_index]
+      dat_long <- dat_long |>
+        filter(Yr <= endyr)
       dat_long_plot <- dplyr::filter(dat_long, Yr > min(Yr) & Yr > sort(unique(Yr))[2])
       
-      if (summarize_by_species_effort) {
-        # Summarize across replicates for each species and effort
-        dat_summ <- dat_long_plot |>
-          group_by(Yr, species, effort) |>
-          summarize(
-            mean_val = mean(value, na.rm = TRUE),
-            se_val = sd(value, na.rm = TRUE) / sqrt(sum(!is.na(value))),
-            mean_lower = mean(lower, na.rm = TRUE), # should this be the value used for the ribbon?
-            mean_upper = mean(upper, na.rm = TRUE) # should this be the value used for the ribbon?
-          ) |>
-          ungroup()
+      # Summarize across replicates for each species and effort
+      dat_summ <- dat_long_plot |>
+        group_by(Yr, species, effort) |>
+        summarize(
+          mean_val = mean(value, na.rm = TRUE),
+          se_val = sd(value, na.rm = TRUE) / sqrt(sum(!is.na(value))),
+          mean_lower = mean(lower, na.rm = TRUE), # should this be the value used for the ribbon?
+          mean_upper = mean(upper, na.rm = TRUE) # should this be the value used for the ribbon?
+        ) |>
+        ungroup()
+      p <- ggplot(dat_summ, aes(x=Yr, y=mean_val, color=factor(effort), group=effort, fill=factor(effort))) +
+        # geom_line() +
+        geom_errorbar(aes(ymin=mean_lower, ymax=mean_upper), width = 0.2, alpha = 0.2)+
+        geom_point() +
+        labs(x="Year", y="Recruitment deviations", color="Effort", fill="Effort") +
+        theme_minimal() +
+        facet_wrap(~species, scales="free_y") +
+        scale_color_manual(values = effort_colors, name = "Model/Effort") +
+        scale_fill_manual(values = effort_fills, name = "Model/Effort") +
+        ggtitle("Recruitment Deviations Comparison") +
+        scale_x_continuous(breaks = seq(1875,2025, by = 20))
         
-        p <- ggplot(dat_summ, aes(x=Yr, y=mean_val, color=factor(effort), group=effort, fill=factor(effort))) +
-          # geom_line() +
-          geom_errorbar(aes(ymin=mean_lower, ymax=mean_upper), width = 0.2, alpha = 0.2)+
-          geom_point() +
-          labs(x="Year", y="Recruitment deviations", color="Effort", fill="Effort") +
-          theme_minimal() +
-          facet_wrap(~species, scales="free_y") +
-          scale_color_manual(values = effort_colors, name = "Model/Effort") +
-          scale_fill_manual(values = effort_fills, name = "Model/Effort") +
-          ggtitle("Recruitment Deviations Comparison")
-      } else {
-        p <- ggplot(dat_long_plot, aes(x=Yr, y=value, color=model, fill=model, group=model)) +
-          geom_line() +
-          geom_point() +
-          labs(x="Year", y="Recruitment deviations", color="Model", fill="Model") +
-          theme_minimal() + 
-          geom_errorbar(aes(ymin=lower, ymax=upper), width=0.2, alpha=0.5) +
-          scale_color_manual(values = effort_colors, name = "Model/Effort") +
-          scale_fill_manual(values = effort_fills, name = "Model/Effort") +
-          ggtitle("Recruitment Deviations Comparison")
-      }
       plots$bratio <- p
       
       ggsave(
         filename = file.path(plot_save_dir, "recdevs.png"),
         plot = p
       )
+      
+      dat_end <- dat_summ %>%
+        group_by(species, effort) %>%
+        filter(Yr == max(Yr)) %>%
+        ungroup()
+      p2 <- ggplot(dat_end, aes(x=factor(effort), y=mean_val, color=factor(effort), fill=factor(effort))) +
+        geom_point(size=3, position=position_dodge(width=0.5)) +
+        geom_errorbar(aes(ymin=mean_lower, ymax=mean_upper), width=0.2, position=position_dodge(width=0.5)) +
+        labs(x="Effort", y="Recruitment deviations", color="Effort", fill="Effort") +
+        theme_minimal() +
+        facet_wrap(~species, scales="free_y") +
+        scale_color_manual(values = effort_colors, name = "Model/Effort") +
+        scale_fill_manual(values = effort_fills, name = "Model/Effort") +
+        ggtitle("Uncertainty in End Year Recruitment Deviations") 
+      
+      plots$recdevs_uncertainty <- p2
+      
+      ggsave(
+        filename = file.path(plot_save_dir, "recdevs_uncertainty.png"),
+        plot = p2
+      )
     }
-    ...
-    
     return(plots)
 }
 
@@ -507,14 +596,27 @@ plot_composition_comparisons <- function(dir_list, fleet_lookup, plot_save_dir){
     ~ {
       info <- extract_model_info(.y)
       fleet_num <- fleet_lookup[[info$species]]
-      if (is.null(fleet_num)) {
-        stop(paste("Fleet not found for species:", info$species))
+      lencomp_df <- .x$dat$lencomp |> filter(abs(fleet) == fleet_num)
+      
+      # Check for f# columns
+      fm_cols <- grep("^[fm]\\d+$", names(lencomp_df), value = TRUE)
+      if (length(fm_cols) > 0) {
+        # Pivot longer, extract the number, sum across f/m for each number
+        lencomp_df <- lencomp_df |>
+          pivot_longer(cols = all_of(fm_cols), names_to = "fm_col", values_to = "fmval") |>
+          mutate(l_col = paste0("l", gsub("^[fm]", "", fm_col))) |>
+          group_by(across(-c(fm_col, fmval, l_col)), l_col) |>
+          summarise(lval = sum(fmval, na.rm = TRUE), .groups = "drop") |>
+          pivot_wider(names_from = l_col, values_from = lval) |>
+          # reattach non-fm columns (if any)
+          left_join(lencomp_df |> select(-all_of(fm_cols)), by = setdiff(names(lencomp_df), fm_cols))
       }
-      colnames(.x$dat$lencomp)
-      .x$dat$lencomp |>
-        filter(abs(fleet) == fleet_num) |>
-        select(year, matches("^l\\d+$")) |>
-        pivot_longer(cols = c(-year), names_to = "length", values_to = "freq") |>
+      
+      # Continue as before, using the new l# columns if present
+      lcols <- grep("^l\\d+$", names(lencomp_df), value = TRUE)
+      lencomp_df |>
+        select(year, all_of(lcols)) |>
+        pivot_longer(cols = all_of(lcols), names_to = "length", values_to = "freq") |>
         mutate(
           length = gsub("^l", "", length),
           length = as.numeric(length),
@@ -531,7 +633,7 @@ plot_composition_comparisons <- function(dir_list, fleet_lookup, plot_save_dir){
   length_comparison_plot <- lencomps |>
     filter(freq > 0) |>
     ggplot(aes(x = year, y = length, col = effort, size = freq)) +
-    geom_point(position = position_dodge(0.5)) +
+    geom_point(position = position_dodge(0.9)) +
     facet_wrap(~species) +
     theme_minimal() +
     labs(x="Year", y="Length (cm)", color="Effort", size="Frequency") +
@@ -547,20 +649,32 @@ plot_composition_comparisons <- function(dir_list, fleet_lookup, plot_save_dir){
     ~ {
       info <- extract_model_info(.y)
       fleet_num <- fleet_lookup[[info$species]]
-      if (is.null(fleet_num)) {
-        stop(paste("Fleet not found for species:", info$species))
+      agecomp_df <- .x$dat$agecomp |> filter(abs(fleet) == fleet_num)
+      
+      # Check for f# or m# columns
+      fm_cols <- grep("^[fm]\\d+$", names(agecomp_df), value = TRUE)
+      if (length(fm_cols) > 0) {
+        # Pivot longer, extract the number, sum across f/m for each number
+        agecomp_df <- agecomp_df |>
+          pivot_longer(cols = all_of(fm_cols), names_to = "fm_col", values_to = "fmval") |>
+          mutate(a_col = paste0("a", gsub("^[fm]", "", fm_col))) |>
+          group_by(across(-c(fm_col, fmval, a_col)), a_col) |>
+          summarise(aval = sum(fmval, na.rm = TRUE), .groups = "drop") |>
+          pivot_wider(names_from = a_col, values_from = aval) |>
+          # reattach non-fm columns (if any)
+          left_join(agecomp_df |> select(-all_of(fm_cols)), by = setdiff(names(agecomp_df), fm_cols))
       }
-      .x$dat$agecomp %>%
-        filter(abs(fleet) == fleet_num) |>
-        select(year, matches("^a\\d+$")) |>
-        pivot_longer(cols = c(-year), names_to = "age", values_to = "freq") |>
+      acols <- grep("^a\\d+$", names(agecomp_df), value = TRUE)
+      agecomp_df |>
+        select(year, all_of(acols)) |>
+        pivot_longer(cols = all_of(acols), names_to = "length", values_to = "freq") |>
         mutate(
           age = gsub("^a", "", age),
           age = as.numeric(age),
           species = info$species,
           effort = info$effort,
           replicate = info$replicate
-        ) %>%
+        ) |>
         group_by(species, effort, year) |>
         mutate(freq = freq / sum(freq)) |>
         ungroup()

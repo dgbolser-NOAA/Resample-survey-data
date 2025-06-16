@@ -21,18 +21,18 @@ species_fleet_df <- data.frame(
 plot_effort_vs_og_indices(species_fleet_df, plot_save_dir = here::here("plots"))
 
 # Plot biological composition comparisons
-resampled_dirs <- list.dirs("resampled_models", full.names = TRUE, recursive = FALSE)
-fleet_lookup <- c(
-  "Longnose_skate" = 11,
-  "Pacific_ocean_perch" = 12,
-  "Petrale_sole" = 4,
-  "Sablefish" = 14,
-  "Shortspine_thornyhead" = 15,
-  "Yellowtail_rockfish" = 16
-)
-plot_composition_comparisons(dir_list = resampled_dirs, 
-                             fleet_lookup, 
-                             plot_save_dir = here::here("plots"))
+# resampled_dirs <- list.dirs("resampled_models", full.names = TRUE, recursive = FALSE)
+# fleet_lookup <- c(
+#   "Longnose_skate" = 5,
+#   "Pacific_ocean_perch" = 8,
+#   "Petrale_sole" = 4,
+#   "Sablefish" = 7,
+#   "Shortspine_thornyhead" = 6,
+#   "Yellowtail_rockfish" = 6
+# )
+# plot_composition_comparisons(dir_list = resampled_dirs, 
+#                              fleet_lookup, 
+#                              plot_save_dir = here::here("plots"))
 
 
 # Plot model results
@@ -50,8 +50,6 @@ plot_comparisons_ggplot(
     summarize_by_species_effort = TRUE,
     plot_save_dir = here::here("plots")
 )
-
-
 
 
 ### All of Ian's stuff
