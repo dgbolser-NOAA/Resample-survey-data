@@ -83,7 +83,17 @@ run_model_efforts <- function(catch_filtered,
       )
       
       if(ss3_inputs$dat$Nsexes == 2){
-        len_comp_new <- len_comp_new$sexed
+        # if unsexed length comps exist, include them this time as well
+        if (0 %in% ss3_inputs$dat$lencomp$sex) {
+          len_comp_new <- rbind(
+            len_comp_new$unsexed,
+            len_comp_new$sexed
+          )
+        } else {
+          len_comp_new <- rbind(
+            len_comp_new$sexed
+          )
+        }
       } else {
         len_comp_new <- len_comp_new$unsexed
       }

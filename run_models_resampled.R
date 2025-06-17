@@ -52,6 +52,8 @@ resampled_model_dir <- here::here("resampled_models")
 df <- data.frame(
   species_name = c("longnose skate", "Pacific ocean perch", "petrale sole",
                    "sablefish", "shortspine thornyhead", "yellowtail rockfish"),
+  scientific_name = c("Raja rhina", "Sebastes alutus", "Eopsetta jordani",
+                  "Anoplopoma fimbria", "Sebastolobus alascanus", "Sebastes flavidus"),
   original_model_dir = og_model_dir,
   sdm_dir = sdm_dir,
   lat_filter = c(NA, "lat_filter_35", NA, NA, NA, "lat_filter_335"),
@@ -63,6 +65,7 @@ df <- data.frame(
 df_list <- split(df, seq(nrow(df)))
 
 purrr::map(df_list, ~ run_model(species_name = .x$species_name,
+                    scientific_name = .x$scientific_name,
                     original_model_dir = .x$original_model_dir,
                     sdm_dir = .x$sdm_dir,
                     lat_filter = .x$lat_filter,
@@ -73,13 +76,17 @@ purrr::map(df_list, ~ run_model(species_name = .x$species_name,
                     catch_df = catch,
                     bio_df = bio))
 
-run_model(species_name = df_list[[1]]$species_name,
-          original_model_dir = df_list[[1]]$original_model_dir,
-          sdm_dir = df_list[[1]]$sdm_dir,
-          lat_filter = df_list[[1]]$lat_filter,
-          depth_filter = df_list[[1]]$depth_filter,
-          strata_type = df_list[[1]]$strata_type,
-          fleet_number = df_list[[1]]$fleet_number,
+# run just the ith species
+# i <- 6 # yellowtail
+i <- 4 # sablefish
+run_model(species_name = df_list[[i]]$species_name,
+          scientific_name = df_list[[i]]$scientific_name,
+          original_model_dir = df_list[[i]]$original_model_dir,
+          sdm_dir = df_list[[i]]$sdm_dir,
+          lat_filter = df_list[[i]]$lat_filter,
+          depth_filter = df_list[[i]]$depth_filter,
+          strata_type = df_list[[i]]$strata_type,
+          fleet_number = df_list[[i]]$fleet_number,
           resampled_model_dir = resampled_model_dir,
           catch_df = catch,
           bio_df = bio)
@@ -91,6 +98,7 @@ run_model(species_name = df_list[[1]]$species_name,
 #' and age compositions. It then writes the modified SS3 files and runs the SS3 model.
 #'
 #' @param species_name A string specifying the common name of the species.
+#' @param scientific_name A string specifying the scientific name of the species.
 #' @param original_model_dir A string specifying the directory where the SS3 inputs are located.
 #' @param resampled_model_dir A string specifying the directory where the SS3 inputs are located.
 #' @param sdm_dir A string specifying the directory where the indices are located.
@@ -130,6 +138,7 @@ run_model(species_name = df_list[[1]]$species_name,
 #'
 run_model <- function(
   species_name,
+  scientific_name,
   original_model_dir,
   resampled_model_dir,
   sdm_dir,
@@ -139,8 +148,7 @@ run_model <- function(
   depth_filter = NA,
   strata_type = "mid",
   fleet_number = 4
-  ) 
-{
+  ) {
   model_name <- basename(original_model_dir)
   
   ss3_inputs_old <- r4ss::SS_read(original_model_dir)
@@ -180,13 +188,14 @@ run_model <- function(
     replicate_id <- unique(catch_data$source) # Get replicate ID
     bio_df$Trawl_id <- as.double(bio_df$Trawl_id)
     bio_df <- bio_df |>
-              filter(Year <= ss3_inputs_old$dat$endyr)
+              filter(Year <= ss3_inputs_old$dat$endyr, 
+                     Scientific_name == scientific_name) # Filter bio data for the species and years
     matched_bio <- bio_df[bio_df$Trawl_id %in% catch_data$Trawl_id, ] # Filter bio data based on tow IDs
     matched_bio <- matched_bio %>%
       mutate(source = replicate_id) # Add replicate ID as a column
     return(matched_bio)
   })
-  
+
   # apply lat and depth filters
   if (is.null(lat_filter) || is.na(lat_filter)) {
     catch_filtered <- catch_filtered
