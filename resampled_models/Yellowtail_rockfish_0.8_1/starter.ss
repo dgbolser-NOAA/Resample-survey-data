@@ -1,5 +1,5 @@
 #C file created using an r4ss function
-#C file write time: 2025-06-11  13:53:05
+#C file write time: 2025-06-19  03:01:19
 #
 YTRK.North.data.ss #_datfile
 YTRK.North.control.ss #_ctlfile

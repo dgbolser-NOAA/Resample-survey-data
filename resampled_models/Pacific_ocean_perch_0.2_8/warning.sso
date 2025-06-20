@@ -16,18 +16,17 @@ Warning 13 Adjustment: setting positive forecast relF for forecast only fleet: 4
 Warning 14 Adjustment: setting positive forecast relF for forecast only fleet: 5
 Warning 15 Adjustment: setting positive forecast relF for forecast only fleet: 6
 Warning 16 Adjustment: setting positive forecast relF for forecast only fleet: 7
-Warning 17 : Final gradient: 0.000218884 is larger than final_conv: 0.0001
-Warning 18 Adjustment: setting positive forecast relF for forecast only fleet: 3
-Warning 19 Adjustment: setting positive forecast relF for forecast only fleet: 4
-Warning 20 Adjustment: setting positive forecast relF for forecast only fleet: 5
-Warning 21 Adjustment: setting positive forecast relF for forecast only fleet: 6
-Warning 22 Adjustment: setting positive forecast relF for forecast only fleet: 7
+Warning 17 Adjustment: setting positive forecast relF for forecast only fleet: 3
+Warning 18 Adjustment: setting positive forecast relF for forecast only fleet: 4
+Warning 19 Adjustment: setting positive forecast relF for forecast only fleet: 5
+Warning 20 Adjustment: setting positive forecast relF for forecast only fleet: 6
+Warning 21 Adjustment: setting positive forecast relF for forecast only fleet: 7
 Note 3 Information: A revised protocol for the Fcast_yr specification is available and recommended.
-Warning 23 Adjustment: setting positive forecast relF for forecast only fleet: 3
-Warning 24 Adjustment: setting positive forecast relF for forecast only fleet: 4
-Warning 25 Adjustment: setting positive forecast relF for forecast only fleet: 5
-Warning 26 Adjustment: setting positive forecast relF for forecast only fleet: 6
-Warning 27 Adjustment: setting positive forecast relF for forecast only fleet: 7
-Warning 28 : Reminder: Number of lambdas !=0.0 and !=1.0:  9
-Note 4 Information:  N parameters that are on or within 1% of min-max bound: 6; check results, variance may be suspect
- 28 warnings  and 4 notes 
+Warning 22 Adjustment: setting positive forecast relF for forecast only fleet: 3
+Warning 23 Adjustment: setting positive forecast relF for forecast only fleet: 4
+Warning 24 Adjustment: setting positive forecast relF for forecast only fleet: 5
+Warning 25 Adjustment: setting positive forecast relF for forecast only fleet: 6
+Warning 26 Adjustment: setting positive forecast relF for forecast only fleet: 7
+Warning 27 : Reminder: Number of lambdas !=0.0 and !=1.0:  9
+Note 4 Information:  N parameters that are on or within 1% of min-max bound: 2; check results, variance may be suspect
+ 27 warnings  and 4 notes 

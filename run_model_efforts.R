@@ -70,8 +70,8 @@ run_model_efforts <- function(catch_filtered,
     }
     
     # calculate length compositions from resampled survey data
-    if(length(row.names(ss3_inputs$dat$lencomp |> filter(fleet == fleet_number))) > 1){
-      len_comp_new <- nwfscSurvey::get_expanded_comps(
+    if(length(row.names(ss3_inputs$dat$lencomp |> filter(abs(fleet) == fleet_number))) > 1){
+      len_comp <- nwfscSurvey::get_expanded_comps(
         bio_data = bio_filtered,
         catch_data = catch_filtered,
         comp_bins = ss3_inputs$dat$lbin_vector,
@@ -82,24 +82,72 @@ run_model_efforts <- function(catch_filtered,
         two_sex_comps = n_sexes
       )
       
+      # Create new len_comp data frame to add length comps to
+      len_comp_new <- data.frame()
+      
+      # If it is a two sex model, do the following
       if(ss3_inputs$dat$Nsexes == 2){
+        # Get sex types so that we know what all needs to be included
+        sex_type <- ss3_inputs$dat$lencomp |> 
+          filter(abs(fleet) == fleet_number) |>
+          pull(sex)
+        
+        # Get the fleet for combined sex (sex = 3), this is important because sometimes fleets are 
+        # included but are negative
+        sexed_combined_fleet <- ss3_inputs$dat$lencomp |> 
+          filter(sex == 3) |>
+          filter(abs(fleet) == fleet_number) |> 
+          pull(fleet) |>
+          unique()
+        
         # if unsexed length comps exist, include them this time as well
-        if (0 %in% ss3_inputs$dat$lencomp$sex) {
+        if (0 %in% sex_type) {
+          # Get unsexed (sex = 0) fleet number
+          unsexed_fleet <- ss3_inputs$dat$lencomp |> 
+            filter(abs(fleet) == fleet_number) |>
+            filter(sex == 0) |> 
+            pull(fleet) |>
+            unique()
+          names(len_comp$unsexed) <- names(len_comp$sexed)
           len_comp_new <- rbind(
-            len_comp_new$unsexed,
-            len_comp_new$sexed
+            len_comp_new,
+            len_comp$unsexed |> mutate(fleet = unsexed_fleet),
+            len_comp$sexed |> mutate(fleet = sexed_combined_fleet)
           )
-        } else {
-          len_comp_new <- rbind(
-            len_comp_new$sexed
-          )
-        }
-      } else {
-        len_comp_new <- len_comp_new$unsexed
+          # If just male and female exists, also include them
+           if (all(c(1, 2) %in% sex_type)) {
+            # Get the fleet for each separate sex, this is important because sometimes fleets are 
+            # included but are negative
+            female_fleet <- ss3_inputs$dat$lencomp |> 
+              filter(abs(fleet) == fleet_number) |>
+              filter(sex == 1) |> 
+              pull(fleet) |>
+              unique()
+            male_fleet <- ss3_inputs$dat$lencomp |> 
+              filter(abs(fleet) == fleet_number) |>
+              filter(sex == 2) |> 
+              pull(fleet) |>
+              unique()
+            
+            f <- len_comp$sexed |>
+              mutate(across(matches("^m(\\d+)$"), ~0)) |>
+              mutate(fleet = female_fleet)
+            m <- len_comp$sexed |>
+              mutate(across(matches("^f(\\d+)$"), ~0)) |>
+              mutate(fleet = male_fleet)
+            
+            len_comp_new <- rbind(len_comp_new, f, m)
+            }
+          } else {
+            len_comp_new <- rbind(len_comp_new, len_comp$sexed |> mutate(fleet = sexed_combined_fleet))
+          }
+      }
+       else {
+        len_comp_new <- rbind(len_comp_new, len_comp$unsexed)
       }
       
       yrs_include <- ss3_inputs$dat$lencomp |> 
-        dplyr::filter(fleet == fleet_number)
+        dplyr::filter(abs(fleet) == fleet_number)
       
       len_comp_new <- len_comp_new |>
         dplyr::rename(part = "partition", Nsamp = "input_n") |>
@@ -117,7 +165,7 @@ run_model_efforts <- function(catch_filtered,
     if(!is.null(ss3_inputs$dat$agecomp)){
       if(length(row.names(ss3_inputs$dat$agecomp |> filter(abs(fleet) == fleet_number))) > 1){
         # marginal age at length
-        if (any(ss3_inputs$dat$agecomp$Lbin_hi == -1)) {
+        if (length(row.names(ss3_inputs$dat$agecomp |> filter(abs(fleet) == fleet_number, Lbin_hi == -1))) > 1){
           maal <- nwfscSurvey::get_expanded_comps(
             bio_data = bio_filtered,
             catch_data = catch_filtered,
@@ -128,13 +176,74 @@ run_model_efforts <- function(catch_filtered,
             month = 7,
             two_sex_comps = n_sexes
           )
+          maal_new <- data.frame()
           
           if(ss3_inputs$dat$Nsexes == 2){
-            maal <- maal$sexed
+            sex_type <- ss3_inputs$dat$agecomp |> 
+              filter(Lbin_hi == -1) |>
+              filter(abs(fleet) == fleet_number) |>
+              pull(sex)
+            
+            sexed_combined_fleet <- ss3_inputs$dat$agecomp |> 
+              filter(Lbin_hi == -1) |>
+              filter(abs(fleet) == fleet_number) |>
+              filter(sex == 3) |> 
+              pull(fleet) |>
+              unique()
+            
+            if (0 %in% sex_type) {
+              unsexed_fleet <- ss3_inputs$dat$agecomp |> 
+                filter(Lbin_hi == -1) |>
+                filter(abs(fleet) == fleet_number) |>
+                filter(sex == 0) |> 
+                pull(fleet) |>
+                unique()
+              names(maal$unsexed) <- names(maal$sexed)
+              maal_new <- rbind(
+                maal_new,
+                maal$unsexed |> mutate(fleet = unsexed_fleet),
+                maal$sexed |> mutate(fleet = sexed_combined_fleet)
+              )
+              
+              # See if there are any maal for individual sexes
+              any_ind_sexes <- ss3_inputs$dat$agecomp |> 
+                filter(Lbin_hi == -1) |>
+                filter(abs(fleet) == fleet_number) |>
+                filter(sex %in% c(1,2)) |> 
+                pull(fleet) |>
+                unique()
+              
+               if (length(any_ind_sexes) > 0) {
+                female_fleet <- ss3_inputs$dat$agecomp |> 
+                  filter(Lbin_hi == -1) |>
+                  filter(abs(fleet) == fleet_number) |>
+                  filter(sex == 1) |> 
+                  pull(fleet) |>
+                  unique()
+                male_fleet <- ss3_inputs$dat$agecomp |> 
+                  filter(Lbin_hi == -1) |>
+                  filter(abs(fleet) == fleet_number) |>
+                  filter(sex == 2) |> 
+                  pull(fleet) |>
+                  unique()
+                  
+                f <- maal$sexed |>
+                  mutate(across(matches("^m(\\d+)$"), ~0)) |>
+                  mutate(fleet = female_fleet)
+                m <- maal$sexed |>
+                  mutate(across(matches("^f(\\d+)$"), ~0)) |>
+                  mutate(fleet = male_fleet)
+                
+                maal_new <- rbind(maal_new, f, m)
+              } 
           } else {
-            maal <- maal$unsexed
+            maal_new <- rbind(maal_new, maal$sexed |> mutate(fleet = sexed_combined_fleet))
+            }
+          } else {
+            maal_new <- rbind(maal_new, maal$unsexed)
           }
-          maal <- maal |>
+          
+          maal <- maal_new |>
             dplyr::rename(part = "partition", Nsamp = "input_n")
           
           yrs_include <- ss3_inputs$dat$agecomp |> 
@@ -159,13 +268,19 @@ run_model_efforts <- function(catch_filtered,
           colnames(maal) <- colnames(ss3_inputs$dat$agecomp)
         }
         
-        # conditional-age-at-length comps
-        if (any(ss3_inputs$dat$agecomp$Lbin_hi != -1)) {
+        # conditional-age-at-length comps 
+        if (length(row.names(ss3_inputs$dat$agecomp |> filter(abs(fleet) == fleet_number, Lbin_hi != -1))) > 1) {
+          caal_fleet <- ss3_inputs$dat$agecomp |>
+            filter(Lbin_hi != -1) |>
+            filter(abs(fleet) == fleet_number) |>
+            pull(fleet) |>
+            unique()
+          
           caal <- nwfscSurvey::get_raw_caal(
             data = bio_filtered,
             len_bins = ss3_inputs$dat$lbin_vector,
             age_bins = ss3_inputs$dat$agebin_vector,
-            fleet = fleet_number,
+            fleet = caal_fleet,
             month = 7
           )
           caal <- caal |>
@@ -177,8 +292,6 @@ run_model_efforts <- function(catch_filtered,
           
           caal <- caal |>
             dplyr::filter(year %in% yrs_include$year)
-          # figure out year-specific ageing error type
-          # (petrale may be only species with multiple types due to WDFW ageing the survey fish in a few years)
           
           for (y in unique(caal$year)) {
             ageerr_y <- ss3_inputs$dat$agecomp |>

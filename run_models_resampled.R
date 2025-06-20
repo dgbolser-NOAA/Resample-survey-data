@@ -1,5 +1,10 @@
 # Run resampled model
 
+# Is there a way to tell the models to not downweight surveys that are less important? 
+# I mean it's not what would actually be done in an assessment but it might be a worthwhile comparison if it could be done.
+# I agree that it would be a useful comparison. We could do that by updating the index observations but leaving the uncertainty 
+# unchanged, and similarly update the age and length comps but leave the Nsamp the same as before.
+
 #### Load in required packages #### --------------------------------------------
 library(here)
 library(nwfscSurvey)
@@ -77,19 +82,32 @@ purrr::map(df_list, ~ run_model(species_name = .x$species_name,
                     bio_df = bio))
 
 # run just the ith species
-# i <- 6 # yellowtail
-i <- 4 # sablefish
-run_model(species_name = df_list[[i]]$species_name,
-          scientific_name = df_list[[i]]$scientific_name,
-          original_model_dir = df_list[[i]]$original_model_dir,
-          sdm_dir = df_list[[i]]$sdm_dir,
-          lat_filter = df_list[[i]]$lat_filter,
-          depth_filter = df_list[[i]]$depth_filter,
-          strata_type = df_list[[i]]$strata_type,
-          fleet_number = df_list[[i]]$fleet_number,
-          resampled_model_dir = resampled_model_dir,
-          catch_df = catch,
-          bio_df = bio)
+# i <- 6
+# i <- 2 # yellowtail
+# i <- 4 # sablefish
+# run_model(species_name = df_list[[i]]$species_name,
+#           scientific_name = df_list[[i]]$scientific_name,
+#           original_model_dir = df_list[[i]]$original_model_dir,
+#           sdm_dir = df_list[[i]]$sdm_dir,
+#           lat_filter = df_list[[i]]$lat_filter,
+#           depth_filter = df_list[[i]]$depth_filter,
+#           strata_type = df_list[[i]]$strata_type,
+#           fleet_number = df_list[[i]]$fleet_number,
+#           resampled_model_dir = resampled_model_dir,
+#           catch_df = catch,
+#           bio_df = bio)
+# 
+# species_name <- df_list[[i]]$species_name
+# scientific_name <- df_list[[i]]$scientific_name
+# original_model_dir <- df_list[[i]]$original_model_dir
+# sdm_dir <- df_list[[i]]$sdm_dir
+# lat_filter <- df_list[[i]]$lat_filter
+# depth_filter <- df_list[[i]]$depth_filter
+# strata_type <- df_list[[i]]$strata_type
+# fleet_number <- df_list[[i]]$fleet_number
+# resampled_model_dir <- resampled_model_dir
+# catch_df <- catch
+# bio_df <- bio
 
 #' Run the model for a given species
 #'
@@ -150,6 +168,8 @@ run_model <- function(
   fleet_number = 4
   ) {
   model_name <- basename(original_model_dir)
+  
+  message("Starting ", model_name)
   
   ss3_inputs_old <- r4ss::SS_read(original_model_dir)
   
@@ -260,8 +280,8 @@ run_model <- function(
                      fleet_number = fleet_number
   )
   # run_model_efforts(
-  # catch_filtered <- catch_filtered[[6]]
-  # bio_filtered <- bio_filtered[[6]]
+  # catch_filtered <- catch_filtered[[1]]
+  # bio_filtered <- bio_filtered[[1]]
   # resampled_model_dir <- resampled_model_dir
   # original_model_dir <- original_model_dir
   # sdm_model_filt <- sdm_model_filt
@@ -271,5 +291,5 @@ run_model <- function(
   # )
   plan(sequential)
   
-  # Add get list of models that did not run/did not invert Hessian?
+  message("Finished ", model_name)
 }

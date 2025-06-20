@@ -1,5 +1,5 @@
 #C file created using an r4ss function
-#C file write time: 2025-06-12  19:46:07
+#C file write time: 2025-06-18  19:10:04
 #
 LSKT2019_data.ss #_datfile
 LSKT2019_control.ss #_ctlfile

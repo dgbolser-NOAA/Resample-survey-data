@@ -35,7 +35,7 @@ plot_effort_vs_og_indices <- function(species_fleet_df, plot_save_dir) {
     dplyr::mutate( # will remove this once scale of indices is fixed
       obs = dplyr::case_when(
         effort == "original model" & species == "longnose skate" ~ obs * 18,
-        effort == "original model" & species %in% c("petrale sole", "longnose skate", "sablefish") ~ obs * 20,
+        effort == "original model" & species %in% c("petrale sole", "sablefish") ~ obs * 20,
         effort == "original model" & species == "pacific ocean perch" ~ obs * 30,
         effort == "original model" & species == "shortspine thornyhead" ~ obs * 25,
         effort == "original model"& species == "yellowtail rockfish" ~ obs * 100,
