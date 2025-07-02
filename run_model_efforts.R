@@ -378,6 +378,8 @@ run_model_efforts <- function(catch_filtered,
     
     replist <- r4ss::SS_output(new_dir)
     
+    message("Tuning comps for ", model_name, model_iter)
+    
     r4ss::tune_comps(
       replist,
       niters_tuning = 2, 

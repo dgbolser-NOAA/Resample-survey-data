@@ -83,7 +83,7 @@ purrr::map(df_list, ~ run_model(species_name = .x$species_name,
 
 # run just the ith species
 # i <- 6
-# i <- 2 # yellowtail
+# i <- 2
 # i <- 4 # sablefish
 # run_model(species_name = df_list[[i]]$species_name,
 #           scientific_name = df_list[[i]]$scientific_name,
@@ -184,6 +184,8 @@ run_model <- function(
     mutate(model_iter = paste0(effort,"_", replicate)) |>
     filter(!is.na(se))
   
+  rescale_num <- resampled_mean_index/og_mean_index
+  
   # randomly sample 3 replicates from each effort
   sdm_model_reps <- sdm_model |>
     distinct(model_iter, .keep_all = TRUE) |>
@@ -191,10 +193,21 @@ run_model <- function(
     slice_sample(n = 3) |>
     ungroup()
   
-  sdm_model_filt <- sdm_model |>
-    filter(model_iter %in% sdm_model_reps$model_iter)
+  resampled_mean_index <- mean(sdm_model |>
+                                 filter(effort == 1) |>
+                                 pull(est))
   
-  rm(sdm_model_reps, sdm_model)
+  og_mean_index <- mean(ss3_inputs_old$dat$CPUE |>
+                          filter(index == fleet_number) |>
+                          pull(obs))
+  
+  rescale_num <- resampled_mean_index/og_mean_index
+  
+  sdm_model_filt <- sdm_model |>
+    filter(model_iter %in% sdm_model_reps$model_iter) |>
+    mutate(est = est/rescale_num)
+  
+  rm(sdm_model_reps, sdm_model, resampled_mean_index, og_mean_index, rescale_num)
 
   #### Get Bio data #### --------------------------------------------------------------------------
   catch_filtered <- cleanup_by_species(catch_df, species = species_name)

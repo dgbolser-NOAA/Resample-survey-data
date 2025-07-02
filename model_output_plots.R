@@ -31,29 +31,35 @@ plot_effort_vs_og_indices <- function(species_fleet_df, plot_save_dir) {
     }
   )
   
-  all_indices <- bind_rows(results) |>
-    dplyr::mutate( # will remove this once scale of indices is fixed
-      obs = dplyr::case_when(
-        effort == "original model" & species == "longnose skate" ~ obs * 18,
-        effort == "original model" & species %in% c("petrale sole", "sablefish") ~ obs * 20,
-        effort == "original model" & species == "pacific ocean perch" ~ obs * 30,
-        effort == "original model" & species == "shortspine thornyhead" ~ obs * 25,
-        effort == "original model"& species == "yellowtail rockfish" ~ obs * 100,
-        TRUE ~ obs
-      )
-    )
+  all_indices <- bind_rows(results) 
+  # |>
+  #   dplyr::mutate( # will remove this once scale of indices is fixed
+  #     obs = dplyr::case_when(
+  #       effort == "original model" & species == "longnose skate" ~ obs * 18,
+  #       effort == "original model" & species %in% c("petrale sole", "sablefish") ~ obs * 20,
+  #       effort == "original model" & species == "pacific ocean perch" ~ obs * 30,
+  #       effort == "original model" & species == "shortspine thornyhead" ~ obs * 25,
+  #       effort == "original model"& species == "yellowtail rockfish" ~ obs * 100,
+  #       TRUE ~ obs
+  #     )
+  #   )
   
-  effort_summary <- all_indices %>%
-    dplyr::filter(effort !="original model") %>%
-    dplyr::group_by(species, year, effort) %>%
+  effort_summary <- all_indices |>
+    # dplyr::filter(effort !="original model") |>
+    dplyr::group_by(species, year, effort) |>
     dplyr::summarise(
       mean_obs = mean(obs, na.rm = TRUE),
       se_obs = sd(obs, na.rm = TRUE) / sqrt(dplyr::n()),
       .groups = "drop"
-    )
+    ) |>
+    mutate(se_obs = case_when(
+      effort == 1 ~ NA_real_,
+      effort == "original_model" ~ NA_real_,
+      TRUE ~ se_obs
+    ))
   
-  original_model_data <- all_indices %>%
-    dplyr::filter(effort == "original model")
+  # original_model_data <- all_indices %>%
+  #   dplyr::filter(effort == "original model")
   
   effort_levels <- c("0.2", "0.4", "0.8", "1", "original model")
   effort_colors <- c(
@@ -64,29 +70,29 @@ plot_effort_vs_og_indices <- function(species_fleet_df, plot_save_dir) {
     "original model" = "black"
   )
   effort_fills <- effort_colors
-  effort_fills["original model"] <- "NA"
+  # effort_fills["original model"] <- "NA"
   
   effort_summary$effort <- factor(effort_summary$effort, levels = effort_levels)
-  original_model_data$effort <- factor(original_model_data$effort, levels = effort_levels)
+  # original_model_data$effort <- factor(original_model_data$effort, levels = effort_levels)
   
   # Plot with facets for species
   library(ggplot2)
   p <- ggplot() +
     geom_ribbon(
       data = effort_summary,
-      aes(x = year, ymin = mean_obs - se_obs, ymax = mean_obs + se_obs, fill = effort, group = effort),
+      aes(x = year, ymin = mean_obs - se_obs, ymax = mean_obs + se_obs, fill = effort),
       alpha = 0.2
     ) +
     geom_line(
       data = effort_summary,
-      aes(x = year, y = mean_obs, color = effort, group = effort)
+      aes(x = year, y = mean_obs, color = effort, linetype = effort)
     ) +
-    geom_line(
-      data = original_model_data,
-      aes(x = year, y = obs, color = effort, group = effort),
-      linetype = "dotted",
-      size = 0.5
-    ) +
+    # geom_line(
+    #   data = original_model_data,
+    #   aes(x = year, y = obs, color = effort),
+    #   linetype = "dotted",
+    #   size = 0.5
+    # ) +
     facet_wrap(~species, scales = "free_y") +
     theme_bw() +
     labs(
@@ -94,6 +100,7 @@ plot_effort_vs_og_indices <- function(species_fleet_df, plot_save_dir) {
       y = "Index"
     ) +
     expand_limits(y = 0) +
+    scale_linetype_manual(values = c("0.2" = "solid", "0.4" = "solid", "0.8" = "solid", "1" = "solid", "original_model" = "dashed")) +
     scale_color_manual(values = effort_colors, name = "Model/Effort") +
     scale_fill_manual(values = effort_fills, name = "Model/Effort")
   
