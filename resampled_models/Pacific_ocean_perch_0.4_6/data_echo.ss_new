@@ -5,10 +5,10 @@
 #_User_info_available_at:_https://nmfs-ost.github.io/ss3-website/
 #_Source_code_at:_https://github.com/nmfs-ost/ss3-source-code
 
-#_Start_time: Wed Jun 18 19:39:39 2025
+#_Start_time: Tue Jun 24 20:31:24 2025
 #_echo_input_data
 #C file created using an r4ss function
-#C file write time: 2025-06-18  19:12:42
+#C file write time: 2025-06-24  20:05:16
 #V3.30.23.2;_safe;_compile_date:_Apr 17 2025;_Stock_Synthesis_by_Richard_Methot_(NOAA)_using_ADMB_13.2
 1918 #_StartYr
 2016 #_EndYr
@@ -884,20 +884,20 @@
 2000 7 7 4120.39 0.57547 #_ NWFSCSlope
 2001 7 7 2325.26 0.589964 #_ NWFSCSlope
 2002 7 7 1902.92 0.596178 #_ NWFSCSlope
-2003 7 8 205376 0.658222 #_ NWFSCcombo
-2004 7 8 173293 0.571045 #_ NWFSCcombo
-2005 7 8 568711 0.627137 #_ NWFSCcombo
-2006 7 8 183578 0.712527 #_ NWFSCcombo
-2007 7 8 182931 0.683912 #_ NWFSCcombo
-2008 7 8 133933 0.594461 #_ NWFSCcombo
-2009 7 8 68277 0.734504 #_ NWFSCcombo
-2010 7 8 163649 0.586493 #_ NWFSCcombo
-2011 7 8 427141 0.573764 #_ NWFSCcombo
-2012 7 8 224410 0.709189 #_ NWFSCcombo
-2013 7 8 359463 0.839595 #_ NWFSCcombo
-2014 7 8 133876 0.713253 #_ NWFSCcombo
-2015 7 8 340542 0.528024 #_ NWFSCcombo
-2016 7 8 509036 0.662936 #_ NWFSCcombo
+2003 7 8 4927.42 0.658222 #_ NWFSCcombo
+2004 7 8 4157.66 0.571045 #_ NWFSCcombo
+2005 7 8 13644.6 0.627137 #_ NWFSCcombo
+2006 7 8 4404.43 0.712527 #_ NWFSCcombo
+2007 7 8 4388.92 0.683912 #_ NWFSCcombo
+2008 7 8 3213.33 0.594461 #_ NWFSCcombo
+2009 7 8 1638.11 0.734504 #_ NWFSCcombo
+2010 7 8 3926.28 0.586493 #_ NWFSCcombo
+2011 7 8 10248 0.573764 #_ NWFSCcombo
+2012 7 8 5384.07 0.709189 #_ NWFSCcombo
+2013 7 8 8624.29 0.839595 #_ NWFSCcombo
+2014 7 8 3211.97 0.713253 #_ NWFSCcombo
+2015 7 8 8170.33 0.528024 #_ NWFSCcombo
+2016 7 8 12212.9 0.662936 #_ NWFSCcombo
 -9999 1 1 1 1 # terminator for survey observations 
 #
 1 #_N_fleets_with_discard

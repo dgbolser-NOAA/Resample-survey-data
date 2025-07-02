@@ -16,7 +16,7 @@ Warning 13 Adjustment: setting positive forecast relF for forecast only fleet: 4
 Warning 14 Adjustment: setting positive forecast relF for forecast only fleet: 5
 Warning 15 Adjustment: setting positive forecast relF for forecast only fleet: 6
 Warning 16 Adjustment: setting positive forecast relF for forecast only fleet: 7
-Warning 17 : Final gradient: 0.000176896 is larger than final_conv: 0.0001
+Warning 17 : Final gradient: 0.000283618 is larger than final_conv: 0.0001
 Warning 18 Adjustment: setting positive forecast relF for forecast only fleet: 3
 Warning 19 Adjustment: setting positive forecast relF for forecast only fleet: 4
 Warning 20 Adjustment: setting positive forecast relF for forecast only fleet: 5
