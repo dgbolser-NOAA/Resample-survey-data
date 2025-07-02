@@ -1,16 +1,20 @@
 # messy script created during co-working with Elizabeth and Ian
 # can be cleaned up later
-
 library(ggplot2)
 library(purrr)
 library(dplyr)
 library(here)
 library(r4ss)
 library(viridis)
+library(stringr)
+library(tidyr)
+library(patchwork)
+library(ggtext)
 source(here::here("model_output_plots.R"))
 
+resampled_dirs <- list.dirs("resampled_models", full.names = TRUE, recursive = FALSE)
 
-# Plot indices
+# Plot indices -----------------------------------------------------------------
 species_fleet_df <- data.frame(
   name = c("Longnose_skate", "Pacific_ocean_perch", "Petrale_sole",
            "Sablefish", "Shortspine_thornyhead", "Yellowtail_rockfish"),
@@ -20,23 +24,22 @@ species_fleet_df <- data.frame(
 # Black dotted line is the original, need to figure out how to get ggplot to add that to the legend
 plot_effort_vs_og_indices(species_fleet_df, plot_save_dir = here::here("plots"))
 
-# Plot biological composition comparisons
-# resampled_dirs <- list.dirs("resampled_models", full.names = TRUE, recursive = FALSE)
-# fleet_lookup <- c(
-#   "Longnose_skate" = 5,
-#   "Pacific_ocean_perch" = 8,
-#   "Petrale_sole" = 4,
-#   "Sablefish" = 7,
-#   "Shortspine_thornyhead" = 6,
-#   "Yellowtail_rockfish" = 6
-# )
-# plot_composition_comparisons(dir_list = resampled_dirs, 
-#                              fleet_lookup, 
-#                              plot_save_dir = here::here("plots"))
+
+# Plot biological composition comparisons --------------------------------------
+fleet_lookup <- c(
+  "Longnose_skate" = 5,
+  "Pacific_ocean_perch" = 8,
+  "Petrale_sole" = 4,
+  "Sablefish" = 7,
+  "Shortspine_thornyhead" = 6,
+  "Yellowtail_rockfish" = 6
+)
+plot_composition_comparisons(dir_list = resampled_dirs,
+                             fleet_lookup,
+                             plot_save_dir = here::here("plots"))
 
 
-# Plot model results
-resampled_dirs <- list.dirs("resampled_models", full.names = TRUE, recursive = FALSE)
+# Plot model results -----------------------------------------------------------
 all_models <- r4ss::SSgetoutput(dirvec = resampled_dirs)
 summaryoutput <- r4ss::SSsummarize(all_models)
 summaryoutput$modelnames <- basename(resampled_dirs)
@@ -44,15 +47,18 @@ summaryoutput$modelnames <- basename(resampled_dirs)
 # The following models did not invert the hessian and need to be sorted out
 # Make sure that the uncertainty plots are working correctly when there are iterations
 # that did not run
-summaryoutput$modelnames[which(summaryoutput$BratioSD |> dplyr::filter(Yr == 2010) == 0)]
+# summaryoutput$modelnames[which(summaryoutput$BratioSD |> dplyr::filter(Yr == 2010) == 0)]
 
 plot_comparisons_ggplot(
-    summaryoutput,
-    subplots = c(1,2,3,4,5),
-    models = "all",
-    legendlabels = basename(resampled_dirs),
-    show_equilibrium = TRUE,
-    plot_save_dir = here::here("plots")
+  # Add an option to get results and then plot? Do SSgetoutput and SSsummarize for people?
+  # Add input of fleet numbers for each species - important when scaling up 
+  summaryoutput,
+  all_output = all_models,
+  subplots = c(1,2,3,4,5,6,7),
+  models = "all",
+  legendlabels = basename(resampled_dirs),
+  show_equilibrium = TRUE,
+  plot_save_dir = here::here("plots")
 )
 
 
