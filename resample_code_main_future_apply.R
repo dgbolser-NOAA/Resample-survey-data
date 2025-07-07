@@ -1317,7 +1317,9 @@ write.csv(pdc,"yellowtail_pars_df.csv",row.names = F)
 write.csv(idc,"yellowtail_indices_df.csv",row.names = F)
 
 #remove from memory
-files_to_keep <- c("yellowtail_fit_check_df.csv", "yellowtail_fit_df.csv", "yellowtail_pars_df.csv", "yellowtail_indices_df.csv")
+files_to_keep <- c("yellowtail_fit_check_df.csv", "yellowtail_fit_df.csv", "yellowtail_pars_df.csv", "yellowtail_indices_df.csv",
+                   "yellowtail_new_config_fit_check_df.csv", "yellowtail_new_config_fit_df.csv", "yellowtail_new_config_pars_df.csv",
+                   "yellowtail_index_new_config_df.csv")
 all_files <- list.files(path = ".", full.names = TRUE)  # Get all files
 files_to_remove <- setdiff(all_files, file.path(".", files_to_keep))  # Exclude files to keep
 file.remove(files_to_remove)  # Delete the files
