@@ -37,6 +37,32 @@ species_sdm_fn <- function(x, y, z) {
   saveRDS(index, paste0("index_", y, ".rds"))
 }
 
+#### new function for the updated yellowtail configuration. 
+yellowtail_sdm_fn <- function(x, y, z) {
+  # make mesh
+  mesh <- sdmTMB::make_mesh(x, xy_cols = c("Longitude_dd", "Latitude_dd"), n_knots = 400)
+  
+  # fit model
+  fit <- sdmTMB::sdmTMB(
+    total_catch_wt_kg ~ 0 + factor(Year) + Pass,
+    data = x,
+    mesh = mesh,
+    family = delta_lognormal(),
+    time = "Year",
+    anisotropy = TRUE,
+    spatiotemporal = as.list(c("iid", "off"))
+  )
+  
+  # get the index
+  predictions <- predict(fit, newdata = z, return_tmb_object = TRUE)
+  index <- sdmTMB::get_index(predictions, area = z$area_km2_WCGBTS, bias_correct = TRUE)
+  
+  # save file
+  saveRDS(fit, paste0("fit_", y, ".rds"))
+  saveRDS(index, paste0("index_", y, ".rds"))
+}
+
+
 #' Species distribution model function using delta_lognormal family
 #'
 #' Function to create a mesh, fit the sdmTMB model, and get the index.

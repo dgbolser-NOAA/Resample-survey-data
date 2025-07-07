@@ -1231,7 +1231,7 @@ setwd(yellowtail)
 yellowtail_dfs <- cleanup_by_species(df = catch, species = "yellowtail rockfish")
 yellowtail_dfs <- lapply(yellowtail_dfs, lat_filter_335)
 yellowtail_dfs <- lapply(yellowtail_dfs, depth_filter_425)
-yellowtail_dfs <- yellowtail_dfs[c(3,6)] # fit to leftovers
+yellowtail_dfs <- yellowtail_dfs[91] # test new config with full effort level. 
 
 # make the names file
 yellowtail_files <- as.list(names(yellowtail_dfs))
@@ -1249,7 +1249,7 @@ rm(yellowtail_dfs)
 gc()
 
 # Set up parallel processing
-plan(multisession, workers = 2)  # Adjust workers based on memory
+plan(multisession, workers = 1)  # Adjust workers based on memory
 
 gc()  # Free memory before execution
 
@@ -1267,7 +1267,8 @@ future_imap(yellowtail_files, function(file_name, i) {
   yellowtail_df <- read_parquet(file.path(yellowtail, paste0("df_", i, ".parquet")))
   
   # Run species SDM function
-  species_sdm_fn(yellowtail_df, file_name, grid_yrs)
+  #species_sdm_fn(yellowtail_df, file_name, grid_yrs)
+  yellowtail_sdm_fn(yellowtail_df, file_name, grid_yrs)
   
   # Explicitly remove objects after processing
   rm(yellowtail_df)
@@ -1280,13 +1281,15 @@ print("SDM processing complete")
 
 ##### process fit files
 #process_and_save_fits(yellowtail,"yellowtail")
-process_and_save_fits(yellowtail,"yellowtail_leftovers")
+#process_and_save_fits(yellowtail,"yellowtail_leftovers")
+process_and_save_fits(yellowtail,"yellowtail_new_config")
 
 ##### process index files
 yellowtail_indices <- pull_files(yellowtail, "index")
 yellowtail_indices_df <- bind_index_fn(yellowtail_indices)
 #write.csv(yellowtail_indices_df, "yellowtail_indices_df.csv", row.names = F)
-write.csv(yellowtail_indices_df, "yellowtail_leftover_indices_df.csv", row.names = F)
+#write.csv(yellowtail_indices_df, "yellowtail_leftover_indices_df.csv", row.names = F)
+write.csv(yellowtail_indices_df, "yellowtail_index_new_config.csv", row.names = F)
 
 # Remove the rest of the files
 rm("yellowtail_files", "yellowtail_indices", "yellowtail_indices_df")
