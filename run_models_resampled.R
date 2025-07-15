@@ -224,7 +224,7 @@ run_model <- function(
               filter(Year <= ss3_inputs_old$dat$endyr, 
                      Scientific_name == scientific_name) # Filter bio data for the species and years
     matched_bio <- bio_df[bio_df$Trawl_id %in% catch_data$Trawl_id, ] # Filter bio data based on tow IDs
-    matched_bio <- matched_bio %>%
+    matched_bio <- matched_bio |>
       mutate(source = replicate_id) # Add replicate ID as a column
     return(matched_bio)
   })

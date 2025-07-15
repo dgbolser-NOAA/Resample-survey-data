@@ -247,7 +247,6 @@ plot_comparisons_ggplot <- function(
       labs(x="Year", y="Spawning biomass (t)", color="Effort", fill="Effort") +
       theme_bw() +
       facet_wrap(~species, scales="free_y") + 
-      # geom_ribbon(aes(ymin=mean_lower, ymax=mean_upper), alpha=0.2, color=NA) +
       scale_color_manual(values = effort_colors, name = "Model/Effort") +
       scale_fill_manual(values = effort_fills, name = "Model/Effort") + 
       ggtitle("Spawning Biomass Comparison") +
@@ -257,7 +256,6 @@ plot_comparisons_ggplot <- function(
             axis.title.x = element_text(face = "bold"),
             axis.title.y = element_text(face = "bold"),
             legend.title = element_text(face = "bold"))
-    # Figure out how to plot model uncertainty, maybe as a boxplot of some sort for final yr or something
     
     plots$spawning_biomass <- p
     
