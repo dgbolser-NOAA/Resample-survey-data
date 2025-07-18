@@ -15,15 +15,17 @@
 #'
 species_sdm_fn <- function(x, y, z) {
   # make mesh
-  mesh <- sdmTMB::make_mesh(x, xy_cols = c("Longitude_dd", "Latitude_dd"), n_knots = 500)
+  mesh <- sdmTMB::make_mesh(x, xy_cols = c("longitude", "latitude"), n_knots = 500)
   
   # fit model
   fit <- sdmTMB::sdmTMB(
-    total_catch_wt_kg ~ 0 + factor(Year) + Pass,
+    catch_weight ~ 0 + fyear + pass_scaled,
     data = x,
     mesh = mesh,
     family = delta_gamma(),
     time = "Year",
+    offset = log(x$effort),
+    control = sdmTMB::sdmTMBcontrol(newton_loops = 3),
     anisotropy = TRUE,
     spatiotemporal = as.list(c("iid", "iid"))
   )
@@ -40,15 +42,17 @@ species_sdm_fn <- function(x, y, z) {
 #### new function for the updated yellowtail configuration. 
 yellowtail_sdm_fn <- function(x, y, z) {
   # make mesh
-  mesh <- sdmTMB::make_mesh(x, xy_cols = c("Longitude_dd", "Latitude_dd"), n_knots = 400)
+  mesh <- sdmTMB::make_mesh(x, xy_cols = c("longitude", "latitude"), n_knots = 400)
   
   # fit model
   fit <- sdmTMB::sdmTMB(
-    total_catch_wt_kg ~ 0 + factor(Year) + Pass,
+    catch_weight ~ 0 + fyear + pass_scaled,
     data = x,
     mesh = mesh,
     family = delta_lognormal(),
     time = "Year",
+    offset = log(x$effort),
+    control = sdmTMB::sdmTMBcontrol(newton_loops = 3),
     anisotropy = TRUE,
     spatiotemporal = as.list(c("iid", "off"))
   )
@@ -78,22 +82,24 @@ yellowtail_sdm_fn <- function(x, y, z) {
 #'
 species_sdm_lognormal_fn <- function(x, y, z) {
   # make mesh
-  mesh <- sdmTMB::make_mesh(x, xy_cols = c("Longitude_dd", "Latitude_dd"), n_knots = 500)
+  mesh <- sdmTMB::make_mesh(x, xy_cols = c("longitude", "latitude"), n_knots = 500)
   
   # fit model
   fit <- sdmTMB::sdmTMB(
-    total_catch_wt_kg ~ 0 + factor(Year) + Pass,
+    catch_weight ~ 0 + fyear + pass_scaled,
     data = x,
     mesh = mesh,
     family = delta_lognormal(),
     time = "Year",
+    offset = log(x$effort),
+    control = sdmTMB::sdmTMBcontrol(newton_loops = 3),
     anisotropy = TRUE,
     spatiotemporal = as.list(c("iid", "iid"))
   )
   
   # get the index
   predictions <- predict(fit, newdata = z, return_tmb_object = TRUE)
-  index <- sdmTMB::get_index(predictions, area = z$area_km2_WCGBTS, bias_correct = FALSE) #bias correct off for now due to run time issues
+  index <- sdmTMB::get_index(predictions, area = z$area_km2_WCGBTS, bias_correct = TRUE) 
   # save file
   saveRDS(fit, paste0("fit_", y, ".rds"))
   saveRDS(index, paste0("index_", y, ".rds"))
@@ -115,15 +121,17 @@ species_sdm_lognormal_fn <- function(x, y, z) {
 #'
 canary_sdm_fn <- function(x, y, z) {
   # make mesh
-  mesh <- sdmTMB::make_mesh(x, xy_cols = c("Longitude_dd", "Latitude_dd"), n_knots = 200)
+  mesh <- sdmTMB::make_mesh(x, xy_cols = c("longitude", "latitude"), n_knots = 200)
   
   # fit model
   fit <- sdmTMB::sdmTMB(
-    total_catch_wt_kg ~ 0 + factor(Year) + Pass,
+    catch_weight ~ 0 + fyear + pass_scaled,
     data = x,
     mesh = mesh,
     family = delta_lognormal(),
     time = "Year",
+    offset = log(x$effort),
+    control = sdmTMB::sdmTMBcontrol(newton_loops = 3),
     anisotropy = FALSE,
     spatiotemporal = as.list(c("iid", "off"))
   )
@@ -153,15 +161,17 @@ canary_sdm_fn <- function(x, y, z) {
 #'
 darkblotched_sdm_fn <- function(x, y, z) {
   # make mesh
-  mesh <- sdmTMB::make_mesh(x, xy_cols = c("Longitude_dd", "Latitude_dd"), n_knots = 250)
+  mesh <- sdmTMB::make_mesh(x, xy_cols = c("longitude", "latitude"), n_knots = 250)
   
   # fit model
   fit <- sdmTMB::sdmTMB(
-    total_catch_wt_kg ~ 0 + factor(Year) + Pass,
+    catch_weight ~ 0 + fyear + pass_scaled,
     data = x,
     mesh = mesh,
     family = delta_lognormal(),
     time = "Year",
+    offset = log(x$effort),
+    control = sdmTMB::sdmTMBcontrol(newton_loops = 3),
     anisotropy = TRUE,
     spatiotemporal = as.list(c("off", "iid"))
   )
@@ -191,15 +201,17 @@ darkblotched_sdm_fn <- function(x, y, z) {
 #'
 shortspine_sdm_fn <- function(x, y, z) {
   # make mesh
-  mesh <- sdmTMB::make_mesh(x, xy_cols = c("Longitude_dd", "Latitude_dd"), n_knots = 500)
+  mesh <- sdmTMB::make_mesh(x, xy_cols = c("longitude", "latitude"), n_knots = 350)
   
   # fit model
   fit <- sdmTMB::sdmTMB(
-    total_catch_wt_kg ~ 0 + factor(Year) + Pass + Depth_m + (Depth_m^2),
+    catch_weight ~ 0 + fyear + pass_scaled + depth_scaled + depth_scaled_squared,
     data = x,
     mesh = mesh,
     family = delta_lognormal(),
     time = "Year",
+    offset = log(x$effort),
+    control = sdmTMB::sdmTMBcontrol(newton_loops = 3),
     anisotropy = TRUE,
     spatiotemporal = as.list(c("iid", "iid"))
   )
@@ -214,7 +226,7 @@ shortspine_sdm_fn <- function(x, y, z) {
 }
 
 
-#' Shortspine species distribution model function
+#' Widow species distribution model function
 #'
 #' Function to create a mesh, fit the sdmTMB model, and get the index.
 #' Exports fit.rds and index.rds files to the designated species folder.
@@ -230,15 +242,17 @@ shortspine_sdm_fn <- function(x, y, z) {
 #'
 widow_sdm_fn <- function(x, y, z) {
   # make mesh
-  mesh <- sdmTMB::make_mesh(x, xy_cols = c("Longitude_dd", "Latitude_dd"), n_knots = 200)
+  mesh <- sdmTMB::make_mesh(x, xy_cols = c("longitude", "latitude"), n_knots = 200)
   
   # fit model
   fit <- sdmTMB::sdmTMB(
-    total_catch_wt_kg ~ 0 + factor(Year) + Pass, # fyear and pass_scaled were specified in the configs doc.
+    catch_weight ~ 0 + fyear + pass_scaled, 
     data = x,
     mesh = mesh,
     family = delta_gamma(),
     time = "Year",
+    offset = log(x$effort),
+    control = sdmTMB::sdmTMBcontrol(newton_loops = 3),
     anisotropy = TRUE,
     spatiotemporal = as.list(c("off", "off"))
   )

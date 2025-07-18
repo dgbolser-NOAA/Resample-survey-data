@@ -7,13 +7,12 @@
 #' @param x catch_split data frame
 #'
 tow_fn <- function(x) {
-  tows <- as.data.frame(x$Trawl_id)
+  tows <- as.data.frame(x$trawl_id)
   tows <- unique(tows)
   tows <- as.data.frame(tows[!is.na(tows)])
-  names(tows) <- "Trawl_id"
+  names(tows) <- "trawl_id"
   return(tows)
 }
-
 
 #' Include or Exclude
 #'
@@ -22,8 +21,8 @@ tow_fn <- function(x) {
 #'
 #' @param df tows data frame
 #' @param proportions proportions developed using: props <- as.data.frame(seq
-#' (0.1,1.0, by = 0.1)) replicated by the length of the tows dataframe. The name
-#' of the props is "Trawl_id".
+#' (0.2,1.0, by = 0.2)) replicated by the length of the tows dataframe. The name
+#' of the props is "trawl_id".
 #'
 include_or_exclude <- function(df, proportions) {
   # Get the number of rows in the dataframe
@@ -33,7 +32,7 @@ include_or_exclude <- function(df, proportions) {
   result_list <- lapply(proportions, function(p) {
     # Generate a random vector of 1s and 0s based on the specified proportion
     set.seed(1)
-    random_vectors <- replicate(10, sample(c(1, 0), size = num_rows, replace = TRUE, prob = c(p, 1 - p)), simplify = F)
+    random_vectors <- replicate(3, sample(c(1, 0), size = num_rows, replace = TRUE, prob = c(p, 1 - p)), simplify = F)
 
     # Create a new dataframe with the random assignments
     lapply(random_vectors, function(rv) {
@@ -45,7 +44,7 @@ include_or_exclude <- function(df, proportions) {
   result_list <- do.call(c, result_list)
 
   # Set names for the list elements based on proportions
-  names(result_list) <- paste0(rep(proportions, each = 10), "_", rep(1:10, times = length(proportions)))
+  names(result_list) <- paste0(rep(proportions, each = 3), "_", rep(1:3, times = length(proportions)))
 
   # Return the list of dataframes
   return(result_list)
@@ -222,51 +221,51 @@ pull_files <- function(directory, string) {
 #'
 # remove south of 33.5 lat
 lat_filter_335 <- function(x) {
-  x[x$Latitude_dd > 33.5, ]
+  x[x$latitude > 33.5, ]
 }
 
 # remove south of 34 lat
 lat_filter_34 <- function(x) {
-  x[x$Latitude_dd > 34, ]
+  x[x$latitude > 34, ]
 }
 
 # remove north of 34 lat
 lat_filter_34_max <- function(x) {
-  x[x$Latitude_dd < 34, ]
+  x[x$latitude < 34, ]
 }
 
 lat_filter_35 <- function(x) {
-  x[x$Latitude_dd > 35, ]
+  x[x$latitude > 35, ]
 }
 
 # remove deeper than 275 m
 depth_filter_275 <- function(x) {
-  x[x$Depth_m < 275, ]
+  x[x$depth < 275, ]
 }
 
 # remove deeper than 425 m
 depth_filter_425 <- function(x) {
-  x[x$Depth_m < 425, ]
+  x[x$depth < 425, ]
 }
 
 # remove deeper than 450 m
 depth_filter_450 <- function(x) {
-  x[x$Depth_m < 450, ]
+  x[x$depth < 450, ]
 }
 
 # remove deeper than 500 m
 depth_filter_500 <- function(x) {
-  x[x$Depth_m < 500, ]
+  x[x$depth < 500, ]
 }
 
 # remove deeper than 675 m
 depth_filter_675 <- function(x) {
-  x[x$Depth_m < 675, ]
+  x[x$depth < 675, ]
 }
 
 # remove deeper than 700 m
 depth_filter_700 <- function(x) {
-  x[x$Depth_m < 700, ]
+  x[x$depth < 700, ]
 }
 
 ###### modified function to summarize fit files ################
