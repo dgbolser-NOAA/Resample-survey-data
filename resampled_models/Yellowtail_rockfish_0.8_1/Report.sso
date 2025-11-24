@@ -5,9 +5,9 @@
 #_User_info_available_at:_https://nmfs-ost.github.io/ss3-website/
 #_Source_code_at:_https://github.com/nmfs-ost/ss3-source-code
 
-StartTime: Wed Jun 25 02:07:17 2025
-EndTime: Wed Jun 25 02:18:16 2025
-This run took: 0 hours, 10 minutes, 59 seconds.
+StartTime: Mon Oct 27 23:21:15 2025
+EndTime: Mon Oct 27 23:34:34 2025
+This run took: 0 hours, 13 minutes, 19 seconds.
 Data_File: YTRK.North.data.ss
 Control_File: YTRK.North.control.ss
 
@@ -19,19 +19,19 @@ total_LogL: 1138.43
 
 Starter_Comments
 #C file created using an r4ss function
-#C file write time: 2025-06-25  01:50:32
+#C file write time: 2025-10-27  23:07:14
 
 Data_Comments
 #C file created using an r4ss function
-#C file write time: 2025-06-25  01:50:32
+#C file write time: 2025-10-27  23:07:14
 
 Control_Comments
 #C file created using an r4ss function
-#C file write time: 2025-06-25  02:07:17
+#C file write time: 2025-10-27  23:21:15
 
 Forecast_Comments
 #C file created using an r4ss function
-#C file write time: 2025-06-25  01:50:32
+#C file write time: 2025-10-27  23:07:14
 
 #_KeyWords_of_tables_available_in_report_sso
 #_NOTE: table_number_is_order_in_which_tables_are_output

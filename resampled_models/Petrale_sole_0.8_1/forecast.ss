@@ -1,5 +1,5 @@
 #C file created using an r4ss function
-#C file write time: 2025-06-24  20:47:10
+#C file write time: 2025-10-27  20:03:42
 #
 1 #_benchmarks
 2 #_MSY
@@ -36,7 +36,7 @@
 3 #_First_forecast_loop_with_stochastic_recruitment
 0 #_fcast_rec_option
 1 #_fcast_rec_val
-0 #_Fcast_loop_control_5
+0 #_HCR_anchor
 2025 #_FirstYear_for_caps_and_allocations
 0 #_stddev_of_log_catch_ratio
 1 #_Do_West_Coast_gfish_rebuilder_output

@@ -1,6 +1,6 @@
 ###
 console output
-2025-06-24 20:31:31.545864
+2025-10-27 20:03:18.115406
 ###
  
  reading from starter.ss
@@ -12,7 +12,7 @@ Data read successful 999
 End of control file successful! 999
 Begin setting up parameters ...  end of parameter section 
 Evaluating biology calculations once ... done
-Starting optimization of 'ss3' in phase 1 of 5 at Tue Jun 24 20:19:47 2025
+Starting optimization of 'ss3' in phase 1 of 5 at Mon Oct 27 19:51:14 2025
 1 1 -log(L): 1842.55  Spbio: 6889.13 3341.95
 phase= 1 | nvar= 85 | iter=  0 | nll=1.84e+03 | mag=2.67e+03 | par[ 78]=selparm[7]
 1 2 -log(L): 1842.53  Spbio: 6888.96 3341.75
@@ -510,7 +510,7 @@ phase= 5 | nvar=163 | iter=120 | nll=1.35e+03 | mag=1.07e-04 | par[ 55]=recdev1[
 5 469 -log(L): 1350.39  Spbio: 6811.22 4798.61
 5 470 -log(L): 1350.39  Spbio: 6811.23 4798.61
 phase= 5 | nvar=163 | iter=121 | nll=1.35e+03 | mag=9.69e-05 | par[ 53]=recdev1[4]
-Optimization completed after 2 m 26 s with final statistics:
+Optimization completed after 1 m 53 s with final statistics:
   nll=1350.392594 | mag=9.68850e-05 | par[ 53]=recdev1[4]
 
 Warning: the following parameters had issues
@@ -1172,9 +1172,9 @@ Calculating Hessian (163 variables): 5 472 -log(L): 1350.39  Spbio: 6811.23 4798
 5 1122 -log(L): 1350.39  Spbio: 6811.23 4798.61
 5 1123 -log(L): 1350.39  Spbio: 6811.23 4798.61
 5 1124 -log(L): 1350.39  Spbio: 6811.23 4798.61
- done (2 m 24 s) 
+ done (3 m 18 s) 
 Differentiating 8 derived quantities: 5 1125 -log(L): 1350.39  Spbio: 6811.23 4798.61
-1, 2, 3, 4, 5, 6, 7, 8 done (6 m 44 s) 
+1, 2, 3, 4, 5, 6, 7, 8 done (6 m 41 s) 
 Inverting Hessian (163 variables): 20%, 40%, 60%, 80%, 100% done (0.045 s) 
 Starting standard error calculations...  done (0.4 s) 
 Iterations: 1125
@@ -1189,4 +1189,4 @@ Begin writing *.ss_new output files ... Finished writing *.ss_new output files
 !!  Run has completed  !! 
 !!  See warning.sso for 27 warnings  and 4 notes 
 
-Finished running model 'ss3' after 11 m 44 s.
+Finished running model 'ss3' after 12 m 3.1 s.

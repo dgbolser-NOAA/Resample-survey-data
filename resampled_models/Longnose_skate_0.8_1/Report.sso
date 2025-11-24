@@ -5,8 +5,8 @@
 #_User_info_available_at:_https://nmfs-ost.github.io/ss3-website/
 #_Source_code_at:_https://github.com/nmfs-ost/ss3-source-code
 
-StartTime: Tue Jun 24 20:03:37 2025
-EndTime: Tue Jun 24 20:04:44 2025
+StartTime: Mon Oct 27 19:33:15 2025
+EndTime: Mon Oct 27 19:34:22 2025
 This run took: 0 hours, 1 minutes, 7 seconds.
 Data_File: LSKT2019_data.ss
 Control_File: LSKT2019_control.ss
@@ -19,21 +19,21 @@ total_LogL: 273.628
 
 Starter_Comments
 #C file created using an r4ss function
-#C file write time: 2025-06-24  20:02:04
+#C file write time: 2025-10-27  19:31:45
 
 Data_Comments
 #C Data file LSKT
 #C file created using an r4ss function
-#C file write time: 2025-06-24  20:02:22
+#C file write time: 2025-10-27  19:32:03
 
 Control_Comments
 #C LSKT control file
 #C file created using an r4ss function
-#C file write time: 2025-06-24  20:03:37
+#C file write time: 2025-10-27  19:33:15
 
 Forecast_Comments
 #C file created using an r4ss function
-#C file write time: 2025-06-24  20:02:04
+#C file write time: 2025-10-27  19:31:45
 
 #_KeyWords_of_tables_available_in_report_sso
 #_NOTE: table_number_is_order_in_which_tables_are_output

@@ -1,6 +1,6 @@
 ###
 console output
-2025-06-24 20:33:48.413896
+2025-10-27 20:01:13.223997
 ###
  
  reading from starter.ss
@@ -12,7 +12,7 @@ Data read successful 999
 End of control file successful! 999
 Begin setting up parameters ...  end of parameter section 
 Evaluating biology calculations once ... done
-Starting optimization of 'ss3' in phase 1 of 5 at Tue Jun 24 20:21:00 2025
+Starting optimization of 'ss3' in phase 1 of 5 at Mon Oct 27 19:48:10 2025
 1 1 -log(L): 2037.5  Spbio: 6889.13 3341.95
 phase= 1 | nvar= 85 | iter=  0 | nll=2.04e+03 | mag=2.67e+03 | par[ 78]=selparm[7]
 1 2 -log(L): 2037.48  Spbio: 6888.96 3341.75
@@ -559,7 +559,7 @@ phase= 5 | nvar=163 | iter=100 | nll=1.53e+03 | mag=3.58e-04 | par[150]=selparm[
 5 515 -log(L): 1533.1  Spbio: 6775.32 4719.23
 5 516 -log(L): 1533.1  Spbio: 6775.32 4719.23
 phase= 5 | nvar=163 | iter=113 | nll=1.53e+03 | mag=9.74e-05 | par[ 57]=recdev1[8]
-Optimization completed after 2 m 43 s with final statistics:
+Optimization completed after 2 m 36 s with final statistics:
   nll=1533.097388 | mag=9.74034e-05 | par[ 57]=recdev1[8]
 
 Warning: the following parameters had issues
@@ -1221,11 +1221,11 @@ Calculating Hessian (163 variables): 5 518 -log(L): 1533.1  Spbio: 6775.32 4719.
 5 1168 -log(L): 1533.1  Spbio: 6775.32 4719.23
 5 1169 -log(L): 1533.1  Spbio: 6775.32 4719.23
 5 1170 -log(L): 1533.1  Spbio: 6775.32 4719.23
- done (2 m 58 s) 
+ done (2 m 53 s) 
 Differentiating 8 derived quantities: 5 1171 -log(L): 1533.1  Spbio: 6775.32 4719.23
-1, 2, 3, 4, 5, 6, 7, 8 done (6 m 54 s) 
-Inverting Hessian (163 variables): 20%, 40%, 60%, 80%, 100% done (0.046 s) 
-Starting standard error calculations...  done (0.41 s) 
+1, 2, 3, 4, 5, 6, 7, 8 done (7 m 22 s) 
+Inverting Hessian (163 variables): 20%, 40%, 60%, 80%, 100% done (0.045 s) 
+Starting standard error calculations...  done (0.4 s) 
 Iterations: 1171
 Finished forecast
 Writing wtatage.ss_new
@@ -1238,4 +1238,4 @@ Begin writing *.ss_new output files ... Finished writing *.ss_new output files
 !!  Run has completed  !! 
 !!  See warning.sso for 27 warnings  and 4 notes 
 
-Finished running model 'ss3' after 12 m 48 s.
+Finished running model 'ss3' after 13 m 2.5 s.

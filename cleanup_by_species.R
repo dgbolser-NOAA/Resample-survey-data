@@ -9,14 +9,14 @@
 #'
 cleanup_by_species <- function(df, species) {
   catch_species <- df |>
-    dplyr::filter(`common_name` == species)
+    dplyr::filter(`Common_name` == species)
   catch_split <- split(catch_species, catch_species$Year)
   
   tows <- lapply(catch_split, tow_fn)
   
   # Assign random 1s and 0s based on the specified proportions to a list of dataframes
   props <- as.data.frame(seq(0.2, 1.0, by = 0.2))
-  names(props) <- "trawl_id"
+  names(props) <- "Trawl_id"
   
   # match the structure of the catch data
   props <- rep(props, length(tows))
@@ -37,7 +37,7 @@ cleanup_by_species <- function(df, species) {
   
   tows_assigned_resampled <- unlist(tows_assigned_resampled, recursive = F)
   
-  alldata_resampled <- join_dfs(tows_assigned_resampled, catch_species, "trawl_id")
+  alldata_resampled <- join_dfs(tows_assigned_resampled, catch_species, "Trawl_id")
   
   names(alldata_resampled) <- substr(names(alldata_resampled), 6, 50) # it would be good to replace 50 with a logical indicating the end
   

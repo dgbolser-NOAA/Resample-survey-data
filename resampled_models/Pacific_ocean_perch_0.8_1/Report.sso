@@ -5,9 +5,9 @@
 #_User_info_available_at:_https://nmfs-ost.github.io/ss3-website/
 #_Source_code_at:_https://github.com/nmfs-ost/ss3-source-code
 
-StartTime: Tue Jun 24 20:19:18 2025
-EndTime: Tue Jun 24 20:31:07 2025
-This run took: 0 hours, 11 minutes, 49 seconds.
+StartTime: Mon Oct 27 19:49:15 2025
+EndTime: Mon Oct 27 20:00:04 2025
+This run took: 0 hours, 10 minutes, 49 seconds.
 Data_File: 2017pop.dat
 Control_File: 2017pop.ctl
 
@@ -19,19 +19,19 @@ total_LogL: 1899.7
 
 Starter_Comments
 #C file created using an r4ss function
-#C file write time: 2025-06-24  20:05:23
+#C file write time: 2025-10-27  19:35:27
 
 Data_Comments
 #C file created using an r4ss function
-#C file write time: 2025-06-24  20:05:23
+#C file write time: 2025-10-27  19:35:27
 
 Control_Comments
 #C file created using an r4ss function
-#C file write time: 2025-06-24  20:19:18
+#C file write time: 2025-10-27  19:49:15
 
 Forecast_Comments
 #C file created using an r4ss function
-#C file write time: 2025-06-24  20:05:23
+#C file write time: 2025-10-27  19:35:27
 
 #_KeyWords_of_tables_available_in_report_sso
 #_NOTE: table_number_is_order_in_which_tables_are_output

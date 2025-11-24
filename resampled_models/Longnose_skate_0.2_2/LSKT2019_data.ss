@@ -1,6 +1,6 @@
 #C Data file LSKT
 #C file created using an r4ss function
-#C file write time: 2025-06-24  19:59:29
+#C file write time: 2025-10-27  19:31:45
 #
 1916 #_styr
 2018 #_endyr

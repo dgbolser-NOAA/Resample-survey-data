@@ -40,8 +40,8 @@ plot_composition_comparisons(dir_list = resampled_dirs,
 
 
 # Plot model results -----------------------------------------------------------
-all_models <- r4ss::SSgetoutput(dirvec = resampled_dirs)
-summaryoutput <- r4ss::SSsummarize(all_models)
+all_models <- r4ss::SSgetoutput(dirvec = resampled_dirs, modelnames = basename(resampled_dirs))
+summaryoutput <- r4ss::SSsummarize(all_models, )
 summaryoutput$modelnames <- basename(resampled_dirs)
 
 # The following models did not invert the hessian and need to be sorted out

@@ -69,6 +69,12 @@ df <- data.frame(
 
 df_list <- split(df, seq(nrow(df)))
 
+
+# HAD TO USE V3.30.23.2 FOR SHORTSPINE THORNYHEAD TO GET SD OF DERIVED QUANTS AND
+# I DON'T KNOW WHY.
+# TRIED UNSCALED AND SCALED INDICES
+
+start.time <- Sys.time()
 purrr::map(df_list, ~ run_model(species_name = .x$species_name,
                     scientific_name = .x$scientific_name,
                     original_model_dir = .x$original_model_dir,
@@ -80,11 +86,11 @@ purrr::map(df_list, ~ run_model(species_name = .x$species_name,
                     resampled_model_dir = resampled_model_dir,
                     catch_df = catch,
                     bio_df = bio))
+Sys.time()-start.time
 
 # run just the ith species
-# i <- 6
-# i <- 2
-# i <- 4 # sablefish
+# i <- 5
+# i <- 1
 # run_model(species_name = df_list[[i]]$species_name,
 #           scientific_name = df_list[[i]]$scientific_name,
 #           original_model_dir = df_list[[i]]$original_model_dir,
@@ -96,7 +102,7 @@ purrr::map(df_list, ~ run_model(species_name = .x$species_name,
 #           resampled_model_dir = resampled_model_dir,
 #           catch_df = catch,
 #           bio_df = bio)
-# 
+# # 
 # species_name <- df_list[[i]]$species_name
 # scientific_name <- df_list[[i]]$scientific_name
 # original_model_dir <- df_list[[i]]$original_model_dir
@@ -184,28 +190,30 @@ run_model <- function(
     mutate(model_iter = paste0(effort,"_", replicate)) |>
     filter(!is.na(se))
   
-  rescale_num <- resampled_mean_index/og_mean_index
-  
   # randomly sample 3 replicates from each effort
   sdm_model_reps <- sdm_model |>
-    distinct(model_iter, .keep_all = TRUE) |>
-    group_by(effort) |>
-    slice_sample(n = 3) |>
+    mutate(replicate_num = as.integer(str_extract(model_iter, "(?<=_)[0-9]+"))) |>
+    arrange(Year, effort, replicate_num) |>
+    dplyr::group_by(Year, effort) |>
+    slice_head(n = 3) |>
     ungroup()
   
-  resampled_mean_index <- mean(sdm_model |>
-                                 filter(effort == 1) |>
-                                 pull(est))
+  resampled_mean_index <- mean(sdm_model_reps |>
+                               filter(effort == 1) |>
+                               pull(est))
   
   og_mean_index <- mean(ss3_inputs_old$dat$CPUE |>
-                          filter(index == fleet_number) |>
-                          pull(obs))
+                        filter(index == fleet_number) |>
+                        pull(obs))
   
   rescale_num <- resampled_mean_index/og_mean_index
   
-  sdm_model_filt <- sdm_model |>
-    filter(model_iter %in% sdm_model_reps$model_iter) |>
+  # rescale indices to be similar to what they were in the base model to that results are more 
+  # comparable
+  # should this be done?!? What about se?
+  sdm_model_filt <- sdm_model_reps |>
     mutate(est = est/rescale_num)
+  #          se = se/rescale_num)
   
   rm(sdm_model_reps, sdm_model, resampled_mean_index, og_mean_index, rescale_num)
 
@@ -279,7 +287,7 @@ run_model <- function(
       lats.north = c(42, 42, 42, 49, 49, 49)
     )
   }
-    
+  
   plan(multisession, workers = 11)
   
   furrr::future_map2(.x = catch_filtered, 

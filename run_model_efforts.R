@@ -368,9 +368,9 @@ run_model_efforts <- function(catch_filtered,
     )
     
     # download exe if it isn't in the file path
-    if(file.exists(file.path(new_dir, "ss3")) == FALSE) {
-      get_ss3_exe(new_dir)
-    }
+    # if(file.exists(file.path(new_dir, "ss3")) == FALSE) {
+      get_ss3_exe(version = "v3.30.23.2", new_dir)
+    # }
     
     # run SS3 
     message("Running model for ", model_name, model_iter)

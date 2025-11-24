@@ -7,10 +7,10 @@
 #' @param x catch_split data frame
 #'
 tow_fn <- function(x) {
-  tows <- as.data.frame(x$trawl_id)
+  tows <- as.data.frame(x$Trawl_id)
   tows <- unique(tows)
   tows <- as.data.frame(tows[!is.na(tows)])
-  names(tows) <- "trawl_id"
+  names(tows) <- "Trawl_id"
   return(tows)
 }
 
@@ -22,7 +22,7 @@ tow_fn <- function(x) {
 #' @param df tows data frame
 #' @param proportions proportions developed using: props <- as.data.frame(seq
 #' (0.2,1.0, by = 0.2)) replicated by the length of the tows dataframe. The name
-#' of the props is "trawl_id".
+#' of the props is "Trawl_id".
 #'
 include_or_exclude <- function(df, proportions) {
   # Get the number of rows in the dataframe
@@ -221,51 +221,51 @@ pull_files <- function(directory, string) {
 #'
 # remove south of 33.5 lat
 lat_filter_335 <- function(x) {
-  x[x$latitude > 33.5, ]
+  x[x$Latitude_dd > 33.5, ]
 }
 
 # remove south of 34 lat
 lat_filter_34 <- function(x) {
-  x[x$latitude > 34, ]
+  x[x$Latitude_dd > 34, ]
 }
 
 # remove north of 34 lat
 lat_filter_34_max <- function(x) {
-  x[x$latitude < 34, ]
+  x[x$Latitude_dd < 34, ]
 }
 
 lat_filter_35 <- function(x) {
-  x[x$latitude > 35, ]
+  x[x$Latitude_dd > 35, ]
 }
 
 # remove deeper than 275 m
 depth_filter_275 <- function(x) {
-  x[x$depth < 275, ]
+  x[x$Depth_m < 275, ]
 }
 
 # remove deeper than 425 m
 depth_filter_425 <- function(x) {
-  x[x$depth < 425, ]
+  x[x$Depth_m < 425, ]
 }
 
 # remove deeper than 450 m
 depth_filter_450 <- function(x) {
-  x[x$depth < 450, ]
+  x[x$Depth_m < 450, ]
 }
 
 # remove deeper than 500 m
 depth_filter_500 <- function(x) {
-  x[x$depth < 500, ]
+  x[x$Depth_m < 500, ]
 }
 
 # remove deeper than 675 m
 depth_filter_675 <- function(x) {
-  x[x$depth < 675, ]
+  x[x$Depth_m < 675, ]
 }
 
 # remove deeper than 700 m
 depth_filter_700 <- function(x) {
-  x[x$depth < 700, ]
+  x[x$Depth_m < 700, ]
 }
 
 ###### modified function to summarize fit files ################

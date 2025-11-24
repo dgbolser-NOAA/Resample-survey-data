@@ -1,5 +1,5 @@
 #C file created using an r4ss function
-#C file write time: 2025-06-24  20:05:25
+#C file write time: 2025-10-27  19:35:30
 #
 2017pop.dat #_datfile
 2017pop.ctl #_ctlfile

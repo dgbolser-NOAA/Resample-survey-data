@@ -1,6 +1,6 @@
 ###
 console output
-2025-06-24 21:18:26.707654
+2025-10-27 20:34:14.478739
 ###
  
  reading from starter.ss
@@ -12,7 +12,7 @@ Data read successful 999
 End of control file successful! 999
 Begin setting up parameters ...  end of parameter section 
 Evaluating biology calculations once ... done
-Starting optimization of 'ss3' in phase 1 of 7 at Tue Jun 24 21:06:26 2025
+Starting optimization of 'ss3' in phase 1 of 7 at Mon Oct 27 20:22:14 2025
 1 1 -log(L): 1548.63  Spbio: 22.3962 3.96024
 phase= 1 | nvar= 63 | iter=  0 | nll=1.55e+03 | mag=2.06e+03 | par[ 50]=recdev2[49]
 1 2 -log(L): 1548.61  Spbio: 22.3964 3.9618
@@ -1079,7 +1079,7 @@ phase= 7 | nvar=267 | iter=120 | nll=6.67e+02 | mag=7.68e-03 | par[ 12]=SR_parm[
 7 1011 -log(L): 667.004  Spbio: 22.5548 8.38337
 7 1012 -log(L): 667.004  Spbio: 22.5548 8.38337
 phase= 7 | nvar=267 | iter=140 | nll=6.67e+02 | mag=6.43e-05 | par[ 12]=SR_parm[1]
-Optimization completed after 4 m 40 s with final statistics:
+Optimization completed after 4 m 35 s with final statistics:
   nll=667.004382 | mag=6.42955e-05 | par[ 12]=SR_parm[1]
 
 7 1013 -log(L): 667.004  Spbio: 22.5548 8.38337
@@ -2153,11 +2153,11 @@ Calculating Hessian (267 variables): 7 1014 -log(L): 667.004  Spbio: 22.5548 8.3
 7 2080 -log(L): 667.004  Spbio: 22.5548 8.38337
 7 2081 -log(L): 667.004  Spbio: 22.5548 8.38337
 7 2082 -log(L): 667.004  Spbio: 22.5548 8.38337
- done (3 m 16 s) 
+ done (3 m 14 s) 
 Differentiating 8 derived quantities: 7 2083 -log(L): 667.004  Spbio: 22.5548 8.38337
-1, 2, 3, 4, 5, 6, 7, 8 done (3 m 60 s) 
+1, 2, 3, 4, 5, 6, 7, 8 done (4 m 7.5 s) 
 Inverting Hessian (267 variables): 20%, 40%, 60%, 80%, 100% done (0.19 s) 
-Starting standard error calculations...  done (0.94 s) 
+Starting standard error calculations...  done (0.95 s) 
 Iterations: 2083
 Finished forecast
 Writing wtatage.ss_new

@@ -1,6 +1,6 @@
 ###
 console output
-2025-06-24 22:35:40.036448
+2025-10-27 21:46:48.560447
 ###
  
  reading from starter.ss
@@ -12,7 +12,7 @@ Data read successful 999
 End of control file successful! 999
 Begin setting up parameters ...  end of parameter section 
 Evaluating biology calculations once ... done
-Starting optimization of 'ss3' in phase 1 of 5 at Tue Jun 24 22:07:27 2025
+Starting optimization of 'ss3' in phase 1 of 5 at Mon Oct 27 21:14:37 2025
 1 1 -log(L): 432289  Spbio: 186545 0.00592161 cat 404958
 phase= 1 | nvar=  3 | iter=  0 | nll=4.32e+05 | mag=1.33e+07 | par[  1]=SR_parm[1]
 1 2 -log(L): 432289  Spbio: 186545 0.00592161 cat 404957
@@ -645,7 +645,7 @@ phase= 5 | nvar=235 | iter=240 | nll=3.03e+03 | mag=5.78e-02 | par[225]=selparm[
 5 597 -log(L): 3026.4  Spbio: 181042 119855
 5 598 -log(L): 3026.4  Spbio: 181042 119855
 phase= 5 | nvar=235 | iter=243 | nll=3.03e+03 | mag=6.68e-02 | par[225]=selparm[75]
-Optimization completed after 6 m 46 s with final statistics:
+Optimization completed after 8 m 44 s with final statistics:
   nll=3026.398510 | mag=6.68148e-02 | par[225]=selparm[75]
 
 Warning: the following parameters had issues
@@ -1594,11 +1594,11 @@ Calculating Hessian (235 variables): 5 600 -log(L): 3026.4  Spbio: 181042 119855
 5 1538 -log(L): 3026.4  Spbio: 181042 119855
 5 1539 -log(L): 3026.4  Spbio: 181042 119855
 5 1540 -log(L): 3026.4  Spbio: 181042 119855
- done (10 m 49 s) 
+ done (12 m 25 s) 
 Differentiating 8 derived quantities: 5 1541 -log(L): 3026.4  Spbio: 181042 119855
-1, 2, 3, 4, 5, 6, 7, 8 done (10 m 30 s) 
+1, 2, 3, 4, 5, 6, 7, 8 done (10 m 54 s) 
 Inverting Hessian (235 variables): 20%, 40%, 60%, 80%, 100% done (0.13 s) 
-Starting standard error calculations...  done (0.78 s) 
+Starting standard error calculations...  done (0.76 s) 
 Iterations: 1541
 Finished forecast
 Writing wtatage.ss_new
@@ -1611,4 +1611,4 @@ Begin writing *.ss_new output files ... Finished writing *.ss_new output files
 !!  Run has completed  !! 
 !!  See warning.sso for 5 warnings  and 2 notes 
 
-Finished running model 'ss3' after 28 m 13 s.
+Finished running model 'ss3' after 32 m 10 s.

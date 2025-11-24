@@ -1,6 +1,6 @@
 #C should work with SS version:
 #C file created using an r4ss function
-#C file write time: 2025-06-24  20:47:46
+#C file write time: 2025-10-27  20:03:57
 #
 1876 #_styr
 2022 #_endyr

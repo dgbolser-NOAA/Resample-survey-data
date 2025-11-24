@@ -99,11 +99,19 @@ plot_effort_vs_og_indices <- function(species_fleet_df, plot_save_dir) {
           panel.grid.minor = element_blank(),
           axis.title.x = element_text(face = "bold"),
           axis.title.y = element_text(face = "bold"),
-          legend.title = element_text(face = "bold"))
+          legend.title = element_text(face = "bold"),
+          plot.background = element_rect(fill = "transparent", colour = NA),
+          panel.background = element_rect(fill = "transparent", colour = NA),
+          legend.background = element_rect(fill = "transparent", colour = NA))
   
   ggplot2::ggsave(
     filename = file.path(plot_save_dir, "effort_indices.png"),
-    plot = p
+    plot = p,
+    width = 1130, # Set width in pixels
+    height = 505, # Set height in pixels
+    units = "px", # Specify units as pixels
+    dpi = 100, # Use a standard DPI when using pixel dimensions
+    bg = "transparent"
   )
   
   list(data = all_indices, plot = p)
@@ -226,7 +234,8 @@ plot_comparisons_ggplot <- function(
       ungroup()
     dat_long$endyr <- summaryoutput$endyrs[dat_long$model_index]
     dat_long <- dat_long |>
-      filter(Yr <= endyr)
+      filter(Yr <= endyr) |>
+      filter(!is.na(value))
     dat_long_plot <- dplyr::filter(dat_long, Yr > min(Yr) & Yr > sort(unique(Yr))[2])
     
     # Summarize across replicates for each species and effort
@@ -255,13 +264,21 @@ plot_comparisons_ggplot <- function(
             panel.grid.minor = element_blank(),
             axis.title.x = element_text(face = "bold"),
             axis.title.y = element_text(face = "bold"),
-            legend.title = element_text(face = "bold"))
+            legend.title = element_text(face = "bold"),
+            plot.background = element_rect(fill = "transparent", colour = NA),
+            panel.background = element_rect(fill = "transparent", colour = NA),
+            legend.background = element_rect(fill = "transparent", colour = NA))
     
     plots$spawning_biomass <- p
     
     ggsave(
       filename = file.path(plot_save_dir, "spawning_biomass.png"),
-      plot = p
+      plot = p,
+      width = 1130, # Set width in pixels
+      height = 505, # Set height in pixels
+      units = "px", # Specify units as pixels
+      dpi = 100, # Use a standard DPI when using pixel dimensions
+      bg = "transparent"
     )
     
     # Model uncertainty plot
@@ -283,13 +300,21 @@ plot_comparisons_ggplot <- function(
             panel.grid.minor = element_blank(),
             axis.title.x = element_text(face = "bold"),
             axis.title.y = element_text(face = "bold"),
-            legend.title = element_text(face = "bold"))
+            legend.title = element_text(face = "bold"),
+            plot.background = element_rect(fill = "transparent", colour = NA),
+            panel.background = element_rect(fill = "transparent", colour = NA),
+            legend.background = element_rect(fill = "transparent", colour = NA))
     
     plots$spawning_biomass_uncertainty <- p2
     
     ggsave(
       filename = file.path(plot_save_dir, "spawning_biomass_uncertainty.png"),
-      plot = p2
+      plot = p2,
+      width = 1130, # Set width in pixels
+      height = 505, # Set height in pixels
+      units = "px", # Specify units as pixels
+      dpi = 100, # Use a standard DPI when using pixel dimensions
+      bg = "transparent"
     )
   }
   
@@ -338,13 +363,21 @@ plot_comparisons_ggplot <- function(
             panel.grid.minor = element_blank(),
             axis.title.x = element_text(face = "bold"),
             axis.title.y = element_text(face = "bold"),
-            legend.title = element_text(face = "bold"))
+            legend.title = element_text(face = "bold"),
+            plot.background = element_rect(fill = "transparent", colour = NA),
+            panel.background = element_rect(fill = "transparent", colour = NA),
+            legend.background = element_rect(fill = "transparent", colour = NA))
     
     plots$summary_biomass <- p
     
     ggsave(
       filename = file.path(plot_save_dir, "summary_biomass.png"),
-      plot = p
+      plot = p,
+      width = 1130, # Set width in pixels
+      height = 505, # Set height in pixels
+      units = "px", # Specify units as pixels
+      dpi = 100, # Use a standard DPI when using pixel dimensions
+      bg = "transparent"
     )
     
     # Model uncertainty plot
@@ -366,14 +399,22 @@ plot_comparisons_ggplot <- function(
             panel.grid.minor = element_blank(),
             axis.title.x = element_text(face = "bold"),
             axis.title.y = element_text(face = "bold"),
-            legend.title = element_text(face = "bold"))
+            legend.title = element_text(face = "bold"),
+            plot.background = element_rect(fill = "transparent", colour = NA),
+            panel.background = element_rect(fill = "transparent", colour = NA),
+            legend.background = element_rect(fill = "transparent", colour = NA))
     
     
     plots$summary_biomass_uncertainty <- p2
     
     ggsave(
       filename = file.path(plot_save_dir, "summary_biomass_uncertainty.png"),
-      plot = p2
+      plot = p2,
+      width = 1130, # Set width in pixels
+      height = 505, # Set height in pixels
+      units = "px", # Specify units as pixels
+      dpi = 100, # Use a standard DPI when using pixel dimensions
+      bg = "transparent"
     )
   }
   
@@ -423,13 +464,21 @@ plot_comparisons_ggplot <- function(
             panel.grid.minor = element_blank(),
             axis.title.x = element_text(face = "bold"),
             axis.title.y = element_text(face = "bold"),
-            legend.title = element_text(face = "bold"))
+            legend.title = element_text(face = "bold"),
+            plot.background = element_rect(fill = "transparent", colour = NA),
+            panel.background = element_rect(fill = "transparent", colour = NA),
+            legend.background = element_rect(fill = "transparent", colour = NA))
     
     plots$bratio <- p
     
     ggsave(
       filename = file.path(plot_save_dir, "fraction_unfished.png"),
-      plot = p
+      plot = p,
+      width = 1130, # Set width in pixels
+      height = 505, # Set height in pixels
+      units = "px", # Specify units as pixels
+      dpi = 100, # Use a standard DPI when using pixel dimensions
+      bg = "transparent"
     )
     
     # Model uncertainty plot
@@ -451,14 +500,22 @@ plot_comparisons_ggplot <- function(
             panel.grid.minor = element_blank(),
             axis.title.x = element_text(face = "bold"),
             axis.title.y = element_text(face = "bold"),
-            legend.title = element_text(face = "bold"))
+            legend.title = element_text(face = "bold"),
+            plot.background = element_rect(fill = "transparent", colour = NA),
+            panel.background = element_rect(fill = "transparent", colour = NA),
+            legend.background = element_rect(fill = "transparent", colour = NA))
     
     
     plots$bratio_uncertainty <- p2
     
     ggsave(
       filename = file.path(plot_save_dir, "fraction_unfished_uncertainty.png"),
-      plot = p2
+      plot = p2,
+      width = 1130, # Set width in pixels
+      height = 505, # Set height in pixels
+      units = "px", # Specify units as pixels
+      dpi = 100, # Use a standard DPI when using pixel dimensions
+      bg = "transparent"
     )
   }
   
@@ -519,13 +576,21 @@ plot_comparisons_ggplot <- function(
             panel.grid.minor = element_blank(),
             axis.title.x = element_text(face = "bold"),
             axis.title.y = element_text(face = "bold"),
-            legend.title = element_text(face = "bold"))
+            legend.title = element_text(face = "bold"),
+            plot.background = element_rect(fill = "transparent", colour = NA),
+            panel.background = element_rect(fill = "transparent", colour = NA),
+            legend.background = element_rect(fill = "transparent", colour = NA))
     
     plots$recruits <- p
     
     ggsave(
       filename = file.path(plot_save_dir, "Recruits.png"),
-      plot = p
+      plot = p,
+      width = 1130, # Set width in pixels
+      height = 505, # Set height in pixels
+      units = "px", # Specify units as pixels
+      dpi = 100, # Use a standard DPI when using pixel dimensions
+      bg = "transparent"
     )
     
     # Model uncertainty plot
@@ -547,14 +612,22 @@ plot_comparisons_ggplot <- function(
             panel.grid.minor = element_blank(),
             axis.title.x = element_text(face = "bold"),
             axis.title.y = element_text(face = "bold"),
-            legend.title = element_text(face = "bold"))
+            legend.title = element_text(face = "bold"),
+            plot.background = element_rect(fill = "transparent", colour = NA),
+            panel.background = element_rect(fill = "transparent", colour = NA),
+            legend.background = element_rect(fill = "transparent", colour = NA))
     
     
     plots$recruits_uncertainty <- p2
     
     ggsave(
       filename = file.path(plot_save_dir, "recruits_uncertainty.png"),
-      plot = p2
+      plot = p2,
+      width = 1130, # Set width in pixels
+      height = 505, # Set height in pixels
+      units = "px", # Specify units as pixels
+      dpi = 100, # Use a standard DPI when using pixel dimensions
+      bg = "transparent"
     )
   }
   
@@ -605,13 +678,21 @@ plot_comparisons_ggplot <- function(
             panel.grid.minor = element_blank(),
             axis.title.x = element_text(face = "bold"),
             axis.title.y = element_text(face = "bold"),
-            legend.title = element_text(face = "bold"))
+            legend.title = element_text(face = "bold"),
+            plot.background = element_rect(fill = "transparent", colour = NA),
+            panel.background = element_rect(fill = "transparent", colour = NA),
+            legend.background = element_rect(fill = "transparent", colour = NA))
     
     plots$bratio <- p
     
     ggsave(
       filename = file.path(plot_save_dir, "recdevs.png"),
-      plot = p
+      plot = p,
+      width = 1130, # Set width in pixels
+      height = 505, # Set height in pixels
+      units = "px", # Specify units as pixels
+      dpi = 100, # Use a standard DPI when using pixel dimensions
+      bg = "transparent"
     )
     
     dat_end <- dat_summ %>%
@@ -632,14 +713,22 @@ plot_comparisons_ggplot <- function(
             panel.grid.minor = element_blank(),
             axis.title.x = element_text(face = "bold"),
             axis.title.y = element_text(face = "bold"),
-            legend.title = element_text(face = "bold"))
+            legend.title = element_text(face = "bold"),
+            plot.background = element_rect(fill = "transparent", colour = NA),
+            panel.background = element_rect(fill = "transparent", colour = NA),
+            legend.background = element_rect(fill = "transparent", colour = NA))
     
     
     plots$recdevs_uncertainty <- p2
     
     ggsave(
       filename = file.path(plot_save_dir, "recdevs_uncertainty.png"),
-      plot = p2
+      plot = p2,
+      width = 1130, # Set width in pixels
+      height = 505, # Set height in pixels
+      units = "px", # Specify units as pixels
+      dpi = 100, # Use a standard DPI when using pixel dimensions
+      bg = "transparent"
     )
   }
   
@@ -699,13 +788,21 @@ plot_comparisons_ggplot <- function(
             panel.grid.minor = element_blank(),
             axis.title.x = element_text(face = "bold"),
             axis.title.y = element_text(face = "bold"),
-            legend.title = element_text(face = "bold"))
+            legend.title = element_text(face = "bold"),
+            plot.background = element_rect(fill = "transparent", colour = NA),
+            panel.background = element_rect(fill = "transparent", colour = NA),
+            legend.background = element_rect(fill = "transparent", colour = NA))
     
     plots$length_comp_ratio <- p3
     
     ggsave(
       filename = file.path(plot_save_dir, "length_comp_ratio.png"),
-      plot = p3
+      plot = p3,
+      width = 1130, # Set width in pixels
+      height = 505, # Set height in pixels
+      units = "px", # Specify units as pixels
+      dpi = 100, # Use a standard DPI when using pixel dimensions
+      bg = "transparent"
     )
   }
   # Age comps ratio
@@ -763,13 +860,21 @@ plot_comparisons_ggplot <- function(
             panel.grid.minor = element_blank(),
             axis.title.x = element_text(face = "bold"),
             axis.title.y = element_text(face = "bold"),
-            legend.title = element_text(face = "bold"))
+            legend.title = element_text(face = "bold"),
+            plot.background = element_rect(fill = "transparent", colour = NA),
+            panel.background = element_rect(fill = "transparent", colour = NA),
+            legend.background = element_rect(fill = "transparent", colour = NA))
     
     plots$age_comp_ratio <- p4
     
     ggsave(
       filename = file.path(plot_save_dir, "age_comp_ratio.png"),
-      plot = p4
+      plot = p4,
+      width = 1130, # Set width in pixels
+      height = 505, # Set height in pixels
+      units = "px", # Specify units as pixels
+      dpi = 100, # Use a standard DPI when using pixel dimensions
+      bg = "transparent"
     )
   }
   return(plots)
@@ -846,7 +951,10 @@ plot_composition_comparisons <- function(dir_list, fleet_lookup, plot_save_dir){
           panel.grid.minor = element_blank(),
           axis.title.x = element_text(face = "bold"),
           axis.title.y = element_text(face = "bold"),
-          legend.title = element_text(face = "bold"))
+          legend.title = element_text(face = "bold"),
+          plot.background = element_rect(fill = "transparent", colour = NA),
+          panel.background = element_rect(fill = "transparent", colour = NA),
+          legend.background = element_rect(fill = "transparent", colour = NA))
   
   length_comparison_plot.1 <- lencomps |>
     filter(freq > 0) |>
@@ -862,18 +970,31 @@ plot_composition_comparisons <- function(dir_list, fleet_lookup, plot_save_dir){
           axis.title.x = element_text(face = "bold"),
           axis.title.y = element_text(face = "bold"),
           title = element_text(face = "bold"),
-          plot.title = element_text(vjust = -8))
+          plot.title = element_text(vjust = -8),
+          plot.background = element_rect(fill = "transparent", colour = NA),
+          panel.background = element_rect(fill = "transparent", colour = NA),
+          legend.background = element_rect(fill = "transparent", colour = NA))
     
   combined <- length_comparison_plot + length_comparison_plot.1 + plot_layout(widths = c(2,1))
   
   ggsave(
     filename = file.path(plot_save_dir, "length_comparisons.png"),
-    plot = length_comparison_plot
+    plot = length_comparison_plot,
+    width = 1130, # Set width in pixels
+    height = 505, # Set height in pixels
+    units = "px", # Specify units as pixels
+    dpi = 100, # Use a standard DPI when using pixel dimensions
+    bg = "transparent"
   )
   
   ggsave(
     filename = file.path(plot_save_dir, "length_comparisons_zoom.png"),
-    plot = combined
+    plot = combined,
+    width = 1130, # Set width in pixels
+    height = 505, # Set height in pixels
+    units = "px", # Specify units as pixels
+    dpi = 100, # Use a standard DPI when using pixel dimensions
+    bg = "transparent"
   )
   
   agecomps <- imap_dfr(
@@ -928,7 +1049,10 @@ plot_composition_comparisons <- function(dir_list, fleet_lookup, plot_save_dir){
           panel.grid.minor = element_blank(),
           axis.title.x = element_text(face = "bold"),
           axis.title.y = element_text(face = "bold"),
-          legend.title = element_text(face = "bold"))
+          legend.title = element_text(face = "bold"),
+          plot.background = element_rect(fill = "transparent", colour = NA),
+          panel.background = element_rect(fill = "transparent", colour = NA),
+          legend.background = element_rect(fill = "transparent", colour = NA))
   
   age_comparison_plot.1 <- agecomps |>
     filter(freq > 0) |>
@@ -944,18 +1068,31 @@ plot_composition_comparisons <- function(dir_list, fleet_lookup, plot_save_dir){
           axis.title.x = element_text(face = "bold"),
           axis.title.y = element_text(face = "bold"),
           title = element_text(face = "bold"),
-          plot.title = element_text(vjust = -8))
+          plot.title = element_text(vjust = -8),
+          plot.background = element_rect(fill = "transparent", colour = NA),
+          panel.background = element_rect(fill = "transparent", colour = NA),
+          legend.background = element_rect(fill = "transparent", colour = NA))
   
   combined <- age_comparison_plot + age_comparison_plot.1 + plot_layout(widths = c(2,1))
   
   ggsave(
     filename = file.path(plot_save_dir, "age_comparisons.png"),
-    plot = age_comparison_plot
+    plot = age_comparison_plot,
+    width = 1130, # Set width in pixels
+    height = 505, # Set height in pixels
+    units = "px", # Specify units as pixels
+    dpi = 100, # Use a standard DPI when using pixel dimensions
+    bg = "transparent"
   )
   
   
   ggsave(
     filename = file.path(plot_save_dir, "age_comparisons_zoom.png"),
-    plot = combined
+    plot = combined,
+    width = 1130, # Set width in pixels
+    height = 505, # Set height in pixels
+    units = "px", # Specify units as pixels
+    dpi = 100, # Use a standard DPI when using pixel dimensions
+    bg = "transparent"
   )
 }

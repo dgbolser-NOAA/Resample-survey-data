@@ -1,0 +1,8 @@
+Note 1 Information: Max data length bin: 56  < max pop len bins: 65; so will accumulate larger pop len bins
+Warning 1 Adjustment: basis for HCR anchor was not set; setting to 2 to match default before 3.30.24
+Warning 2 : depletion_basis is using virgin but HCR anchor is using SSB_unf from benchmark. Are you sure?
+Warning 3 : At least one block pattern ends in endyr. Check the output parameter value time series to see if the values in forecast years are as intended.
+Warning 4 : Final gradient: 0.000115569 is larger than final_conv: 1e-05
+Note 2 Information: A revised protocol for the Fcast_yr specification is available and recommended.
+Note 3 Information:  N parameters that are on or within 1% of min-max bound: 1; check results, variance may be suspect
+ 4 warnings  and 3 notes 

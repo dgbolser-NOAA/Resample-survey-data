@@ -5,9 +5,9 @@
 #_User_info_available_at:_https://nmfs-ost.github.io/ss3-website/
 #_Source_code_at:_https://github.com/nmfs-ost/ss3-source-code
 
-StartTime: Tue Jun 24 23:33:15 2025
-EndTime: Wed Jun 25 00:00:06 2025
-This run took: 0 hours, 26 minutes, 51 seconds.
+StartTime: Mon Oct 27 21:18:40 2025
+EndTime: Mon Oct 27 21:48:29 2025
+This run took: 0 hours, 29 minutes, 49 seconds.
 Data_File: data.ss
 Control_File: control.ss
 
@@ -19,20 +19,20 @@ total_LogL: 2700.28
 
 Starter_Comments
 #C file created using an r4ss function
-#C file write time: 2025-06-24  23:00:22
+#C file write time: 2025-10-27  20:35:54
 
 Data_Comments
 #C should work with SS version:
 #C file created using an r4ss function
-#C file write time: 2025-06-24  23:00:22
+#C file write time: 2025-10-27  20:35:54
 
 Control_Comments
 #C file created using an r4ss function
-#C file write time: 2025-06-24  23:33:15
+#C file write time: 2025-10-27  21:18:40
 
 Forecast_Comments
 #C file created using an r4ss function
-#C file write time: 2025-06-24  23:00:23
+#C file write time: 2025-10-27  20:35:55
 
 #_KeyWords_of_tables_available_in_report_sso
 #_NOTE: table_number_is_order_in_which_tables_are_output
