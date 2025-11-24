@@ -38,3 +38,4 @@ Resample-survey-data.Rproj
 *suggested_tuning.ss
 *.tmp
 */plots/*
+.RData
