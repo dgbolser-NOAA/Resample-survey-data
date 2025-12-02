@@ -1,4 +1,5 @@
 # Plotting functions
+# Indices Plots
 plot_effort_vs_og_indices <- function(species_fleet_df, plot_save_dir) {
   # Use pmap to iterate over the data frame rows
   results <- purrr::pmap(
@@ -118,7 +119,8 @@ plot_effort_vs_og_indices <- function(species_fleet_df, plot_save_dir) {
 }
 
 
-
+# All the assessment output plots and length/age weights comparison
+# Go through and filter recruits and recruitment devs plots to only show years like 1990 onward
 plot_comparisons_ggplot <- function(
     summaryoutput,
     all_output, # result from r4ss::SSgetoutput()
@@ -561,7 +563,11 @@ plot_comparisons_ggplot <- function(
       ) |>
       ungroup()
     
-    p <- ggplot(dat_summ, aes(x=Yr, y=mean_val, color=factor(effort), group=effort, fill=factor(effort))) +
+    # Filter 1990 onwards just for plot of recruits
+    dat_summ_filt_years <- dat_summ |>
+      filter(Yr >=1990)
+    
+    p <- ggplot(dat_summ_filt_years, aes(x=Yr, y=mean_val, color=factor(effort), group=effort, fill=factor(effort))) +
       # geom_line() +
       geom_point() +
       labs(x="Year", y=ylab, color="Effort", fill="Effort") +
@@ -662,7 +668,12 @@ plot_comparisons_ggplot <- function(
         mean_upper = mean(upper, na.rm = TRUE) # should this be the value used for the ribbon?
       ) |>
       ungroup()
-    p <- ggplot(dat_summ, aes(x=Yr, y=mean_val, color=factor(effort), group=effort, fill=factor(effort))) +
+    
+    # Filter 1990 onwards just for plot of recruits
+    dat_summ_filt_years <- dat_summ |>
+      filter(Yr >=1990)
+    
+    p <- ggplot(dat_summ_filt_years, aes(x=Yr, y=mean_val, color=factor(effort), group=effort, fill=factor(effort))) +
       # geom_line() +
       geom_errorbar(aes(ymin=mean_lower, ymax=mean_upper), width = 0.2, alpha = 0.2)+
       geom_point() +
@@ -806,6 +817,7 @@ plot_comparisons_ggplot <- function(
     )
   }
   # Age comps ratio
+  # need to go back code for the missing values
   if (any(subplots == 6)) {
     age_comps <- purrr::map(all_output, "Age_Comp_Fit_Summary")
     age_comps <- purrr::map(len_comps, ~.x[c("Fleet", "Fleet_name", "N", "mean_Nsamp_in", "mean_Nsamp_adj")])
@@ -880,7 +892,7 @@ plot_comparisons_ggplot <- function(
   return(plots)
 }
 
-
+# Length and weight dot plots
 plot_composition_comparisons <- function(dir_list, fleet_lookup, plot_save_dir){
   inputs <- setNames(
     lapply(dir_list, r4ss::SS_read),
