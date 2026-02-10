@@ -312,3 +312,56 @@ process_and_save_fits <- function(directory, name) {
   if (!is.null(final_fit_pars)) fwrite(final_fit_pars, file = fit_pars_path)
   if (!is.null(final_fit_check)) fwrite(final_fit_check, file = fit_check_path)
 }
+
+# rewrite the weight length estimation function because the one in nwfscSurvey was not working for me
+estimate_weight_length_fixed <- function(
+    data,
+    col_length = "length_cm",
+    col_weight = "weight_kg",
+    verbose = FALSE
+) {
+  col_length <- tolower(col_length)
+  col_weight <- tolower(col_weight)
+  colnames(data) <- tolower(colnames(data))
+  nwfscSurvey::stopifnotcolumn(data = data, string = col_length)
+  nwfscSurvey::stopifnotcolumn(data = data, string = col_weight)
+  nwfscSurvey::stopifnotcolumn(data = data, string = "sex")
+  
+  dims <- dim(data)
+  data <- data[!is.na(data[[col_weight]]) & !is.na(data[[col_length]]), ]
+  
+  if (verbose) {
+    cli::cli_alert_info(
+      "Calculating the weight-length relationship from {nrow(data)} samples out of {dims[1]} because {dims[1] - nrow(data)} fish did not have empirical weights and lengths."
+    )
+  }
+  
+  mresults <- list(
+    female = dplyr::filter(data, sex %in% c("F", "Female", "f")),
+    male   = dplyr::filter(data, sex %in% c("M", "Male", "m")),
+    all    = dplyr::filter(
+      data,
+      sex %in% c(NA, "F", "M", "U", "H", "Male", "Female", "Unsexed", "m", "f", "u")
+    )
+  ) |>
+    purrr::map_dfr(function(df) tidyr::nest(df, data = dplyr::everything()), .id = "group") |>
+    dplyr::mutate(
+      fits = purrr::map(
+        data,
+        ~ stats::lm(
+          log(!!rlang::parse_expr(col_weight)) ~ log(!!rlang::parse_expr(col_length)),
+          data = .x
+        )
+      )
+    )
+  
+  mresults |>
+    dplyr::reframe(
+      sex = group,
+      median_intercept = purrr::map_dbl(fits, ~ exp(.x$coefficients[1])),
+      SD = purrr::map_dbl(fits, ~ sd(.x$residuals)),
+      A = purrr::map_dbl(fits, ~ exp(.x$coefficients[1]) * exp(0.5 * sd(.x$residuals)^2)),
+      B = purrr::map_dbl(fits, ~ .x$coefficients[2])
+    ) |>
+    data.frame()
+}

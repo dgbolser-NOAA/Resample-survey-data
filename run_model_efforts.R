@@ -342,6 +342,36 @@ run_model_efforts <- function(catch_filtered,
           arrange(Lbin_hi, abs(fleet))
       }
     }
+    
+    # Weight Length Relationship
+    # re-estimate W-L parameters
+    wl <- estimate_weight_length_fixed(bio_filtered)
+
+    # parse "effort_replicate" like "0.2_3"
+    effort_val <- suppressWarnings(as.numeric(sub("_.*$", "", model_iter)))
+    iter_val   <- suppressWarnings(as.integer(sub("^.*_", "", model_iter)))
+    
+    bio_filt_wl <- bio_filtered |>
+      dplyr::filter(
+        !is.na(Length_cm),
+        Length_cm > 0,
+        !is.na(Weight_kg),
+        Weight_kg > 0
+      )
+    
+    wl_out <- wl |>
+      dplyr::mutate(
+        species = species,
+        effort = effort_val,
+        iteration = iter_val,
+        model_iter = model_iter,     # optional but often handy to keep
+        model_name = model_name,  # optional
+        two_sexes = n_sexes,
+        l_max = max(bio_filt_wl$Length_cm)
+      ) |>
+      dplyr::select(species, effort, iteration, model_iter, model_name, dplyr::everything())
+    
+
     #### Add Index Data #### -----------------------------------------------------------------------
     message("Insert resampled index for: ", model_name, model_iter)
     sdm_model_i <- sdm_model_filt |>
@@ -387,6 +417,9 @@ run_model_efforts <- function(catch_filtered,
       dir = new_dir,
       exe = "ss3"
     )
+    
+    # return the weight-length relationship dataframe so that I can plot it later
+    return(wl_out)
     
     message("Finished running for ", model_name, model_iter)
 }

@@ -32,6 +32,7 @@ plot_effort_vs_og_indices <- function(species_fleet_df, plot_save_dir) {
     }
   )
   
+  # Hopefully don't have to do this
   all_indices <- bind_rows(results) |>
     dplyr::mutate( # will remove this once scale of indices is fixed
       obs = dplyr::case_when(
@@ -215,6 +216,114 @@ plot_comparisons_ggplot <- function(
     "0.4" = viridis(7)[3],
     "0.8" = viridis(7)[5],
     "1" = "transparent"
+  )
+  
+  # --------- OFL and OFL SD --------------------------
+  # ℹ Define the lookup table for filtering upfront
+  OFL_YEAR_FILTER <- data.frame(
+    species = c("Longnose skate", "Pacific ocean perch", "Petrale sole", 
+                "Sablefish", "Shortspine thornyhead", "Yellowtail rockfish"),
+    Yr = c(2019, 2017, 2023, 2025, 2023, 2025)
+  )
+  
+  # 1. Function to process the raw data and add species/effort columns (CORRECTED)
+  process_quants <- function(data_table, value_name) {
+    
+    # Remove the problematic first_col/last_col search
+    # first_col <- names(data_table)[grepl("skate", names(data_table))][1]
+    # last_col <- names(data_table)[grepl("rockfish", names(data_table))][length(names(data_table))]
+    
+    data_table |>
+      dplyr::filter(grepl("OFL", Label)) |>
+      tidyr::pivot_longer(
+        # FIX: Use regex to safely select all model columns. 
+        # Matches columns that contain '_number_' (e.g., '_0.2_').
+        cols = matches("_[0-9.]+_"), 
+        names_to = "model", 
+        values_to = value_name
+      ) |>
+      filter(!is.na(!!sym(value_name))) |>
+      # Use mutate to create species and effort columns efficiently
+      mutate(
+        species = stringr::str_replace(model, "(_[0-9.]+.*)$", "") |> 
+          stringr::str_replace_all("_", " ") |> stringr::str_trim(),
+        effort = purrr::map_chr(stringr::str_split(model, "_"), ~ .x[length(.x) - 1])
+      )
+  }
+  
+  # 2. Process both OFL and OFL_SD tables
+  ofl_base <- process_quants(summaryoutput$quants, "OFL")
+  ofl_sd_base <- process_quants(summaryoutput$quantsSD, "OFL_SD") |> 
+    select(Yr, model, OFL_SD)
+  
+  # 3. Join, Filter by Year, and Final Pivot Longer (All in one pipe)
+  ofl_all_filtered <- ofl_base |> 
+    full_join(ofl_sd_base, by = c("Yr", "model")) |>
+    # Apply the species/year filter using a semi-join (much cleaner than multiple ORs)
+    semi_join(OFL_YEAR_FILTER, by = c("species", "Yr")) |>
+    select(model, species, effort, Yr, OFL, OFL_SD) |>
+    tidyr::pivot_longer(cols = OFL:OFL_SD, names_to = "metric", values_to = "value")
+  
+  # Define the standard ggplot theme settings (reduces repetition in the plot function)
+  OFL_PLOT_THEME <- theme(
+    strip.text = element_text(size = 12, face = "bold"), 
+    panel.grid.minor = element_blank(),
+    axis.title.x = element_text(face = "bold"),
+    axis.title.y = element_text(face = "bold"),
+    legend.title = element_text(face = "bold"),
+    plot.background = element_rect(fill = "transparent", colour = NA),
+    panel.background = element_rect(fill = "transparent", colour = NA),
+    legend.background = element_rect(fill = "transparent", colour = NA)
+  )
+  
+  # Function to calculate mean/SE and generate the plot for a single metric
+  plot_metric <- function(data, plot_metric_name, y_axis_label) {
+    data |>
+      filter(metric == plot_metric_name) |>
+      # Convert and group/summarise in the same pipe
+      mutate(clean_value = as.numeric(value)) |>
+      group_by(species, effort) |>
+      summarise(
+        valid_n = sum(!is.na(clean_value)),
+        value = mean(clean_value, na.rm = TRUE),
+        # Calculate Standard Error (SE) using the valid count
+        se = if (valid_n >= 2) {
+          sd(clean_value, na.rm = TRUE) / sqrt(valid_n)
+        } else {
+          0
+        },
+        .groups = 'drop' 
+      ) |>
+      ggplot(aes(x = effort, y = value, group = species)) +
+      geom_point(size = 2) +
+      geom_line(linewidth = 1) +
+      geom_errorbar(aes(ymin = value - se, ymax = value + se), width = 0.05) +
+      labs(x = "Effort Level", y = y_axis_label) +
+      theme_bw() +
+      facet_wrap(~species, scales = "free_y", nrow = 1) +
+      OFL_PLOT_THEME
+  }
+  
+  # 3. Execute the plotting function for both metrics
+  p <- plot_metric(ofl_all_filtered, "OFL", "OFL")
+  p_sd <- plot_metric(ofl_all_filtered, "OFL_SD", "OFL Standard Deviation")
+  
+  # 4. Combine plots using patchwork
+  combined <- p / p_sd + 
+    plot_annotation(title = "OFL and OFL Standard Deviation (SE)") &
+    labs(x = "Effort Level")
+  combined
+  
+  plots$ofl_sd <- combined
+  
+  ggsave(
+    filename = file.path(plot_save_dir, "ofl_sd.png"),
+    plot = combined,
+    width = 1130, # Set width in pixels
+    height = 505, # Set height in pixels
+    units = "px", # Specify units as pixels
+    dpi = 100, # Use a standard DPI when using pixel dimensions
+    bg = "transparent"
   )
   
   # --------- Spawning Biomass --------------------------
@@ -1108,3 +1217,185 @@ plot_composition_comparisons <- function(dir_list, fleet_lookup, plot_save_dir){
     bg = "transparent"
   )
 }
+
+
+  #' Plot weight-length curves from wl_df (no raw points)
+  #'
+  #' @param wl_df Data frame output from run_model() (bound from run_model_efforts()).
+  #'   Must contain columns: species, effort, iteration (optional), sex, A, B.
+  #'   If it contains multiple species/efforts/iterations they will be faceted.
+  #' @param dir Optional directory to save the plot. If NULL, prints to device.
+  #' @param add_save_name Optional string prepended to the saved file name.
+  #' @param facet_vars Which columns to facet by (any of c("species","effort","iteration")).
+  #' @param height,width,dpi ggsave parameters.
+  #'
+  #' @return A ggplot object (invisibly if saved).
+  #' @export
+  plot_weight_length <- function(
+    wl_df,
+    dir = plot_save_dir,
+    facet_vars = c("species", "effort"),
+    height = 7,
+    width = 9,
+    dpi = 300
+  ) {
+    stopifnot(is.data.frame(wl_df))
+    
+    # Normalize sex labels and keep appropriate sex rows per (species, effort, iteration)
+    wl_df <- wl_df |>
+      dplyr::mutate(
+        sex = dplyr::case_when(
+          sex %in% c("female", "F", "f", "Female") ~ "F",
+          sex %in% c("male", "M", "m", "Male") ~ "M",
+          sex %in% c("all", "U", "u", "Unsexed", "unsexed") ~ "U",
+          TRUE ~ as.character(sex)
+        )
+      ) |>
+      dplyr::group_by(species, effort, iteration) |>
+      dplyr::filter(if (dplyr::first(two_sexes)) sex %in% c("F", "M") else sex == "U") |>
+      dplyr::ungroup()
+    
+    # Use the l_max already in wl_df, but make it well-defined per panel.
+    # If l_max differs across iterations for the same (species, effort), take the max so
+    # every iteration curve is defined on the same length grid (required for SE-at-length).
+    lmax_panel <- wl_df |>
+      dplyr::group_by(species, effort) |>
+      dplyr::summarize(l_max_panel = max(l_max, na.rm = TRUE), .groups = "drop")
+    
+    wl_df <- wl_df |>
+      dplyr::left_join(lmax_panel, by = c("species", "effort"))
+    
+    # Per-iteration curves (needed to compute SE ribbon over predicted curves)
+    iter_curve <- wl_df |>
+      dplyr::group_by(species, effort, iteration, sex) |>
+      dplyr::reframe(
+        plot_length = seq(0, unique(l_max_panel), by = 1),
+        plot_weight = A[1] * plot_length^(B[1])
+      ) |>
+      dplyr::ungroup()
+    
+    # Mean curve + SE ribbon at each length
+    summary_curve <- iter_curve |>
+      dplyr::group_by(species, effort, sex, plot_length) |>
+      dplyr::summarize(
+        n_iter = dplyr::n_distinct(iteration),
+        mean_weight = mean(plot_weight, na.rm = TRUE),
+        se_weight = stats::sd(plot_weight, na.rm = TRUE) / sqrt(n_iter),
+        ymin = mean_weight - se_weight,
+        ymax = mean_weight + se_weight,
+        .groups = "drop"
+      )
+    
+    # Labels: mean A/B ± SE across iterations
+    ab_summary <- wl_df |>
+      dplyr::group_by(species, effort, sex) |>
+      dplyr::summarize(
+        n_iter = dplyr::n_distinct(iteration),
+        A_mean = mean(A, na.rm = TRUE),
+        A_se = stats::sd(A, na.rm = TRUE) / sqrt(n_iter),
+        B_mean = mean(B, na.rm = TRUE),
+        B_se = stats::sd(B, na.rm = TRUE) / sqrt(n_iter),
+        .groups = "drop"
+      )
+    
+    label_pos <- summary_curve |>
+      dplyr::group_by(species, effort, sex) |>
+      dplyr::summarize(
+        x = stats::quantile(plot_length, 0.30, na.rm = TRUE),
+        maxy = stats::quantile(mean_weight, 0.95, na.rm = TRUE),
+        .groups = "drop"
+      )
+    
+    label_df <- ab_summary |>
+      dplyr::left_join(label_pos, by = c("species", "effort", "sex")) |>
+      dplyr::mutate(
+        y = dplyr::case_when(
+          sex == "F" ~ 1.00 * maxy,
+          sex == "M" ~ 0.90 * maxy,
+          TRUE ~ 0.95 * maxy
+        ),
+        label = paste0(
+          "Ā=", format(A_mean, digits = 3, scientific = TRUE),
+          " (SE ", format(A_se, digits = 2, scientific = TRUE), "); ",
+          "B̄=", round(B_mean, 2),
+          " (SE ", round(B_se, 2), ")"
+        )
+      )
+    
+    colors <- c(F = "#414487FF", M = "#22A884FF", U = "black")
+    
+    # Facet formula
+    facet_vars <- intersect(facet_vars, c("species", "effort"))
+    facet_formula <- if (length(facet_vars) == 0) {
+      NULL
+    } else if (length(facet_vars) == 1) {
+      stats::as.formula(paste("~", facet_vars[[1]]))
+    } else {
+      stats::as.formula(paste(facet_vars[[1]], "~", paste(facet_vars[-1], collapse = " + ")))
+    }
+    
+    # Plot mean curve + SE ribbon
+    p <- ggplot2::ggplot(summary_curve) +
+      ggplot2::geom_ribbon(
+        ggplot2::aes(x = plot_length, ymin = ymin, ymax = ymax, fill = sex),
+        alpha = 0.20,
+        color = NA
+      ) +
+      ggplot2::geom_line(
+        ggplot2::aes(x = plot_length, y = mean_weight, color = sex, linetype = sex),
+        linewidth = 1.0
+      ) +
+      ggplot2::geom_text(
+        data = label_df,
+        ggplot2::aes(x = x, y = y, label = label, color = sex),
+        show.legend = FALSE,
+        hjust = 0
+      ) +
+      ggplot2::scale_color_manual(values = colors, name = "Sex") +
+      ggplot2::scale_fill_manual(values = colors, name = "Sex") +
+      ggplot2::scale_linetype_discrete(name = "Sex") +
+      ggplot2::labs(x = "Length (cm)", y = "Weight (kg)") +
+      ggplot2::theme_bw()
+    
+    if (!is.null(facet_formula)) {
+      p <- p + ggplot2::facet_grid(facet_formula)
+    }
+    
+    # If you want the x-axis to reflect l_max_panel per facet, use free_x:
+    # p <- p + ggplot2::facet_grid(facet_formula, scales = "free_x")
+    #
+    # Otherwise (fixed x across facets), you can set a global limit:
+    # p <- p + ggplot2::scale_x_continuous(limits = c(0, max(lmax_panel$l_max_panel, na.rm = TRUE)))
+    
+    if (!is.null(dir)) {
+      plotdir <- file.path(dir, "plots")
+      if (!dir.exists(plotdir)) dir.create(plotdir, recursive = TRUE)
+      
+      plot_name <- file.path(
+        plotdir,
+        paste0(
+          add_save_name,
+          ifelse(is.null(add_save_name) || add_save_name == "", "", "_"),
+          "weight_length_mean_se_ribbon.png"
+        )
+      )
+      
+      ggplot2::ggsave(plot_name, p, height = height, width = width, units = "in", dpi = dpi)
+      return(invisible(p))
+    }
+    
+    p
+  }
+  
+  
+  # Compare Ms for those that are estimated
+  # longnose skate M is estimated
+  # PoP M is fixed
+  # Petrale sole M is estimated
+  # Sablefish M is estimated
+  # shortspine thornyhead M fixed
+  # yellowtail rockfish M is estimated
+  
+  # Compare growth curves for those that are estimated
+  # shortspine thornyhead is the only growth curve not estimated - no ages to be able to estimate
+  
