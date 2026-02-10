@@ -359,6 +359,9 @@ run_model_efforts <- function(catch_filtered,
         Weight_kg > 0
       )
     
+    # not actually using the w-l recalculated in the models (thus far) because 
+    # some models use combo of those plus triennial and trying to recalc that is 
+    # not working for me as pull_bio isn't working for me.
     wl_out <- wl |>
       dplyr::mutate(
         species = species,
