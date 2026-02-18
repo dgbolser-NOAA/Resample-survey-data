@@ -41,7 +41,7 @@ catch <- read.csv(here::here("data/nwfsc_bt_fmp_spp_updated.csv")) |>
 #     "yellowtail rockfish"
 #   )
 # )
-
+# 
 # saveRDS(bio, file = here::here("data", "nwfsc_bt_fmp_spp_updated_bio.rds"))
 # rm(bio)
 
@@ -74,23 +74,22 @@ df_list <- split(df, seq(nrow(df)))
 # HAD TO USE V3.30.23.2 FOR SHORTSPINE THORNYHEAD TO GET SD OF DERIVED QUANTS AND
 # I DON'T KNOW WHY.
 
-start.time <- Sys.time()
-purrr::map(df_list, ~ run_model(species_name = .x$species_name,
-                    scientific_name = .x$scientific_name,
-                    original_model_dir = .x$original_model_dir,
-                    sdm_dir = .x$sdm_dir,
-                    lat_filter = .x$lat_filter,
-                    depth_filter = .x$depth_filter,
-                    strata_type = .x$strata_type,
-                    fleet_number = .x$fleet_number,
-                    resampled_model_dir = resampled_model_dir,
-                    catch_df = catch,
-                    bio_df = bio))
-Sys.time()-start.time
+# start.time <- Sys.time()
+# purrr::map(df_list, ~ run_model(species_name = .x$species_name,
+#                     scientific_name = .x$scientific_name,
+#                     original_model_dir = .x$original_model_dir,
+#                     sdm_dir = .x$sdm_dir,
+#                     lat_filter = .x$lat_filter,
+#                     depth_filter = .x$depth_filter,
+#                     strata_type = .x$strata_type,
+#                     fleet_number = .x$fleet_number,
+#                     resampled_model_dir = resampled_model_dir,
+#                     catch_df = catch,
+#                     bio_df = bio))
+# Sys.time()-start.time
 
 # run just the ith species
-i <- 5
-# i <- 1
+i <- 1
 # run_model(species_name = df_list[[i]]$species_name,
 #           scientific_name = df_list[[i]]$scientific_name,
 #           original_model_dir = df_list[[i]]$original_model_dir,
@@ -102,7 +101,7 @@ i <- 5
 #           resampled_model_dir = resampled_model_dir,
 #           catch_df = catch,
 #           bio_df = bio)
-# # 
+ 
 species_name <- df_list[[i]]$species_name
 scientific_name <- df_list[[i]]$scientific_name
 original_model_dir <- df_list[[i]]$original_model_dir
@@ -198,24 +197,7 @@ run_model <- function(
     slice_head(n = 3) |>
     ungroup()
   
-  # Hopefully don't have to do this anymore
-  # resampled_mean_index <- mean(sdm_model_reps |>
-  #                              filter(effort == 1) |>
-  #                              pull(est))
-  # 
-  # og_mean_index <- mean(ss3_inputs_old$dat$CPUE |>
-  #                       filter(index == fleet_number) |>
-  #                       pull(obs))
-  # 
-  # 
-  # rescale_num <- resampled_mean_index/og_mean_index
-  
-  # rescale indices to be similar to what they were in the base model to that results are more 
-  # comparable
-  # should this be done?!?
   sdm_model_filt <- sdm_model_reps
-  # |>
-  #   mutate(est = est/rescale_num)
   
   rm(sdm_model_reps, sdm_model, resampled_mean_index, og_mean_index, rescale_num)
 
@@ -303,19 +285,21 @@ run_model <- function(
                      fleet_number = fleet_number
   )
   # run_model_efforts(
-  catch_filtered <- catch_filtered[[1]]
-  bio_filtered <- bio_filtered[[1]]
-  resampled_model_dir <- resampled_model_dir
-  original_model_dir <- original_model_dir
-  sdm_model_filt <- sdm_model_filt
-  model_name <- model_name
-  strata <- strata
-  fleet_number <- fleet_number
+  # catch_filtered <- catch_filtered[[1]]
+  # bio_filtered <- bio_filtered[[1]]
+  # resampled_model_dir <- resampled_model_dir
+  # original_model_dir <- original_model_dir
+  # sdm_model_filt <- sdm_model_filt
+  # model_name <- model_name
+  # strata <- strata
+  # fleet_number <- fleet_number
   # )
   
   wl_df <- dplyr::bind_rows(wl_list)
   
   plan(sequential)
-  return(wl_df)
+  
   message("Finished ", model_name)
+  
+  return(wl_df)
 }
