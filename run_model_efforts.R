@@ -155,8 +155,8 @@ run_model_efforts <- function(catch_filtered,
     }
       
     # ages
-    agecomp_fleet <- ss3_inputs$dat$agecomp |> filter(abs(fleet) == fleet_number)
     if(!is.null(ss3_inputs$dat$agecomp)){
+      agecomp_fleet <- ss3_inputs$dat$agecomp |> filter(abs(fleet) == fleet_number)
       if(length(row.names(agecomp_fleet)) > 1){
         # marginal age at length
         if (length(row.names(agecomp_fleet |> filter(Lbin_hi == -1))) > 1){
@@ -346,11 +346,10 @@ run_model_efforts <- function(catch_filtered,
       )
     
     # not actually using the w-l recalculated in the models (thus far) because 
-    # some models use combo of those plus triennial and trying to recalc that is 
-    # not working for me as pull_bio isn't working for me.
+    # some models use combo of those plus triennial, hesitant to try to recreate those
     wl_out <- wl |>
       dplyr::mutate(
-        species = species,
+        species = unique(catch_filtered$Common_name),
         effort = effort_val,
         iteration = iter_val,
         model_iter = model_iter,     # optional but often handy to keep
@@ -358,7 +357,9 @@ run_model_efforts <- function(catch_filtered,
         two_sexes = n_sexes,
         l_max = max(bio_filt_wl$Length_cm)
       ) |>
-      dplyr::select(species, effort, iteration, model_iter, model_name, dplyr::everything())
+      dplyr::filter(!sex == "all") |>
+      dplyr::filter(two_sexes | sex == "female") |>
+      dplyr::select(species, effort, iteration, model_iter, model_name, dplyr::everything()) 
     
 
     #### Add Index Data #### -----------------------------------------------------------------------

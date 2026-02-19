@@ -29,7 +29,7 @@ catch <- read.csv(here::here("data/nwfsc_bt_fmp_spp_updated.csv")) |>
     "yellowtail rockfish"
   ))
 
-# Last pulled 6/5/2025
+# Last pulled 2/17/2026
 # bio <- nwfscSurvey::pull_bio(
 #   survey = "NWFSC.Combo",
 #   common_name = c(
@@ -65,7 +65,7 @@ df <- data.frame(
   lat_filter = c(NA, "lat_filter_35", NA, NA, NA, "lat_filter_335"),
   depth_filter = c(NA, "depth_filter_500", "depth_filter_675", NA, NA, "depth_filter_425"),
   strata_type = c("deep", "mid", "mid", "deep", "deep", "mid"),
-  fleet_number = c(5, 8, 4, 7, 6, 6)
+  fleet_number = c(5, 8, 4, 10, 6, 6)
 )
 
 df_list <- split(df, seq(nrow(df)))
@@ -75,7 +75,7 @@ df_list <- split(df, seq(nrow(df)))
 # I DON'T KNOW WHY.
 
 # start.time <- Sys.time()
-# purrr::map(df_list, ~ run_model(species_name = .x$species_name,
+# all_wl_df <- purrr::map(df_list, ~ run_model(species_name = .x$species_name,
 #                     scientific_name = .x$scientific_name,
 #                     original_model_dir = .x$original_model_dir,
 #                     sdm_dir = .x$sdm_dir,
@@ -87,9 +87,20 @@ df_list <- split(df, seq(nrow(df)))
 #                     catch_df = catch,
 #                     bio_df = bio))
 # Sys.time()-start.time
+all_wl_df <- all_wl_df |>
+  dplyr::left_join(
+    df |> dplyr::select(species_name),
+    by = c("species" = "species_name")
+  )
+
+# Write single CSV
+readr::write_csv(
+  all_wl_df,
+  file.path(here::here("resampled_models"), "wl_efforts_resampled.csv")
+)
 
 # run just the ith species
-i <- 1
+i <- 6
 # run_model(species_name = df_list[[i]]$species_name,
 #           scientific_name = df_list[[i]]$scientific_name,
 #           original_model_dir = df_list[[i]]$original_model_dir,
@@ -271,28 +282,28 @@ run_model <- function(
       lats.north = c(42, 42, 42, 49, 49, 49)
     )
   }
-  
-  plan(multisession, workers = 11)
-  
-  wl_list <- furrr::future_map2(.x = catch_filtered, 
-                     .y = bio_filtered,
-                     .f = run_model_efforts,
-                     resampled_model_dir,
-                     original_model_dir,
-                     sdm_model_filt = sdm_model_filt,
-                     model_name = model_name,
-                     strata = strata,
-                     fleet_number = fleet_number
-  )
+  # 
+  # plan(multisession, workers = 11)
+  # 
+  # wl_list <- furrr::future_map2(.x = catch_filtered, 
+  #                    .y = bio_filtered,
+  #                    .f = run_model_efforts,
+  #                    resampled_model_dir,
+  #                    original_model_dir,
+  #                    sdm_model_filt = sdm_model_filt,
+  #                    model_name = model_name,
+  #                    strata = strata,
+  #                    fleet_number = fleet_number
+  # )
   # run_model_efforts(
-  # catch_filtered <- catch_filtered[[1]]
-  # bio_filtered <- bio_filtered[[1]]
-  # resampled_model_dir <- resampled_model_dir
-  # original_model_dir <- original_model_dir
-  # sdm_model_filt <- sdm_model_filt
-  # model_name <- model_name
-  # strata <- strata
-  # fleet_number <- fleet_number
+  catch_filtered <- catch_filtered[[10]]
+  bio_filtered <- bio_filtered[[10]]
+  resampled_model_dir <- resampled_model_dir
+  original_model_dir <- original_model_dir
+  sdm_model_filt <- sdm_model_filt
+  model_name <- model_name
+  strata <- strata
+  fleet_number <- fleet_number
   # )
   
   wl_df <- dplyr::bind_rows(wl_list)
