@@ -998,6 +998,7 @@ plot_comparisons_ggplot <- function(
       bg = "transparent"
     )
   }
+  
   return(plots)
 }
 
@@ -1218,6 +1219,7 @@ plot_composition_comparisons <- function(dir_list, fleet_lookup, plot_save_dir){
   )
 }
 
+wl_df <- read.csv(here::here("resampled_models", "wl_efforts_resampled.csv"))
 
   #' Plot weight-length curves from wl_df (no raw points)
   #'
@@ -1231,161 +1233,89 @@ plot_composition_comparisons <- function(dir_list, fleet_lookup, plot_save_dir){
   #'
   #' @return A ggplot object (invisibly if saved).
   #' @export
-  plot_weight_length <- function(
+plot_weight_length <- function(
     wl_df,
     dir = plot_save_dir,
-    facet_vars = c("species", "effort"),
     height = 7,
     width = 9,
     dpi = 300
-  ) {
-    stopifnot(is.data.frame(wl_df))
+) {
+  stopifnot(is.data.frame(wl_df))
+  
+  # Ensure a well-defined l_max per (species, effort) panel
+  lmax_panel <- wl_df |>
+    dplyr::mutate(effort = factor(effort, levels = c(1.0, 0.8, 0.4, 0.2))) |>
+    dplyr::group_by(species, effort) |>
+    dplyr::summarize(l_max_panel = max(l_max, na.rm = TRUE), .groups = "drop")
+  
+  wl_df <- wl_df |>
+    dplyr::mutate(effort = factor(effort, levels = c(1.0, 0.8, 0.4, 0.2))) |>
+    dplyr::left_join(lmax_panel, by = c("species", "effort"))
+  
+  # Per-iteration curves (needed to compute SE ribbon over predicted curves)
+  iter_curve <- wl_df |>
+    dplyr::group_by(species, effort, iteration, sex) |>
+    dplyr::reframe(
+      plot_length = seq(0, unique(l_max_panel), by = 1),
+      plot_weight = A[1] * plot_length^(B[1])
+    ) |>
+    dplyr::ungroup()
+  
+  # Mean curve + SE ribbon at each length
+  summary_curve <- iter_curve |>
+    dplyr::group_by(species, effort, sex, plot_length) |>
+    dplyr::summarize(
+      n_iter = dplyr::n_distinct(iteration),
+      mean_weight = mean(plot_weight, na.rm = TRUE),
+      se_weight = stats::sd(plot_weight, na.rm = TRUE) / sqrt(n_iter),
+      ymin = mean_weight - se_weight,
+      ymax = mean_weight + se_weight,
+      .groups = "drop"
+    )
+  
+  colors <- c(F = "#414487FF", M = "#22A884FF")
+  
+  # Plot: facet ONLY by species; show effort as different colors
+  p <- ggplot2::ggplot(
+    summary_curve,
+    ggplot2::aes(x = plot_length, y = mean_weight)
+  ) +
+    ggplot2::geom_ribbon(
+      ggplot2::aes(ymin = ymin, ymax = ymax, fill = effort),
+      alpha = 0.20,
+      color = NA
+    ) +
+    ggplot2::geom_line(
+      ggplot2::aes(color = effort, linetype = sex),
+      linewidth = 1.0
+    ) +
+    # NOTE: removed geom_text() entirely (this is what printed A and B)
+    ggplot2::facet_wrap(~species) +
+    ggplot2::scale_color_brewer(palette = "Dark2", name = "Effort") +
+    ggplot2::scale_fill_brewer(palette = "Dark2", name = "Effort") +
+    ggplot2::scale_linetype_discrete(name = "Sex") +
+    ggplot2::labs(x = "Length (cm)", y = "Weight (kg)") +
+    ggplot2::theme_bw()
+  
+  if (!is.null(dir)) {
+    plotdir <- file.path(dir, "plots")
+    if (!dir.exists(plotdir)) dir.create(plotdir, recursive = TRUE)
     
-    # Normalize sex labels and keep appropriate sex rows per (species, effort, iteration)
-    wl_df <- wl_df |>
-      dplyr::mutate(
-        sex = dplyr::case_when(
-          sex %in% c("female", "F", "f", "Female") ~ "F",
-          sex %in% c("male", "M", "m", "Male") ~ "M",
-          sex %in% c("all", "U", "u", "Unsexed", "unsexed") ~ "U",
-          TRUE ~ as.character(sex)
-        )
-      ) |>
-      dplyr::group_by(species, effort, iteration) |>
-      dplyr::filter(if (dplyr::first(two_sexes)) sex %in% c("F", "M") else sex == "U") |>
-      dplyr::ungroup()
-    
-    # Use the l_max already in wl_df, but make it well-defined per panel.
-    # If l_max differs across iterations for the same (species, effort), take the max so
-    # every iteration curve is defined on the same length grid (required for SE-at-length).
-    lmax_panel <- wl_df |>
-      dplyr::group_by(species, effort) |>
-      dplyr::summarize(l_max_panel = max(l_max, na.rm = TRUE), .groups = "drop")
-    
-    wl_df <- wl_df |>
-      dplyr::left_join(lmax_panel, by = c("species", "effort"))
-    
-    # Per-iteration curves (needed to compute SE ribbon over predicted curves)
-    iter_curve <- wl_df |>
-      dplyr::group_by(species, effort, iteration, sex) |>
-      dplyr::reframe(
-        plot_length = seq(0, unique(l_max_panel), by = 1),
-        plot_weight = A[1] * plot_length^(B[1])
-      ) |>
-      dplyr::ungroup()
-    
-    # Mean curve + SE ribbon at each length
-    summary_curve <- iter_curve |>
-      dplyr::group_by(species, effort, sex, plot_length) |>
-      dplyr::summarize(
-        n_iter = dplyr::n_distinct(iteration),
-        mean_weight = mean(plot_weight, na.rm = TRUE),
-        se_weight = stats::sd(plot_weight, na.rm = TRUE) / sqrt(n_iter),
-        ymin = mean_weight - se_weight,
-        ymax = mean_weight + se_weight,
-        .groups = "drop"
+    plot_name <- file.path(
+      plotdir,
+      paste0(
+        add_save_name,
+        ifelse(is.null(add_save_name) || add_save_name == "", "", "_"),
+        "weight_length_mean_se_ribbon.png"
       )
+    )
     
-    # Labels: mean A/B ± SE across iterations
-    ab_summary <- wl_df |>
-      dplyr::group_by(species, effort, sex) |>
-      dplyr::summarize(
-        n_iter = dplyr::n_distinct(iteration),
-        A_mean = mean(A, na.rm = TRUE),
-        A_se = stats::sd(A, na.rm = TRUE) / sqrt(n_iter),
-        B_mean = mean(B, na.rm = TRUE),
-        B_se = stats::sd(B, na.rm = TRUE) / sqrt(n_iter),
-        .groups = "drop"
-      )
-    
-    label_pos <- summary_curve |>
-      dplyr::group_by(species, effort, sex) |>
-      dplyr::summarize(
-        x = stats::quantile(plot_length, 0.30, na.rm = TRUE),
-        maxy = stats::quantile(mean_weight, 0.95, na.rm = TRUE),
-        .groups = "drop"
-      )
-    
-    label_df <- ab_summary |>
-      dplyr::left_join(label_pos, by = c("species", "effort", "sex")) |>
-      dplyr::mutate(
-        y = dplyr::case_when(
-          sex == "F" ~ 1.00 * maxy,
-          sex == "M" ~ 0.90 * maxy,
-          TRUE ~ 0.95 * maxy
-        ),
-        label = paste0(
-          "Ā=", format(A_mean, digits = 3, scientific = TRUE),
-          " (SE ", format(A_se, digits = 2, scientific = TRUE), "); ",
-          "B̄=", round(B_mean, 2),
-          " (SE ", round(B_se, 2), ")"
-        )
-      )
-    
-    colors <- c(F = "#414487FF", M = "#22A884FF", U = "black")
-    
-    # Facet formula
-    facet_vars <- intersect(facet_vars, c("species", "effort"))
-    facet_formula <- if (length(facet_vars) == 0) {
-      NULL
-    } else if (length(facet_vars) == 1) {
-      stats::as.formula(paste("~", facet_vars[[1]]))
-    } else {
-      stats::as.formula(paste(facet_vars[[1]], "~", paste(facet_vars[-1], collapse = " + ")))
-    }
-    
-    # Plot mean curve + SE ribbon
-    p <- ggplot2::ggplot(summary_curve) +
-      ggplot2::geom_ribbon(
-        ggplot2::aes(x = plot_length, ymin = ymin, ymax = ymax, fill = sex),
-        alpha = 0.20,
-        color = NA
-      ) +
-      ggplot2::geom_line(
-        ggplot2::aes(x = plot_length, y = mean_weight, color = sex, linetype = sex),
-        linewidth = 1.0
-      ) +
-      ggplot2::geom_text(
-        data = label_df,
-        ggplot2::aes(x = x, y = y, label = label, color = sex),
-        show.legend = FALSE,
-        hjust = 0
-      ) +
-      ggplot2::scale_color_manual(values = colors, name = "Sex") +
-      ggplot2::scale_fill_manual(values = colors, name = "Sex") +
-      ggplot2::scale_linetype_discrete(name = "Sex") +
-      ggplot2::labs(x = "Length (cm)", y = "Weight (kg)") +
-      ggplot2::theme_bw()
-    
-    if (!is.null(facet_formula)) {
-      p <- p + ggplot2::facet_grid(facet_formula)
-    }
-    
-    # If you want the x-axis to reflect l_max_panel per facet, use free_x:
-    # p <- p + ggplot2::facet_grid(facet_formula, scales = "free_x")
-    #
-    # Otherwise (fixed x across facets), you can set a global limit:
-    # p <- p + ggplot2::scale_x_continuous(limits = c(0, max(lmax_panel$l_max_panel, na.rm = TRUE)))
-    
-    if (!is.null(dir)) {
-      plotdir <- file.path(dir, "plots")
-      if (!dir.exists(plotdir)) dir.create(plotdir, recursive = TRUE)
-      
-      plot_name <- file.path(
-        plotdir,
-        paste0(
-          add_save_name,
-          ifelse(is.null(add_save_name) || add_save_name == "", "", "_"),
-          "weight_length_mean_se_ribbon.png"
-        )
-      )
-      
-      ggplot2::ggsave(plot_name, p, height = height, width = width, units = "in", dpi = dpi)
-      return(invisible(p))
-    }
-    
-    p
+    ggplot2::ggsave(plot_name, p, height = height, width = width, units = "in", dpi = dpi)
+    return(invisible(p))
   }
+  
+  p
+}
   
   
   # Compare Ms for those that are estimated
