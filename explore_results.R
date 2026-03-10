@@ -11,6 +11,7 @@ library(tidyr)
 library(patchwork)
 library(ggtext)
 library(patchwork)
+library(ss3sim)
 source(here::here("model_output_plots.R"))
 
 resampled_dirs <- list.dirs("resampled_models", full.names = TRUE, recursive = FALSE)
@@ -44,6 +45,36 @@ plot_composition_comparisons(dir_list = resampled_dirs,
 all_models <- r4ss::SSgetoutput(dirvec = resampled_dirs, modelnames = basename(resampled_dirs))
 summaryoutput <- r4ss::SSsummarize(all_models, )
 summaryoutput$modelnames <- basename(resampled_dirs)
+
+extract_ss3sim_style <- function(report, model_name = NA_character_) {
+  scalar <- ss3sim:::get_results_scalar(report)
+  ts     <- ss3sim:::get_results_timeseries(report)
+  dq     <- ss3sim:::get_results_derived(report)
+  
+  scalar$model_run <- model_name
+  ts$model_run     <- model_name
+  dq$model_run     <- model_name
+  
+  list(scalar = scalar, ts = ts, dq = dq)
+}
+
+res <- lapply(names(all_models), function(nm) extract_ss3sim_style(all_models[[nm]], nm))
+
+scalar <- dplyr::bind_rows(lapply(res, `[[`, "scalar"))
+ts     <- dplyr::bind_rows(lapply(res, `[[`, "ts"))
+dq     <- dplyr::bind_rows(lapply(res, `[[`, "dq"))
+
+test <- ts |>
+  tidyr::separate(
+    col = model_run,
+    into = c("species", "effort", "iter"),
+    sep  = "_(?=[^_]+$)|_(?=[^_]+_(?=[^_]+$))",
+    remove = FALSE
+  ) |>
+  group_by(species) %>%
+  filter(year == max(year, na.rm = TRUE)) %>%
+  ungroup()
+
 
 # The following models did not invert the hessian and need to be sorted out
 # Make sure that the uncertainty plots are working correctly when there are iterations
