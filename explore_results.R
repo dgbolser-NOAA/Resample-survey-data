@@ -64,16 +64,52 @@ scalar <- dplyr::bind_rows(lapply(res, `[[`, "scalar"))
 ts     <- dplyr::bind_rows(lapply(res, `[[`, "ts"))
 dq     <- dplyr::bind_rows(lapply(res, `[[`, "dq"))
 
+# longnose 2018
+# pop 2016
+# petrale 2022
+# sablefish 2024
+# shortspine 2022
+# yellowtail 2024
+
+end_yrs <- tibble::tribble(
+  ~species, ~endyr,
+  "Longnose_skate", 2018,
+  "Pacific_ocean_perch", 2016,
+  "Petrale_sole", 2022,
+  "Sablefish", 2024,
+  "Shortspine_thornyhead", 2022,
+  "Yellowtail_rockfish", 2024
+)
+
 test <- ts |>
+  mutate(model_name = model_run) |>
   tidyr::separate(
     col = model_run,
     into = c("species", "effort", "iter"),
     sep  = "_(?=[^_]+$)|_(?=[^_]+_(?=[^_]+$))",
     remove = FALSE
   ) |>
-  group_by(species) %>%
-  filter(year == max(year, na.rm = TRUE)) %>%
-  ungroup()
+  left_join(end_yrs, by = "species") |>
+  filter(is.na(year) | year == endyr) |>
+  select(species, effort, iter, Recruit_0) |>
+  group_by(species) |>
+  mutate(Recruit_0_effort1 = Recruit_0[effort == 1][1]) |>
+  ungroup() |>
+  filter(effort != 1) |>
+  mutate(are = abs((Recruit_0 - Recruit_0_effort1) / Recruit_0_effort1), 
+         rel_error = (Recruit_0 - Recruit_0_effort1) / Recruit_0_effort1
+         ) |>
+  group_by(species, effort) |
+  ggplot() +
+  geom_violin(
+    aes(x = species, y = rel_error, fill = effort),
+    alpha = 0,
+    col = 'white'
+  ) +
+  geom_hline(yintercept = 0, color = 'black') +
+  scale_fill_manual(values = rev(LaCroixColoR::lacroix_palette('Orange', 6))) +
+  theme(legend.position = 'none') +
+  labs(x = 'Index SE', y = 'Relative error of terminal\nyear recruitment')
 
 
 # The following models did not invert the hessian and need to be sorted out
