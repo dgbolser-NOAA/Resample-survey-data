@@ -46,6 +46,8 @@ all_models <- r4ss::SSgetoutput(dirvec = resampled_dirs, modelnames = basename(r
 summaryoutput <- r4ss::SSsummarize(all_models, )
 summaryoutput$modelnames <- basename(resampled_dirs)
 
+
+#### TRY KIVA'S VIOLIN PLOTS OF ESTIMATED PARAMETERS ####
 extract_ss3sim_style <- function(report, model_name = NA_character_) {
   scalar <- ss3sim:::get_results_scalar(report)
   ts     <- ss3sim:::get_results_timeseries(report)
@@ -81,7 +83,8 @@ end_yrs <- tibble::tribble(
   "Yellowtail_rockfish", 2024
 )
 
-test <- ts |>
+# End year recruitment
+rec_0 <- ts |>
   mutate(model_name = model_run) |>
   tidyr::separate(
     col = model_run,
@@ -96,21 +99,178 @@ test <- ts |>
   mutate(Recruit_0_effort1 = Recruit_0[effort == 1][1]) |>
   ungroup() |>
   filter(effort != 1) |>
-  mutate(are = abs((Recruit_0 - Recruit_0_effort1) / Recruit_0_effort1), 
-         rel_error = (Recruit_0 - Recruit_0_effort1) / Recruit_0_effort1
+  mutate(effort = factor(effort),
+         are = abs((Recruit_0 - Recruit_0_effort1) / Recruit_0_effort1), 
+         rel_error = (log(Recruit_0) - log(Recruit_0_effort1)) / log(Recruit_0_effort1)
          ) |>
-  group_by(species, effort) |
+  group_by(species, effort) |>
   ggplot() +
   geom_violin(
     aes(x = species, y = rel_error, fill = effort),
-    alpha = 0,
-    col = 'white'
+    width = 0.9,
+    alpha = 0.9,
+    col = 'white',
+    linewidth = 0.6,
+    scale = "width"
   ) +
   geom_hline(yintercept = 0, color = 'black') +
-  scale_fill_manual(values = rev(LaCroixColoR::lacroix_palette('Orange', 6))) +
-  theme(legend.position = 'none') +
-  labs(x = 'Index SE', y = 'Relative error of terminal\nyear recruitment')
+  geom_vline(
+    xintercept = seq(1.5, 6 - 0.5, by = 1),  # between 1&2, 2&3, ...
+    color = "grey80",
+    linewidth = 0.6
+  ) +
+  scale_fill_manual(values = rev(LaCroixColoR::lacroix_palette('Orange', 3))) +
+  theme_classic() +
+  labs(x = 'Species', y = 'Relative error to 100% effort of \nlog(terminal year recruitment)')
 
+  ggsave("endyr_rec_plot.png", plot = rec_0, path = here::here("plots"))
+
+
+
+
+# Unfished recruitment
+unfished_rec <- scalar |>
+  mutate(model_name = model_run) |>
+  tidyr::separate(
+    col = model_run,
+    into = c("species", "effort", "iter"),
+    sep  = "_(?=[^_]+$)|_(?=[^_]+_(?=[^_]+$))",
+    remove = FALSE
+  ) |>
+  select(species, effort, iter, SR_LN_R0) |>
+  group_by(species) |>
+  mutate(SR_LN_R0_effort1 = SR_LN_R0[effort == 1][1]) |>
+  ungroup() |>
+  filter(effort != 1) |>
+  mutate(effort = factor(effort),
+         are = abs((SR_LN_R0 - SR_LN_R0_effort1) / SR_LN_R0_effort1), 
+         rel_error = (log(SR_LN_R0) - log(SR_LN_R0_effort1)) / log(SR_LN_R0_effort1)
+  ) |>
+  group_by(species, effort) |>
+  ggplot() +
+  geom_violin(
+    aes(x = species, y = rel_error, fill = effort),
+    width = 0.9,
+    alpha = 0.9,
+    col = 'white',
+    linewidth = 0.6,
+    scale = "width"
+  ) +
+  geom_hline(yintercept = 0, color = 'black') +
+  geom_vline(
+    xintercept = seq(1.5, 6 - 0.5, by = 1),  # between 1&2, 2&3, ...
+    color = "grey80",
+    linewidth = 0.6
+  ) +
+  scale_fill_manual(values = rev(LaCroixColoR::lacroix_palette('Orange', 3))) +
+  theme_classic() +
+  labs(x = 'Species', y = 'Relative error to 100% effort of \nlog(unfished recruitment)')
+  ggsave("unfished_rec_plot.png", plot = unfished_rec, path = here::here("plots"))
+
+nat_M <- scalar |>
+  mutate(model_name = model_run) |>
+  tidyr::separate(
+    col = model_run,
+    into = c("species", "effort", "iter"),
+    sep  = "_(?=[^_]+$)|_(?=[^_]+_(?=[^_]+$))",
+    remove = FALSE
+  ) |>
+  select(species, effort, iter, NatM_uniform_Fem_GP_1) |>
+  group_by(species) |>
+  mutate(NatM_uniform_Fem_GP_1_effort1 = NatM_uniform_Fem_GP_1[effort == 1][1]) |>
+  ungroup() |>
+  filter(effort != 1) |>
+  mutate(effort = factor(effort),
+         are = abs((NatM_uniform_Fem_GP_1 - NatM_uniform_Fem_GP_1_effort1) / NatM_uniform_Fem_GP_1_effort1), 
+         rel_error = (log(NatM_uniform_Fem_GP_1) - log(NatM_uniform_Fem_GP_1_effort1)) / log(NatM_uniform_Fem_GP_1_effort1)
+  ) |>
+  group_by(species, effort) |>
+  ggplot() +
+  geom_violin(
+    aes(x = species, y = rel_error, fill = effort),
+    width = 0.9,
+    alpha = 0.9,
+    col = 'white',
+    linewidth = 0.6,
+    scale = "width"
+  ) +
+  geom_hline(yintercept = 0, color = 'black') +
+  geom_vline(
+    xintercept = seq(1.5, 6 - 0.5, by = 1),  # between 1&2, 2&3, ...
+    color = "grey80",
+    linewidth = 0.6
+  ) +
+  scale_fill_manual(values = rev(LaCroixColoR::lacroix_palette('Orange', 3))) +
+  theme_classic() +
+  labs(x = 'Species', y = 'Relative error to 100% effort of \nlog(natural mortality)')
+ggsave("nat_M_plot.png", plot = nat_M, path = here::here("plots"))
+
+dq_long <- dq |>
+  mutate(model_name = model_run) |>
+  tidyr::separate(
+    col = model_run,
+    into = c("species", "effort", "iter"),
+    sep  = "_(?=[^_]+$)|_(?=[^_]+_(?=[^_]+$))",
+    remove = FALSE
+  ) |>
+  pivot_longer(
+    cols = starts_with("Value."),
+    names_to = "metric",
+    values_to = "value",
+    names_prefix = "Value."
+  ) |>
+  filter(!is.na(value)) |>
+  group_by(metric, year) |>
+  mutate(value_eff1 = value[effort == 1][1]) |>  # baseline within group
+  ungroup() |>
+  filter(!is.na(value_eff1)) |>
+  group_by(metric, species, effort, year) |>
+  summarize(
+    mare = mean(abs((value - value_eff1) / value_eff1)),
+    mre = mean((value - value_eff1) / value_eff1)
+  ) |>
+  ungroup() |>
+  filter(effort != 1)
+
+shade_df <- dq_long %>%
+  mutate(year = as.numeric(year)) %>%
+  filter(metric == "Bratio") %>%
+  group_by(species) %>%
+  summarise(max_year = max(year, na.rm = TRUE), .groups = "drop") %>%
+  left_join(end_yrs, by = "species") %>%
+  transmute(
+    species,
+    xmin = endyr + 1,
+    xmax = max_year,
+    ymin = -Inf,
+    ymax = Inf
+  ) %>%
+  # in case some species don't need shading (endyr at/after last year)
+  filter(xmin <= xmax)
+
+mare_ts <- dq_long |>
+  mutate(year = as.numeric(year)) |>
+  filter(metric == "Bratio") |>
+  # filter(species == "Longnose_skate") |>
+  ggplot() +
+  geom_rect(
+    data = shade_df,
+    aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax),
+    inherit.aes = FALSE,
+    fill = "grey90",
+    color = NA
+  ) +
+  geom_line(aes(x = year, y = mare, col = factor(effort), group = effort)) +
+  scale_color_manual(values = rev(LaCroixColoR::lacroix_palette('Orange', 3))) +
+  labs(x = 'Year', color = 'Effort') +
+  theme_classic() +
+  scale_x_continuous(
+    breaks = function(x) seq(floor(min(x, na.rm = TRUE)/40)*40,
+                             ceiling(max(x, na.rm = TRUE)/40)*40,
+                             by = 40)
+  ) +
+  facet_wrap(~ species, scales = 'free_y', nrow = 2, strip.position = 'right')
+ggsave("mare_ts_Bratio_plot.png", plot = mare_ts, path = here::here("plots"))
 
 # The following models did not invert the hessian and need to be sorted out
 # Make sure that the uncertainty plots are working correctly when there are iterations
