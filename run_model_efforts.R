@@ -54,6 +54,7 @@ run_model_efforts <- function(catch_filtered,
       create.dir = TRUE,
       overwrite = TRUE,
       use_ss_new = FALSE,
+      copy_par = TRUE,
       verbose = FALSE
       )
     
@@ -389,7 +390,8 @@ run_model_efforts <- function(catch_filtered,
     
     # download exe if it isn't in the file path
     # if(file.exists(file.path(new_dir, "ss3")) == FALSE) {
-      get_ss3_exe(version = "v3.30.23.2", new_dir)
+      # get_ss3_exe(version = "v3.30.23.2", new_dir)
+      get_ss3_exe(new_dir)
     # }
     
     # run SS3 
