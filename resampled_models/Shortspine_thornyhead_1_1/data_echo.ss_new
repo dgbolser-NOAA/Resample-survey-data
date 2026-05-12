@@ -1,19 +1,19 @@
-#V3.30.23.2;_safe;_compile_date:_Apr 17 2025;_Stock_Synthesis_by_Richard_Methot_(NOAA)_using_ADMB_13.2
+#V3.30.24.2;_safe;_compile_date:_Mar  9 2026;_Stock_Synthesis_by_Richard_Methot_(NOAA)_using_ADMB_13.2
 #_Stock_Synthesis_is_a_work_of_the_U.S._Government_and_is_not_subject_to_copyright_protection_in_the_United_States.
 #_Foreign_copyrights_may_apply._See_copyright.txt_for_more_information.
 #_User_support_available_at:_https://groups.google.com/g/ss3-forum_and_NMFS.Stock.Synthesis@noaa.gov
 #_User_info_available_at:_https://nmfs-ost.github.io/ss3-website/
 #_Source_code_at:_https://github.com/nmfs-ost/ss3-source-code
 
-#_Start_time: Mon Oct 27 23:06:49 2025
+#_Start_time: Tue May 12 18:13:27 2026
 #_echo_input_data
 #C Data file for Shortspine Thornyhead - 2023 Assessment
 #C These data are the one from the 2013 model and updated for
 #C transitionning the 2013 (SS V3.24) model to SS V3.30 format
 #C Matthieu VERON - February 2023
 #C file created using an r4ss function
-#C file write time: 2025-10-27  21:49:10
-#V3.30.23.2;_safe;_compile_date:_Apr 17 2025;_Stock_Synthesis_by_Richard_Methot_(NOAA)_using_ADMB_13.2
+#C file write time: 2026-05-12  17:02:43
+#V3.30.24.2;_safe;_compile_date:_Mar  9 2026;_Stock_Synthesis_by_Richard_Methot_(NOAA)_using_ADMB_13.2
 1901 #_StartYr
 2022 #_EndYr
 1 #_Nseas
@@ -442,25 +442,25 @@
 1998 7 4 6247.01 0.0967012 #_ Triennial1
 2001 7 4 8234.98 0.0958247 #_ Triennial1
 2004 7 4 8654.53 0.112452 #_ Triennial1
-2003 7 6 1.36048e+06 0.0937466 #_ NWFSCcombo
-2004 7 6 1.4746e+06 0.0979759 #_ NWFSCcombo
-2005 7 6 1.55086e+06 0.0871188 #_ NWFSCcombo
-2006 7 6 1.53256e+06 0.0835506 #_ NWFSCcombo
-2007 7 6 1.37878e+06 0.08028 #_ NWFSCcombo
-2008 7 6 1.33674e+06 0.0838464 #_ NWFSCcombo
-2009 7 6 1.21891e+06 0.0833403 #_ NWFSCcombo
-2010 7 6 1.18318e+06 0.0823156 #_ NWFSCcombo
-2011 7 6 1.29565e+06 0.0823682 #_ NWFSCcombo
-2012 7 6 1.33774e+06 0.0834954 #_ NWFSCcombo
-2013 7 6 1.40919e+06 0.0892576 #_ NWFSCcombo
-2014 7 6 1.31712e+06 0.0823092 #_ NWFSCcombo
-2015 7 6 1.44888e+06 0.0797303 #_ NWFSCcombo
-2016 7 6 1.62741e+06 0.0814686 #_ NWFSCcombo
-2017 7 6 1.68799e+06 0.0801498 #_ NWFSCcombo
-2018 7 6 1.80635e+06 0.0794739 #_ NWFSCcombo
-2019 7 6 1.75022e+06 0.104718 #_ NWFSCcombo
-2021 7 6 1.94517e+06 0.0824574 #_ NWFSCcombo
-2022 7 6 1.97035e+06 0.0855308 #_ NWFSCcombo
+2003 7 6 41079.5 0.0941813 #_ NWFSCcombo
+2004 7 6 44134.4 0.0962755 #_ NWFSCcombo
+2005 7 6 48435.9 0.0822497 #_ NWFSCcombo
+2006 7 6 49217.8 0.0777729 #_ NWFSCcombo
+2007 7 6 45635.5 0.0764497 #_ NWFSCcombo
+2008 7 6 45812.2 0.0828623 #_ NWFSCcombo
+2009 7 6 42282.1 0.082128 #_ NWFSCcombo
+2010 7 6 39980.2 0.0764966 #_ NWFSCcombo
+2011 7 6 44469.9 0.078027 #_ NWFSCcombo
+2012 7 6 41925.4 0.0777355 #_ NWFSCcombo
+2013 7 6 44726.9 0.0880518 #_ NWFSCcombo
+2014 7 6 42991.4 0.0779161 #_ NWFSCcombo
+2015 7 6 44033 0.0740773 #_ NWFSCcombo
+2016 7 6 46335.1 0.0715283 #_ NWFSCcombo
+2017 7 6 51243.7 0.0727088 #_ NWFSCcombo
+2018 7 6 51525.2 0.0725478 #_ NWFSCcombo
+2019 7 6 52713 0.097028 #_ NWFSCcombo
+2021 7 6 55941.9 0.0730488 #_ NWFSCcombo
+2022 7 6 59720.3 0.0757434 #_ NWFSCcombo
 -9999 1 1 1 1 # terminator for survey observations 
 #
 3 #_N_fleets_with_discard

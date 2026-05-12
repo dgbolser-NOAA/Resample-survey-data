@@ -1,9 +1,9 @@
 #C file created using an r4ss function
-#C file write time: 2025-10-27  20:35:19
+#C file write time: 2026-05-12  16:16:56
 #
-data.ss #_datfile
-control.ss #_ctlfile
-0 #_init_values_src
+2025_sablefish_dat.ss #_datfile
+2025_sablefish_ctl.ss #_ctlfile
+1 #_init_values_src
 1 #_run_display_detail
 1 #_detailed_age_structure
 0 #_checkup
@@ -12,7 +12,7 @@ control.ss #_ctlfile
 1 #_prior_like
 0 #_soft_bounds
 1 #_N_bootstraps
-24 #_last_estimation_phase
+20 #_last_estimation_phase
 1 #_MCMCburn
 1 #_MCMCthin
 0 #_jitter_fraction
@@ -21,7 +21,7 @@ control.ss #_ctlfile
 0 #_N_STD_yrs
 0.001 #_converge_criterion
 0 #_retro_yr
-4 #_min_age_summary_bio
+3 #_min_age_summary_bio
 1 #_depl_basis
 1 #_depl_denom_frac
 1 #_SPR_basis
