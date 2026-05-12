@@ -1,15 +1,15 @@
-#V3.30.23.2;_safe;_compile_date:_Apr 17 2025;_Stock_Synthesis_by_Richard_Methot_(NOAA)_using_ADMB_13.2
+#V3.30.24.2;_safe;_compile_date:_Mar  9 2026;_Stock_Synthesis_by_Richard_Methot_(NOAA)_using_ADMB_13.2
 #_Stock_Synthesis_is_a_work_of_the_U.S._Government_and_is_not_subject_to_copyright_protection_in_the_United_States.
 #_Foreign_copyrights_may_apply._See_copyright.txt_for_more_information.
 #_User_support_available_at:_https://groups.google.com/g/ss3-forum_and_NMFS.Stock.Synthesis@noaa.gov
 #_User_info_available_at:_https://nmfs-ost.github.io/ss3-website/
 #_Source_code_at:_https://github.com/nmfs-ost/ss3-source-code
 
-#_Start_time: Mon Oct 27 20:00:04 2025
+#_Start_time: Tue May 12 15:23:57 2026
 #_echo_input_data
 #C file created using an r4ss function
-#C file write time: 2025-10-27  19:35:27
-#V3.30.23.2;_safe;_compile_date:_Apr 17 2025;_Stock_Synthesis_by_Richard_Methot_(NOAA)_using_ADMB_13.2
+#C file write time: 2026-05-12  14:57:34
+#V3.30.24.2;_safe;_compile_date:_Mar  9 2026;_Stock_Synthesis_by_Richard_Methot_(NOAA)_using_ADMB_13.2
 1918 #_StartYr
 2016 #_EndYr
 1 #_Nseas
@@ -884,20 +884,20 @@
 2000 7 7 4120.39 0.57547 #_ NWFSCSlope
 2001 7 7 2325.26 0.589964 #_ NWFSCSlope
 2002 7 7 1902.92 0.596178 #_ NWFSCSlope
-2003 7 8 8599.91 0.44393 #_ NWFSCcombo
-2004 7 8 7228.83 0.533328 #_ NWFSCcombo
-2005 7 8 10755.1 0.515333 #_ NWFSCcombo
-2006 7 8 4013.23 0.497882 #_ NWFSCcombo
-2007 7 8 4156.32 0.455187 #_ NWFSCcombo
-2008 7 8 3103.7 0.473245 #_ NWFSCcombo
-2009 7 8 3143.02 0.406958 #_ NWFSCcombo
-2010 7 8 8620.57 0.428318 #_ NWFSCcombo
-2011 7 8 7516.47 0.475113 #_ NWFSCcombo
-2012 7 8 7048.94 0.478509 #_ NWFSCcombo
-2013 7 8 6628.19 0.421412 #_ NWFSCcombo
-2014 7 8 5861.85 0.501066 #_ NWFSCcombo
-2015 7 8 4172.41 0.413705 #_ NWFSCcombo
-2016 7 8 7700.08 0.515147 #_ NWFSCcombo
+2003 7 8 11723.3 0.350522 #_ NWFSCcombo
+2004 7 8 10782.6 0.507235 #_ NWFSCcombo
+2005 7 8 12197.4 0.43868 #_ NWFSCcombo
+2006 7 8 5951.06 0.487621 #_ NWFSCcombo
+2007 7 8 5968.22 0.413562 #_ NWFSCcombo
+2008 7 8 5662.42 0.447447 #_ NWFSCcombo
+2009 7 8 4631.97 0.351835 #_ NWFSCcombo
+2010 7 8 13301.2 0.373536 #_ NWFSCcombo
+2011 7 8 10665.2 0.403538 #_ NWFSCcombo
+2012 7 8 10875.9 0.414269 #_ NWFSCcombo
+2013 7 8 9149.65 0.393386 #_ NWFSCcombo
+2014 7 8 7169.08 0.417262 #_ NWFSCcombo
+2015 7 8 5903.83 0.382367 #_ NWFSCcombo
+2016 7 8 10850.8 0.511826 #_ NWFSCcombo
 -9999 1 1 1 1 # terminator for survey observations 
 #
 1 #_N_fleets_with_discard

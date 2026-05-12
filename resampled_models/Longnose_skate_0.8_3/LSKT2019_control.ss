@@ -1,6 +1,6 @@
 #C LSKT control file
 #C file created using an r4ss function
-#C file write time: 2025-10-27  19:33:43
+#C file write time: 2026-05-12  14:55:17
 #
 0 # 0 means do not read wtatage.ss; 1 means read and usewtatage.ss and also read and use growth parameters
 1 #_N_Growth_Patterns
@@ -240,12 +240,12 @@
 #
 # Input variance adjustments factors: 
 #_factor	fleet	value
-    4	1	 0.16424	#_Variance_adjustment_list1
-    4	5	0.133907	#_Variance_adjustment_list2
-    4	6	0.275624	#_Variance_adjustment_list3
+    4	1	0.164115	#_Variance_adjustment_list1
+    4	5	0.133953	#_Variance_adjustment_list2
+    4	6	0.275132	#_Variance_adjustment_list3
     4	7	       1	#_Variance_adjustment_list4
     4	9	       1	#_Variance_adjustment_list5
-    5	1	0.098348	#_Variance_adjustment_list6
+    5	1	0.098402	#_Variance_adjustment_list6
     5	5	       1	#_Variance_adjustment_list7
 -9999	0	       0	#_terminator               
 #

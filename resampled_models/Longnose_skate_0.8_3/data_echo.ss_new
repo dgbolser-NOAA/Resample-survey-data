@@ -1,16 +1,16 @@
-#V3.30.23.2;_safe;_compile_date:_Apr 17 2025;_Stock_Synthesis_by_Richard_Methot_(NOAA)_using_ADMB_13.2
+#V3.30.24.2;_safe;_compile_date:_Mar  9 2026;_Stock_Synthesis_by_Richard_Methot_(NOAA)_using_ADMB_13.2
 #_Stock_Synthesis_is_a_work_of_the_U.S._Government_and_is_not_subject_to_copyright_protection_in_the_United_States.
 #_Foreign_copyrights_may_apply._See_copyright.txt_for_more_information.
 #_User_support_available_at:_https://groups.google.com/g/ss3-forum_and_NMFS.Stock.Synthesis@noaa.gov
 #_User_info_available_at:_https://nmfs-ost.github.io/ss3-website/
 #_Source_code_at:_https://github.com/nmfs-ost/ss3-source-code
 
-#_Start_time: Mon Oct 27 19:34:48 2025
+#_Start_time: Tue May 12 14:56:41 2026
 #_echo_input_data
 #C Data file LSKT
 #C file created using an r4ss function
-#C file write time: 2025-10-27  19:32:19
-#V3.30.23.2;_safe;_compile_date:_Apr 17 2025;_Stock_Synthesis_by_Richard_Methot_(NOAA)_using_ADMB_13.2
+#C file write time: 2026-05-12  14:53:55
+#V3.30.24.2;_safe;_compile_date:_Mar  9 2026;_Stock_Synthesis_by_Richard_Methot_(NOAA)_using_ADMB_13.2
 1916 #_StartYr
 2018 #_EndYr
 1 #_Nseas
@@ -483,22 +483,22 @@
 8 1 0 0 # 8_NWFSC_slope
 9 0 0 0 # 9_IPHC
 #_year month fleet obs stderr
-2003 7 5 55392.2 0.0889325 #_ 5_WCGBT
-2004 7 5 68293.8 0.0918253 #_ 5_WCGBT
-2005 7 5 52623.4 0.0795928 #_ 5_WCGBT
-2006 7 5 61269.9 0.0793683 #_ 5_WCGBT
-2007 7 5 60880.1 0.0783154 #_ 5_WCGBT
-2008 7 5 58803.8 0.0803836 #_ 5_WCGBT
-2009 7 5 50743.4 0.0801131 #_ 5_WCGBT
-2010 7 5 60971.9 0.079108 #_ 5_WCGBT
-2011 7 5 56486.8 0.0773248 #_ 5_WCGBT
-2012 7 5 65533.2 0.0772764 #_ 5_WCGBT
-2013 7 5 69372.5 0.0839295 #_ 5_WCGBT
-2014 7 5 61987.5 0.0747509 #_ 5_WCGBT
-2015 7 5 59016 0.0745512 #_ 5_WCGBT
-2016 7 5 73302.5 0.0780452 #_ 5_WCGBT
-2017 7 5 60637.9 0.0769866 #_ 5_WCGBT
-2018 7 5 61180.7 0.077247 #_ 5_WCGBT
+2003 7 5 48610.8 0.0793998 #_ 5_WCGBT
+2004 7 5 60948.7 0.080919 #_ 5_WCGBT
+2005 7 5 49601.7 0.067845 #_ 5_WCGBT
+2006 7 5 56707.9 0.0687774 #_ 5_WCGBT
+2007 7 5 57411.5 0.0657081 #_ 5_WCGBT
+2008 7 5 58287.4 0.0686815 #_ 5_WCGBT
+2009 7 5 49029.1 0.0698798 #_ 5_WCGBT
+2010 7 5 56697.4 0.0672493 #_ 5_WCGBT
+2011 7 5 55154.6 0.0652299 #_ 5_WCGBT
+2012 7 5 64819.3 0.0639544 #_ 5_WCGBT
+2013 7 5 68658.3 0.0778471 #_ 5_WCGBT
+2014 7 5 61010.5 0.0646711 #_ 5_WCGBT
+2015 7 5 55307.1 0.0640757 #_ 5_WCGBT
+2016 7 5 66631.6 0.0666415 #_ 5_WCGBT
+2017 7 5 58099.5 0.0651381 #_ 5_WCGBT
+2018 7 5 56539.8 0.0664659 #_ 5_WCGBT
 1980 7 6 2201.85 0.236209 #_ 6_Triennial
 1983 7 6 1958.17 0.161183 #_ 6_Triennial
 1986 7 6 2370.06 0.163229 #_ 6_Triennial
