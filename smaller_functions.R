@@ -330,7 +330,8 @@ process_indexwc_indices<- function(dir,name){
   indices_list <- imap(indices_list, function(df, nm) {
     
     df |>
-      select(-any_of("area")) |>
+      filter(area == "Coastwide") |>
+      select(-area) |>
       rename(Year = year) |>
       mutate(
         effort = nm,

@@ -35,7 +35,7 @@ options(future.globals.maxSize = 1 * 1024^4)  # Allow up to 1 TB for globals
 
 #verify use of ropenblas upon starting new VM session. 
 extSoftVersion()["BLAS"] #should be: "opt/OpenBlas/lib/libopenblas_haswellp-r0.3.13.so" or a newer version. If not, uncomment the code below
-ropenblas::ropenblas(x = "0.3.32")
+ropenblas::ropenblas(x = "0.3.33")
 
 #get configuration and cc grid
 load("configuration.rda")
