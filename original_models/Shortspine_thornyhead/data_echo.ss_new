@@ -1,24 +1,24 @@
-#V3.30.23.1;_safe;_compile_date:_Dec  5 2024;_Stock_Synthesis_by_Richard_Methot_(NOAA)_using_ADMB_13.2
+#V3.30.21.00;_safe;_compile_date:_Feb 10 2023;_Stock_Synthesis_by_Richard_Methot_(NOAA)_using_ADMB_13.1
 #_Stock_Synthesis_is_a_work_of_the_U.S._Government_and_is_not_subject_to_copyright_protection_in_the_United_States.
 #_Foreign_copyrights_may_apply._See_copyright.txt_for_more_information.
 #_User_support_available_at:NMFS.Stock.Synthesis@noaa.gov
 #_User_info_available_at:https://vlab.noaa.gov/group/stock-synthesis
-#_Source_code_at:_https://github.com/nmfs-ost/ss3-source-code
+#_Source_code_at:_https://github.com/nmfs-stock-synthesis/stock-synthesis
 
-#_Start_time: Wed Apr  9 11:28:41 2025
+#_Start_time: Sun Jun 18 17:28:02 2023
 #_echo_input_data
 #C Data file for Shortspine Thornyhead - 2023 Assessment
 #C These data are the one from the 2013 model and updated for
 #C transitionning the 2013 (SS V3.24) model to SS V3.30 format
 #C Matthieu VERON - February 2023
-#V3.30.23.1;_safe;_compile_date:_Dec  5 2024;_Stock_Synthesis_by_Richard_Methot_(NOAA)_using_ADMB_13.2
+#V3.30.21.00;_safe;_compile_date:_Feb 10 2023;_Stock_Synthesis_by_Richard_Methot_(NOAA)_using_ADMB_13.1
 1901 #_StartYr
 2022 #_EndYr
 1 #_Nseas
  12 #_months/season
 2 #_Nsubseasons (even number, minimum is 2)
 1 #_spawn_month
-2 #_Nsexes: 1, 2, -1  (use -1 for 1 sex setup with SSB multiplied by female_frac parameter)
+2 #_Ngenders: 1, 2, -1  (use -1 for 1 sex setup with SSB multiplied by female_frac parameter)
 100 #_Nages=accumulator age, first age is always age 0
 1 #_Nareas
 6 #_Nfleets (including surveys)
@@ -43,7 +43,7 @@
 #e:  last year of range
 #f:  not used
 # a   b   c   d   e   f 
-#_Catch data: year, seas, fleet, catch, catch_se
+#_Catch data: yr, seas, fleet, catch, catch_se
 #_catch_se:  standard error of log(catch)
 #_NOTE:  catch data is ignored for survey fleets
 -999 1 1 0 0.01
@@ -418,19 +418,18 @@
 -9999 0 0 0 0
 #
 #_CPUE_and_surveyabundance_and_index_observations
-#_units: 0=numbers; 1=biomass; 2=F; 30=spawnbio; 31=exp(recdev); 36=recdev; 32=spawnbio*recdev; 33=recruitment; 34=depletion(&see Qsetup); 35=parm_dev(&see Qsetup)
-#_errtype:  -1=normal; 0=lognormal; 1=lognormal with bias correction; >1=df for T-dist
-#_SD_report: 0=not; 1=include survey expected value with se
+#_Units: 0=numbers; 1=biomass; 2=F; 30=spawnbio; 31=exp(recdev); 36=recdev; 32=spawnbio*recdev; 33=recruitment; 34=depletion(&see Qsetup); 35=parm_dev(&see Qsetup)
+#_Errtype:  -1=normal; 0=lognormal; >0=T
+#_SD_Report: 0=no sdreport; 1=enable sdreport
 #_note that link functions are specified in Q_setup section of control file
-#_dataunits = 36 and 35 should use Q_type 5 to provide offset parameter
-#_fleet units errtype SD_report
+#_Fleet Units Errtype SD_Report
 1 1 0 0 # Trawl_N
 2 1 0 0 # Trawl_S
 3 1 0 0 # Non-trawl
 4 1 0 0 # Triennial1
 5 1 0 0 # Triennial2
 6 1 0 0 # NWFSCcombo
-#_year month fleet obs stderr
+#_yr month fleet obs stderr
 1980 7 4 6296.68 0.154443 #_ Triennial1
 1983 7 4 6406.37 0.122227 #_ Triennial1
 1986 7 4 5441.14 0.146073 #_ Triennial1
@@ -466,11 +465,11 @@
 #_discard_errtype:  >0 for DF of T-dist(read CV below); 0 for normal with CV; -1 for normal with se; -2 for lognormal; -3 for trunc normal with CV
 # note: only enter units and errtype for fleets with discard 
 # note: discard data is the total for an entire season, so input of month here must be to a month in that season
-#_fleet units errtype
+#_Fleet units errtype
 1 2 30 # Trawl_N
 2 2 30 # Trawl_S
 3 2 30 # Non-trawl
-#_year month fleet obs stderr
+#_yr month fleet obs stderr
 1984 7 1 0.3448 0.780452 #_ Trawl_N
 1985 7 1 0.3439 0.826112 #_ Trawl_N
 1986 7 1 0.3663 0.770953 #_ Trawl_N
@@ -544,7 +543,7 @@
 1 #_use meanbodysize_data (0/1)
 30 #_DF_for_meanbodysize_T-distribution_like
 # note:  type=1 for mean length; type=2 for mean body weight 
-#_year month fleet part type obs stderr
+#_yr month fleet part type obs stderr
 2002 1 1 1 2 0.254707 2.07863 #_ Trawl_N
 2003 1 1 1 2 0.284307 1.26543 #_ Trawl_N
 2004 1 1 1 2 0.165942 0.989868 #_ Trawl_N
@@ -615,7 +614,7 @@
 1 # use length composition data (0/1/2) where 2 invokes new comp_control format
 #_mintailcomp: upper and lower distribution for females and males separately are accumulated until exceeding this level.
 #_addtocomp:  after accumulation of tails; this value added to all bins
-#_combM+F: males and females treated as combined sex below this bin number 
+#_combM+F: males and females treated as combined gender below this bin number 
 #_compressbins: accumulate upper tail by this number of bins; acts simultaneous with mintailcomp; set=0 for no forced accumulation
 #_Comp_Error:  0=multinomial, 1=dirichlet using Theta*n, 2=dirichlet using beta, 3=MV_Tweedie
 #_ParmSelect:  consecutive index for dirichlet or MV_Tweedie
@@ -629,11 +628,11 @@
 -1 0.001 0 0 0 0 1 #_fleet:4_Triennial1
 -1 0.001 0 0 0 0 1 #_fleet:5_Triennial2
 -1 0.001 0 0 0 0 1 #_fleet:6_NWFSCcombo
-# sex codes:  0=combined; 1=use female only; 2=use male only; 3=use both as joint sex*length distribution
+# sex codes:  0=combined; 1=use female only; 2=use male only; 3=use both as joint sexxlength distribution
 # partition codes:  (0=combined; 1=discard; 2=retained
 34 #_N_LengthBins; then enter lower edge of each length bin
  6 8 10 12 14 16 18 20 22 24 26 28 30 32 34 36 38 40 42 44 46 48 50 52 54 56 58 60 62 64 66 68 70 72
-#_year month fleet sex part Nsamp datavector(female-male)
+#_yr month fleet sex part Nsamp datavector(female-male)
  1981 7 1 0 2 5.14 0 0 0 0 0 0 0 0 0 0 0.0333333 0 0.0333333 0 0.0666667 0.333333 0.133333 0.2 0.0666667 0.0333333 0 0.0666667 0.0333333 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.0333333 0 0.0333333 0 0.0666667 0.333333 0.133333 0.2 0.0666667 0.0333333 0 0.0666667 0.0333333 0 0 0 0 0 0 0 0 0 0 0
  1982 7 1 0 2 25.7 0 0 0 0 0 0 0 0 0 0.00150365 0.00150365 0.00601461 0.0266798 0.152205 0.148629 0.158298 0.111952 0.0768335 0.0637691 0.0433139 0.0452774 0.000959966 0.0109287 0.0238068 0.0493531 0.00676337 0.0418103 0.0111645 0.000479983 0.00628338 0.00198364 0.00898282 0.00150365 0 0 0 0 0 0 0 0 0 0 0.00150365 0.00150365 0.00601461 0.0266798 0.152205 0.148629 0.158298 0.111952 0.0768335 0.0637691 0.0433139 0.0452774 0.000959966 0.0109287 0.0238068 0.0493531 0.00676337 0.0418103 0.0111645 0.000479983 0.00628338 0.00198364 0.00898282 0.00150365 0
  1990 7 1 0 2 86.82 0 0 0 0 0 0 0.00666346 0.0102801 0.0638728 0.0651003 0.107821 0.0789971 0.0465791 0.0129525 0.0257555 0.0135902 0.0318247 0.0542946 0.0535959 0.0594313 0.0645211 0.0638953 0.0426916 0.0478136 0.0320315 0.0191138 0.0211016 0.0198393 0.00849773 0.0256702 0.0056798 0.012706 0 0.0056798 0 0 0 0 0 0 0.00666346 0.0102801 0.0638728 0.0651003 0.107821 0.0789971 0.0465791 0.0129525 0.0257555 0.0135902 0.0318247 0.0542946 0.0535959 0.0594313 0.0645211 0.0638953 0.0426916 0.0478136 0.0320315 0.0191138 0.0211016 0.0198393 0.00849773 0.0256702 0.0056798 0.012706 0 0.0056798
@@ -831,7 +830,7 @@
 # 0 #_N_ageerror_definitions
 #_mintailcomp: upper and lower distribution for females and males separately are accumulated until exceeding this level.
 #_addtocomp:  after accumulation of tails; this value added to all bins
-#_combM+F: males and females treated as combined sex below this bin number 
+#_combM+F: males and females treated as combined gender below this bin number 
 #_compressbins: accumulate upper tail by this number of bins; acts simultaneous with mintailcomp; set=0 for no forced accumulation
 #_Comp_Error:  0=multinomial, 1=dirichlet using Theta*n, 2=dirichlet using beta, 3=MV_Tweedie
 #_ParmSelect:  consecutive index for dirichlet or MV_Tweedie
@@ -845,16 +844,16 @@
 # 0 0 0 0 0 0 0 #_fleet:5_Triennial2
 # 0 0 0 0 0 0 0 #_fleet:6_NWFSCcombo
 # 0 #_Lbin_method_for_Age_Data: 1=poplenbins; 2=datalenbins; 3=lengths
-# sex codes:  0=combined; 1=use female only; 2=use male only; 3=use both as joint sex*length distribution
+# sex codes:  0=combined; 1=use female only; 2=use male only; 3=use both as joint sexxlength distribution
 # partition codes:  (0=combined; 1=discard; 2=retained
-#_year month fleet sex part ageerr Lbin_lo Lbin_hi Nsamp datavector(female-male)
+#_yr month fleet sex part ageerr Lbin_lo Lbin_hi Nsamp datavector(female-male)
 # -9999  0 0 0 0 0 0 0 0
 #
 0 #_Use_MeanSize-at-Age_obs (0/1)
 #
 0 #_N_environ_variables
-# -2 in year will subtract mean for that env_var; -1 will subtract mean and divide by stddev (e.g. Z-score)
-#_year variable value
+# -2 in yr will subtract mean for that env_var; -1 will subtract mean and divide by stddev (e.g. Z-score)
+#Yr Variable Value
 #
 # Sizefreq data. Defined by method because a fleet can use multiple methods
 0 # N sizefreq methods to read (or -1 for expanded options)
@@ -863,10 +862,10 @@
 #
 0 #    morphcomp data(0/1) 
 #  Nobs, Nmorphs, mincomp
-#_year, seas, type, partition, Nsamp, datavector_by_Nmorphs
+#  yr, seas, type, partition, Nsamp, datavector_by_Nmorphs
 #
 0  #  Do dataread for selectivity priors(0/1)
-#_year, seas, fleet, age/size, bin, selex_prior, prior_sd
+# Yr, Seas, Fleet,  Age/Size,  Bin,  selex_prior,  prior_sd
 # feature not yet implemented
 #
 999

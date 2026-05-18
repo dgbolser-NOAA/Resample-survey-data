@@ -20,7 +20,7 @@ resampled_dirs <- list.dirs("resampled_models", full.names = TRUE, recursive = F
 species_fleet_df <- data.frame(
   name = c("Longnose_skate", "Pacific_ocean_perch", "Petrale_sole",
            "Sablefish", "Shortspine_thornyhead", "Yellowtail_rockfish"),
-  fleet = c(5, 8, 4, 7, 6, 6)
+  fleet = c(5, 8, 4, 10, 6, 6)
 )
 
 # Black dotted line is the original, need to figure out how to get ggplot to add that to the legend
@@ -32,7 +32,7 @@ fleet_lookup <- c(
   "Longnose_skate" = 5,
   "Pacific_ocean_perch" = 8,
   "Petrale_sole" = 4,
-  "Sablefish" = 7,
+  "Sablefish" = 10,
   "Shortspine_thornyhead" = 6,
   "Yellowtail_rockfish" = 6
 )
@@ -292,17 +292,17 @@ plot_comparisons_ggplot(
 
 ### All of Ian's stuff
 # temporary stuff for exploring scale of index estimates
-all_indices <- read.csv(here::here("Results/Petrale_sole/petrale_indices_df.csv")) |>
+all_indices <- read.csv(here::here("Results/Shortspine_thornyhead/shortspine_indices_df.csv")) |>
   filter(!is.na(se)) |>
   filter(effort == 1.0)
 # petrale_indices <- all_indices |>
 #   filter(species == "Petrale sole")
-petrale_inputs <- r4ss::SS_read("original_models/Petrale_sole")
-petrale_index <- petrale_inputs$dat$CPUE  |> dplyr::filter(index == 4)
+st_inputs <- r4ss::SS_read("original_models/Shortspine_thornyhead")
+st_index <- st_inputs$dat$CPUE  |> dplyr::filter(index == 6)
 
 # Get ratio to determine how much to multiply stock assessment index by to match
 # derek's index from sdmTMB
-mean(all_indices$est)/mean(petrale_index$obs)
+mean(all_indices$est)/mean(st_index$obs)
 
 plot(petrale_index$year, petrale_index$obs)
 plot(petrale_indices$Year, petrale_indices$est, ylim = c(0, 3e6))

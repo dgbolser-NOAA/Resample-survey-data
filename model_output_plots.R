@@ -33,19 +33,19 @@ plot_effort_vs_og_indices <- function(species_fleet_df, plot_save_dir) {
   )
   
   # Hopefully don't have to do this
-  all_indices <- bind_rows(results) 
-  # |>
-  #   dplyr::mutate( # will remove this once scale of indices is fixed
-  #     obs = dplyr::case_when(
+  all_indices <- bind_rows(results)
+  # |> 
+    # dplyr::mutate( # will remove this once scale of indices is fixed
+    #   obs = dplyr::case_when(
   #       effort == "original model" & species == "Longnose skate" ~ obs * 18.10336,
   #       effort == "original model" & species == "Petrale sole" ~ obs * 18.44485,
   #       effort == "original model" & species == "Sablefish" ~ obs * 23.03842,
   #       effort == "original model" & species == "Pacific ocean perch" ~ obs * 41.68032,
-  #       effort == "original model" & species == "Shortspine thornyhead" ~ obs * 26.06559,
+        # effort == "original model" & species == "Shortspine thornyhead" ~ obs / 31.79061,
   #       effort == "original model" & species == "Yellowtail rockfish" ~ obs * 74.28589,
-  #       TRUE ~ obs
-  #     )
-  #   )
+    #     TRUE ~ obs
+    #   )
+    # )
   
   effort_summary <- all_indices |>
     dplyr::group_by(species, year, effort) |>

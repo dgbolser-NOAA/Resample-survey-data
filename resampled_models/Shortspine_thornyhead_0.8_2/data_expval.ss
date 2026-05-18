@@ -5,14 +5,14 @@
 #_User_info_available_at:_https://nmfs-ost.github.io/ss3-website/
 #_Source_code_at:_https://github.com/nmfs-ost/ss3-source-code
 
-#_Start_time: Tue May 12 18:13:29 2026
+#_Start_time: Thu May 14 21:05:05 2026
 #_expected_values
 #C Data file for Shortspine Thornyhead - 2023 Assessment
 #C These data are the one from the 2013 model and updated for
 #C transitionning the 2013 (SS V3.24) model to SS V3.30 format
 #C Matthieu VERON - February 2023
 #C file created using an r4ss function
-#C file write time: 2026-05-12  17:02:41
+#C file write time: 2026-05-14  19:53:16
 #V3.30.24.2;_safe;_compile_date:_Mar  9 2026;_Stock_Synthesis_by_Richard_Methot_(NOAA)_using_ADMB_13.2
 1901 #_StartYr
 2022 #_EndYr

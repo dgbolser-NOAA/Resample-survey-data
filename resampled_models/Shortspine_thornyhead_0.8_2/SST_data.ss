@@ -3,7 +3,7 @@
 #C transitionning the 2013 (SS V3.24) model to SS V3.30 format
 #C Matthieu VERON - February 2023
 #C file created using an r4ss function
-#C file write time: 2026-05-12  17:02:41
+#C file write time: 2026-05-14  19:53:16
 #
 1901 #_styr
 2022 #_endyr

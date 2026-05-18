@@ -87,12 +87,12 @@ df <- data.frame(
 
 df_list <- split(df, seq(nrow(df)))
 
-
+# PREVIOUSLY
 # HAD TO USE V3.30.23.2 FOR SHORTSPINE THORNYHEAD TO GET SD OF DERIVED QUANTS AND
 # I DON'T KNOW WHY.
 
 start.time <- Sys.time()
-all_wl_df <- purrr::map(df_list, ~ run_model(species_name = .x$species_name,
+all_wl_df <- purrr::map(df_list[5], ~ run_model(species_name = .x$species_name,
                     scientific_name = .x$scientific_name,
                     original_model_dir = .x$original_model_dir,
                     sdm_dir = .x$sdm_dir,

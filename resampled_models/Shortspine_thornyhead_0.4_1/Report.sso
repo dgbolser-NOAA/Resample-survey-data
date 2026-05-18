@@ -5,9 +5,9 @@
 #_User_info_available_at:_https://nmfs-ost.github.io/ss3-website/
 #_Source_code_at:_https://github.com/nmfs-ost/ss3-source-code
 
-StartTime: Tue May 12 17:39:06 2026
-EndTime: Tue May 12 18:12:53 2026
-This run took: 0 hours, 33 minutes, 47 seconds.
+StartTime: Thu May 14 20:32:32 2026
+EndTime: Thu May 14 21:04:42 2026
+This run took: 0 hours, 32 minutes, 10 seconds.
 Data_File: SST_data.ss
 Control_File: SST_control.ss
 Start_parm_values_from_control_file
@@ -20,7 +20,7 @@ total_LogL: 406.724
 
 Starter_Comments
 #C file created using an r4ss function
-#C file write time: 2026-05-12  17:02:34
+#C file write time: 2026-05-14  19:53:12
 
 Data_Comments
 #C Data file for Shortspine Thornyhead - 2023 Assessment
@@ -28,7 +28,7 @@ Data_Comments
 #C transitionning the 2013 (SS V3.24) model to SS V3.30 format
 #C Matthieu VERON - February 2023
 #C file created using an r4ss function
-#C file write time: 2026-05-12  17:02:34
+#C file write time: 2026-05-14  19:53:12
 
 Control_Comments
 #C Controle file for Shortspine Thornyhead - 2023 Assessment
@@ -36,11 +36,11 @@ Control_Comments
 #C transitionning the 2013 (SS V3.24) model to SS V3.30 format
 #C Matthieu VERON - February 2023
 #C file created using an r4ss function
-#C file write time: 2026-05-12  17:39:05
+#C file write time: 2026-05-14  20:32:32
 
 Forecast_Comments
 #C file created using an r4ss function
-#C file write time: 2026-05-12  17:02:34
+#C file write time: 2026-05-14  19:53:12
 
 #_KeyWords_of_tables_available_in_report_sso
 #_NOTE: table_number_is_order_in_which_tables_are_output
