@@ -34,18 +34,6 @@ plot_effort_vs_og_indices <- function(species_fleet_df, plot_save_dir) {
   
   # Hopefully don't have to do this
   all_indices <- bind_rows(results)
-  # |> 
-    # dplyr::mutate( # will remove this once scale of indices is fixed
-    #   obs = dplyr::case_when(
-  #       effort == "original model" & species == "Longnose skate" ~ obs * 18.10336,
-  #       effort == "original model" & species == "Petrale sole" ~ obs * 18.44485,
-  #       effort == "original model" & species == "Sablefish" ~ obs * 23.03842,
-  #       effort == "original model" & species == "Pacific ocean perch" ~ obs * 41.68032,
-        # effort == "original model" & species == "Shortspine thornyhead" ~ obs / 31.79061,
-  #       effort == "original model" & species == "Yellowtail rockfish" ~ obs * 74.28589,
-    #     TRUE ~ obs
-    #   )
-    # )
   
   effort_summary <- all_indices |>
     dplyr::group_by(species, year, effort) |>
@@ -1029,96 +1017,100 @@ plot_composition_comparisons <- function(dir_list, fleet_lookup, plot_save_dir){
       fleet_num <- fleet_lookup[[info$species]]
       lencomp_df <- .x$dat$lencomp |> filter(abs(fleet) == fleet_num)
       
-      # Check for f# columns
-      fm_cols <- grep("^[fm]\\d+$", names(lencomp_df), value = TRUE)
-      if (length(fm_cols) > 0) {
-        # Pivot longer, extract the number, sum across f/m for each number
-        lencomp_df <- lencomp_df |>
-          pivot_longer(cols = all_of(fm_cols), names_to = "fm_col", values_to = "fmval") |>
-          mutate(l_col = paste0("l", gsub("^[fm]", "", fm_col))) |>
-          group_by(across(-c(fm_col, fmval, l_col)), l_col) |>
-          summarise(lval = sum(fmval, na.rm = TRUE), .groups = "drop") |>
-          pivot_wider(names_from = l_col, values_from = lval) |>
-          # reattach non-fm columns (if any)
-          left_join(lencomp_df |> select(-all_of(fm_cols)), by = setdiff(names(lencomp_df), fm_cols))
+      if(length(lencomp_df$year) > 0) {
+        # Check for f# columns
+        fm_cols <- grep("^[fm]\\d+$", names(lencomp_df), value = TRUE)
+        if (length(fm_cols) > 0) {
+          # Pivot longer, extract the number, sum across f/m for each number
+          lencomp_df <- lencomp_df |>
+            pivot_longer(cols = all_of(fm_cols), names_to = "fm_col", values_to = "fmval") |>
+            mutate(l_col = paste0("l", gsub("^[fm]", "", fm_col))) |>
+            group_by(across(-c(fm_col, fmval, l_col)), l_col) |>
+            summarise(lval = sum(fmval, na.rm = TRUE), .groups = "drop") |>
+            pivot_wider(names_from = l_col, values_from = lval) |>
+            # reattach non-fm columns (if any)
+            left_join(lencomp_df |> select(-all_of(fm_cols)), by = setdiff(names(lencomp_df), fm_cols))
+        }
+        
+        # Continue as before, using the new l# columns if present
+        lcols <- grep("^l\\d+$", names(lencomp_df), value = TRUE)
+        lencomp_df |>
+          select(year, all_of(lcols)) |>
+          pivot_longer(cols = all_of(lcols), names_to = "length", values_to = "freq") |>
+          mutate(
+            length = gsub("^l", "", length),
+            length = as.numeric(length),
+            species = gsub("_", " ", info$species),
+            effort = info$effort,
+            replicate = info$replicate
+          ) %>%
+          group_by(species, effort, year) |>
+          mutate(freq = freq / sum(freq)) |>
+          ungroup()
       }
-      
-      # Continue as before, using the new l# columns if present
-      lcols <- grep("^l\\d+$", names(lencomp_df), value = TRUE)
-      lencomp_df |>
-        select(year, all_of(lcols)) |>
-        pivot_longer(cols = all_of(lcols), names_to = "length", values_to = "freq") |>
-        mutate(
-          length = gsub("^l", "", length),
-          length = as.numeric(length),
-          species = gsub("_", " ", info$species),
-          effort = info$effort,
-          replicate = info$replicate
-        ) %>%
-        group_by(species, effort, year) |>
-        mutate(freq = freq / sum(freq)) |>
-        ungroup()
     }
-  )
-  
-  length_comparison_plot <- lencomps |>
-    filter(freq > 0) |>
-    ggplot(aes(x = year, y = length, col = effort, size = freq)) +
-    geom_point(position = position_dodge(0.9)) +
-    facet_wrap(~species) +
-    theme_bw() +
-    labs(x="Year", y="Length (cm)", color="Effort") +
-    guides(size = "none") +
-    scale_color_manual(values = effort_colors, name = "Effort") +
-    theme(strip.text = element_text(size = 12, face = "bold"), 
-          panel.grid.minor = element_blank(),
-          axis.title.x = element_text(face = "bold"),
-          axis.title.y = element_text(face = "bold"),
-          legend.title = element_text(face = "bold"),
-          plot.background = element_rect(fill = "transparent", colour = NA),
-          panel.background = element_rect(fill = "transparent", colour = NA),
-          legend.background = element_rect(fill = "transparent", colour = NA))
-  
-  length_comparison_plot.1 <- lencomps |>
-    filter(freq > 0) |>
-    filter(species == "Sablefish") |>
-    ggplot(aes(x = year, y = length, col = effort, size = freq)) +
-    geom_point(position = position_dodge(0.9)) +
-    theme_bw() +
-    labs(x="Year", y="Length (cm)", color="Effort") +
-    guides(size = "none", color = "none") +
-    scale_color_manual(values = effort_colors, name = "Effort") +
-    ggtitle("Sablefish") +
-    theme(panel.grid.minor = element_blank(),
-          axis.title.x = element_text(face = "bold"),
-          axis.title.y = element_text(face = "bold"),
-          title = element_text(face = "bold"),
-          plot.title = element_text(vjust = -8),
-          plot.background = element_rect(fill = "transparent", colour = NA),
-          panel.background = element_rect(fill = "transparent", colour = NA),
-          legend.background = element_rect(fill = "transparent", colour = NA))
+    )
     
-  combined <- length_comparison_plot + length_comparison_plot.1 + plot_layout(widths = c(2,1))
-  
-  ggsave(
-    filename = file.path(plot_save_dir, "length_comparisons.png"),
-    plot = length_comparison_plot,
-    width = 1130, # Set width in pixels
-    height = 505, # Set height in pixels
-    units = "px", # Specify units as pixels
-    dpi = 100, # Use a standard DPI when using pixel dimensions
-    bg = "transparent"
-  )
-  
-  ggsave(
-    filename = file.path(plot_save_dir, "length_comparisons_zoom.png"),
-    plot = combined,
-    width = 1130, # Set width in pixels
-    height = 505, # Set height in pixels
-    units = "px", # Specify units as pixels
-    dpi = 100, # Use a standard DPI when using pixel dimensions
-    bg = "transparent"
-  )
+  if(length(lencomps$year) > 0) {
+    length_comparison_plot <- lencomps |>
+      filter(freq > 0) |>
+      ggplot(aes(x = year, y = length, col = effort, size = freq)) +
+      geom_point(position = position_dodge(0.9)) +
+      facet_wrap(~species) +
+      theme_bw() +
+      labs(x="Year", y="Length (cm)", color="Effort") +
+      guides(size = "none") +
+      scale_color_manual(values = effort_colors, name = "Effort") +
+      theme(strip.text = element_text(size = 12, face = "bold"), 
+            panel.grid.minor = element_blank(),
+            axis.title.x = element_text(face = "bold"),
+            axis.title.y = element_text(face = "bold"),
+            legend.title = element_text(face = "bold"),
+            plot.background = element_rect(fill = "transparent", colour = NA),
+            panel.background = element_rect(fill = "transparent", colour = NA),
+            legend.background = element_rect(fill = "transparent", colour = NA))
+    
+    length_comparison_plot.1 <- lencomps |>
+      filter(freq > 0) |>
+      filter(species == "Sablefish") |>
+      ggplot(aes(x = year, y = length, col = effort, size = freq)) +
+      geom_point(position = position_dodge(0.9)) +
+      theme_bw() +
+      labs(x="Year", y="Length (cm)", color="Effort") +
+      guides(size = "none", color = "none") +
+      scale_color_manual(values = effort_colors, name = "Effort") +
+      ggtitle("Sablefish") +
+      theme(panel.grid.minor = element_blank(),
+            axis.title.x = element_text(face = "bold"),
+            axis.title.y = element_text(face = "bold"),
+            title = element_text(face = "bold"),
+            plot.title = element_text(vjust = -8),
+            plot.background = element_rect(fill = "transparent", colour = NA),
+            panel.background = element_rect(fill = "transparent", colour = NA),
+            legend.background = element_rect(fill = "transparent", colour = NA))
+      
+    combined <- length_comparison_plot + length_comparison_plot.1 + plot_layout(widths = c(2,1))
+    
+    ggsave(
+      filename = file.path(plot_save_dir, "length_comparisons.png"),
+      plot = length_comparison_plot,
+      width = 1130, # Set width in pixels
+      height = 505, # Set height in pixels
+      units = "px", # Specify units as pixels
+      dpi = 100, # Use a standard DPI when using pixel dimensions
+      bg = "transparent"
+    )
+    
+    ggsave(
+      filename = file.path(plot_save_dir, "length_comparisons_zoom.png"),
+      plot = combined,
+      width = 1130, # Set width in pixels
+      height = 505, # Set height in pixels
+      units = "px", # Specify units as pixels
+      dpi = 100, # Use a standard DPI when using pixel dimensions
+      bg = "transparent"
+    )
+  }
   
   agecomps <- imap_dfr(
     inputs,

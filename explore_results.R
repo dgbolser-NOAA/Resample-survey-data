@@ -66,13 +66,6 @@ scalar <- dplyr::bind_rows(lapply(res, `[[`, "scalar"))
 ts     <- dplyr::bind_rows(lapply(res, `[[`, "ts"))
 dq     <- dplyr::bind_rows(lapply(res, `[[`, "dq"))
 
-# longnose 2018
-# pop 2016
-# petrale 2022
-# sablefish 2024
-# shortspine 2022
-# yellowtail 2024
-
 end_yrs <- tibble::tribble(
   ~species, ~endyr,
   "Longnose_skate", 2018,

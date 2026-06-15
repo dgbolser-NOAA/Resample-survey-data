@@ -108,7 +108,7 @@ Sys.time()-start.time
 # Write single CSV
 readr::write_csv(
   do.call(rbind, all_wl_df),
-  file.path(here::here("resampled_models"), "wl_efforts_resampled.csv")
+  file.path(here::here("resampled_models"), "wl_shortspine_efforts_resampled.csv")
 )
 
 # TESTING/DEBUGGING
