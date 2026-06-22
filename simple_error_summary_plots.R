@@ -22,10 +22,28 @@ setwd(basedir)
 
 resampled_dirs <- list.dirs("resampled_models", full.names = TRUE, recursive = FALSE)
 
-# Plot model results -----------------------------------------------------------
+# extract model results -----------------------------------------------------------
 all_models <- r4ss::SSgetoutput(dirvec = resampled_dirs,modelnames = basename(resampled_dirs))
 summaryoutput <- r4ss::SSsummarize(all_models, )
 summaryoutput$modelnames <- basename(resampled_dirs)
+
+#extract OFL sigma as it isn't in the summary
+ofl_sigma_df <- imap_dfr(
+  all_models,
+  ~ tibble(
+    model = .y,
+    OFL_sigma = .x$OFL_sigma
+  )
+)
+
+ofl_sigma_df <- ofl_sigma_df %>%
+  mutate(
+    species_name = str_extract(model, "^.*(?=_(?:0\\.\\d|1)_\\d+$)"),
+    effort_level = as.numeric(str_extract(model, "(?<=_)(?:0\\.\\d|1)(?=_\\d+$)")),
+    replicate    = as.integer(str_extract(model, "\\d+$"))
+  )
+
+ofl_sigma_df<-ofl_sigma_df[,2:5]
 
 # examine ssb sd ----------------------------------------------------------------------
 SSB_SD<-summaryoutput$SpawnBioSD 
@@ -144,11 +162,45 @@ edf<-redf %>%
   ungroup() %>%
   select(-ref_cv)
 
+#join with OFL sigma df
+edf<- left_join(edf,ofl_sigma_df,by = c("species_name","effort_level","replicate"))
+
 #write csvs
 setwd(results)
 #write.csv(edf,"west_coast_bts_effort_uncertainty_summary_statistics.csv",row.names = F)
 
-#plots to examine CVs --------------------------------------------------------
+#plots ------------------------------------------------------------------------
+species_labels <- c(
+  Longnose_skate = "Longnose skate (2018)",
+  Pacific_ocean_perch = "Pacific ocean perch (2016)",
+  Petrale_sole = "Petrale sole (2022)",
+  Sablefish = "Sablefish (2024)",
+  Shortspine_thornyhead = "Shortspine thornyhead (2022)",
+  Yellowtail_rockfish = "Yellowtail rockfish (2024)"
+)
+
+#OFL sigma -----------------------------------------------------------------------
+ggplot(edf,
+       aes(x = factor(effort_level),
+           y = OFL_sigma,
+           fill = species_name)) +
+  geom_boxplot(alpha = 0.7) +
+  facet_wrap(~ species_name, labeller = as_labeller(species_labels)) +
+  scale_y_continuous(limits = c(0, NA)) +
+  labs(
+    x = "Proportion of historical survey effort",
+    y = "Terminal year overfishing limit sigma",
+    fill = "Species"
+  ) +
+  theme_minimal() +
+  theme(
+    legend.position = "none"
+  )
+
+setwd(plots)
+ggsave(filename = 'OFL_sigma_panel_boxplot.png',plot = last_plot() , path = plots, width = 9.5, height = 6.5, device = 'png', dpi = 300)
+
+#CVs --------------------------------------------------------
 #panel with colors
 species_labels <- c(
   Longnose_skate = "Longnose skate (2018)",
