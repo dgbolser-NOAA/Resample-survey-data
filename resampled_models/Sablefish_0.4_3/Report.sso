@@ -5,9 +5,9 @@
 #_User_info_available_at:_https://nmfs-ost.github.io/ss3-website/
 #_Source_code_at:_https://github.com/nmfs-ost/ss3-source-code
 
-StartTime: Tue May 12 16:37:32 2026
-EndTime: Tue May 12 16:53:19 2026
-This run took: 0 hours, 15 minutes, 47 seconds.
+StartTime: Thu Jun 18 16:45:08 2026
+EndTime: Thu Jun 18 16:58:34 2026
+This run took: 0 hours, 13 minutes, 26 seconds.
 Data_File: 2025_sablefish_dat.ss
 Control_File: 2025_sablefish_ctl.ss
 Start_parm_values_from_SS.PAR
@@ -20,20 +20,20 @@ total_LogL: 1386.1
 
 Starter_Comments
 #C file created using an r4ss function
-#C file write time: 2026-05-12  16:16:57
+#C file write time: 2026-06-18  16:25:47
 
 Data_Comments
 #C should work with SS version:
 #C file created using an r4ss function
-#C file write time: 2026-05-12  16:16:57
+#C file write time: 2026-06-18  16:25:47
 
 Control_Comments
 #C file created using an r4ss function
-#C file write time: 2026-05-12  16:37:32
+#C file write time: 2026-06-18  16:45:08
 
 Forecast_Comments
 #C file created using an r4ss function
-#C file write time: 2026-05-12  16:16:57
+#C file write time: 2026-06-18  16:25:47
 
 #_KeyWords_of_tables_available_in_report_sso
 #_NOTE: table_number_is_order_in_which_tables_are_output

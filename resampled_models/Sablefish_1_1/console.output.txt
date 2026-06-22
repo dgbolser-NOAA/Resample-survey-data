@@ -1,6 +1,6 @@
 ###
 console output
-2026-05-12 16:53:17.078283
+2026-06-18 17:26:57.848405
 ###
  
  reading from starter.ss
@@ -15,7 +15,7 @@ Begin setting up parameters ...  read parm file: ss3.par
  end of parameter section 
 Reading the empirical weight at age file ...done
 Evaluating biology calculations once ... done
-Starting optimization of 'ss3' in phase 1 of 7 at Tue May 12 16:36:51 2026
+Starting optimization of 'ss3' in phase 1 of 7 at Thu Jun 18 17:15:37 2026
 1 1 -log(L): 1334.24  SSBio: 216713 64451.6
 phase= 1 | nvar=  3 | iter=  0 | nll=1.33e+03 | mag=9.65e+00 | par[  1]=SRparm[1]
 1 2 -log(L): 1334.24  SSBio: 216713 64451.6
@@ -365,7 +365,7 @@ phase= 7 | nvar= 99 | iter= 80 | nll=1.33e+03 | mag=4.38e-03 | par[ 98]=selparm[
 7 325 -log(L): 1334.23  SSBio: 216380 64126.9
 7 326 -log(L): 1334.23  SSBio: 216380 64126.9
 phase= 7 | nvar= 99 | iter= 90 | nll=1.33e+03 | mag=9.24e-04 | par[ 98]=selparm[69]
-Optimization completed after 2 m 46 s with final statistics:
+Optimization completed after 1 m 49 s with final statistics:
   nll=1334.231541 | mag=9.24086e-04 | par[ 98]=selparm[69]
 
 7 327 -log(L): 1334.23  SSBio: 216380 64126.9
@@ -767,9 +767,9 @@ Calculating Hessian (99 variables): 7 328 -log(L): 1334.23  SSBio: 216380 64126.
 7 722 -log(L): 1334.23  SSBio: 216380 64126.9
 7 723 -log(L): 1334.23  SSBio: 216380 64126.9
 7 724 -log(L): 1334.23  SSBio: 216380 64126.9
- done (3 m 51 s) 
+ done (2 m 14 s) 
 Differentiating 8 derived quantities: 7 725 -log(L): 1334.23  SSBio: 216380 64126.9
-1, 2, 3, 4, 5, 6, 7, 8 done (9 m 43 s) 
+1, 2, 3, 4, 5, 6, 7, 8 done (7 m 14 s) 
 Inverting Hessian (99 variables): 20%, 40%, 60%, 80%, 100% done (0.011 s) 
 Starting standard error calculations...  done (0.4 s) 
 Iterations: 725
@@ -782,4 +782,4 @@ Begin writing *.ss_new output files ... Finished writing *.ss_new output files
 !!  Run has completed  !! 
 !!  See warning.sso for 75 warnings 
 
-Finished running model 'ss3' after 16 m 26 s.
+Finished running model 'ss3' after 11 m 20 s.

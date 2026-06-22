@@ -5,11 +5,11 @@
 #_User_info_available_at:_https://nmfs-ost.github.io/ss3-website/
 #_Source_code_at:_https://github.com/nmfs-ost/ss3-source-code
 
-#_Start_time: Tue May 12 16:49:48 2026
+#_Start_time: Thu Jun 18 16:59:52 2026
 #_echo_input_data
 #C should work with SS version:
 #C file created using an r4ss function
-#C file write time: 2026-05-12  16:16:56
+#C file write time: 2026-06-18  16:25:46
 #V3.30.24.2;_safe;_compile_date:_Mar  9 2026;_Stock_Synthesis_by_Richard_Methot_(NOAA)_using_ADMB_13.2
 1890 #_StartYr
 2024 #_EndYr

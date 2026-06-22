@@ -358,8 +358,8 @@ run_model_efforts <- function(catch_filtered,
         two_sexes = n_sexes,
         l_max = max(bio_filt_wl$Length_cm)
       ) |>
-      dplyr::filter(!sex == "all") |>
-      dplyr::filter(two_sexes | sex == "female") |>
+      dplyr::filter(!tolower(sex) == "all") |>
+      dplyr::filter(two_sexes | tolower(sex) == "female") |>
       dplyr::select(species, effort, iteration, model_iter, model_name, dplyr::everything()) 
     
 

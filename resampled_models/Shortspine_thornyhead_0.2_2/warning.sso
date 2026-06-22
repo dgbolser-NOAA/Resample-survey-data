@@ -4,8 +4,9 @@ Warning 2 : depletion_basis is using virgin but HCR anchor is using SSB_unf from
 Warning 3 : At least one block pattern ends in endyr. Check the output parameter value time series to see if the values in forecast years are as intended.
 Warning 4 : parm min for Lmin: 3 should not be less than population min length bin 4
 Note 2 Suggestion: Are you sure you want so few early recrdevs? Better to include in range of main recdevs 1
+Warning 5 : Final gradient: 0.000302398 is larger than final_conv: 0.0001
 Note 3 Information: A revised protocol for the Fcast_yr specification is available and recommended.
-Warning 5 : Time-vary parms not bound checked
-Warning 6 : Reminder: Number of lambdas !=0.0 and !=1.0:  2
-Note 4 Information:  N parameters that are on or within 1% of min-max bound: 1; check results, variance may be suspect
- 6 warnings  and 4 notes 
+Warning 6 : Time-vary parms not bound checked
+Warning 7 : Reminder: Number of lambdas !=0.0 and !=1.0:  2
+Note 4 Information:  N parameters that are on or within 1% of min-max bound: 2; check results, variance may be suspect
+ 7 warnings  and 4 notes 

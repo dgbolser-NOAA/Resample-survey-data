@@ -20,7 +20,7 @@ plot_effort_vs_og_indices <- function(species_fleet_df, plot_save_dir) {
       
       effort_indices <- read.csv(i_csv, header = TRUE) |>
         filter(!is.na(se)) |>
-        filter(effort %in% c(0.2, 0.4, 0.8, 1)) |>
+        filter(effort %in% c(0.2, 0.4, 0.6, 0.8, 1)) |>
         select(Year, est, se, effort, replicate) |>
         rename(year = Year, obs = est) |>
         mutate(effort = as.character(effort),
@@ -48,18 +48,20 @@ plot_effort_vs_og_indices <- function(species_fleet_df, plot_save_dir) {
       TRUE ~ se_obs
     ))
   
-  effort_levels <- c("0.2", "0.4", "0.8", "1", "original model")
+  effort_levels <- c("0.2", "0.4", "0.6", "0.8", "1", "original model")
   effort_colors <- c(
-    "0.2" = viridis(7)[1],
-    "0.4" = viridis(7)[3],
-    "0.8" = viridis(7)[5],
-    "1" = viridis(7)[7],
+    "0.2" = viridis(5)[1],
+    "0.4" = viridis(5)[2],
+    "0.6" = viridis(5)[3],
+    "0.8" = viridis(5)[4],
+    "1" = viridis(5)[5],
     "original model" = "black"
   )
   effort_fills <- c(
-    "0.2" = viridis(7)[1],
-    "0.4" = viridis(7)[3],
-    "0.8" = viridis(7)[5],
+    "0.2" = viridis(5)[1],
+    "0.4" = viridis(5)[2],
+    "0.6" = viridis(5)[3],
+    "0.8" = viridis(5)[4],
     "1" = "transparent",
     "original model" = "transparent"
   )
@@ -82,7 +84,7 @@ plot_effort_vs_og_indices <- function(species_fleet_df, plot_save_dir) {
       y = "Index"
     ) +
     expand_limits(y = 0) +
-    scale_linetype_manual(values = c("0.2" = "solid", "0.4" = "solid", "0.8" = "solid", "1" = "solid", "original model" = "dashed"), name = "Model/Effort") +
+    scale_linetype_manual(values = c("0.2" = "solid", "0.4" = "solid", "0.6" = "solid", "0.8" = "solid", "1" = "solid", "original model" = "dashed"), name = "Model/Effort") +
     scale_color_manual(values = effort_colors, name = "Model/Effort") +
     scale_fill_manual(values = effort_fills, name = "Model/Effort") +
     scale_y_continuous(labels = function(x) format(x, trim = TRUE, scientific = FALSE)) +
@@ -195,15 +197,17 @@ plot_comparisons_ggplot <- function(
   })
   
   effort_colors <- c(
-    "0.2" = viridis(7)[1],
-    "0.4" = viridis(7)[3],
-    "0.8" = viridis(7)[5],
-    "1" = viridis(7)[7]
+    "0.2" = viridis(5)[1],
+    "0.4" = viridis(5)[2],
+    "0.6" = viridis(5)[3],
+    "0.8" = viridis(5)[4],
+    "1" = viridis(5)[5]
   )
   effort_fills <- c(
-    "0.2" = viridis(7)[1],
-    "0.4" = viridis(7)[3],
-    "0.8" = viridis(7)[5],
+    "0.2" = viridis(5)[1],
+    "0.4" = viridis(5)[2],
+    "0.6" = viridis(5)[3],
+    "0.8" = viridis(5)[4],
     "1" = "transparent"
   )
   
@@ -890,7 +894,7 @@ plot_comparisons_ggplot <- function(
     p3 <- ggplot(df_combined, aes(x = as.factor(effort), y = ratio)) +
       geom_boxplot(width = 0.4, aes(fill = as.factor(effort))) +
       facet_wrap(~ species) +
-      scale_fill_manual(values = c("#440154FF", "#31688EFF", "#35B779FF", "#FDE725FF")) +
+      scale_fill_manual(values = c("#440154FF", "#3B528BFF", "#21908CFF", "#5DC863FF", "#FDE725FF")) +
       labs(x = "Effort", y = "Ratio of length composition of WCGBTS to all fleets", fill = "Effort") +
       theme_bw() +
       theme(strip.text = element_text(size = 12, face = "bold"), 
@@ -963,7 +967,7 @@ plot_comparisons_ggplot <- function(
     p4 <- ggplot(df_combined, aes(x = as.factor(effort), y = ratio)) +
       geom_boxplot(width = 0.4, aes(fill = as.factor(effort))) +
       facet_wrap(~ species) +
-      scale_fill_manual(values = c("#440154FF", "#31688EFF", "#35B779FF", "#FDE725FF")) +
+      scale_fill_manual(values = c("#440154FF", "#3B528BFF", "#21908CFF", "#5DC863FF", "#FDE725FF")) +
       labs(x = "Effort", y = "Ratio of age composition of WCGBTS to all fleets", fill = "Effort") +
       theme_bw() +
       theme(strip.text = element_text(size = 12, face = "bold"), 
@@ -1212,8 +1216,6 @@ plot_composition_comparisons <- function(dir_list, fleet_lookup, plot_save_dir){
   )
 }
 
-wl_df <- read.csv(here::here("resampled_models", "wl_efforts_resampled.csv"))
-
   #' Plot weight-length curves from wl_df (no raw points)
   #'
   #' @param wl_df Data frame output from run_model() (bound from run_model_efforts()).
@@ -1237,12 +1239,12 @@ plot_weight_length <- function(
   
   # Ensure a well-defined l_max per (species, effort) panel
   lmax_panel <- wl_df |>
-    dplyr::mutate(effort = factor(effort, levels = c(1.0, 0.8, 0.4, 0.2))) |>
+    dplyr::mutate(effort = factor(effort, levels = c(1.0, 0.8, 0.6, 0.4, 0.2))) |>
     dplyr::group_by(species, effort) |>
     dplyr::summarize(l_max_panel = max(l_max, na.rm = TRUE), .groups = "drop")
   
   wl_df <- wl_df |>
-    dplyr::mutate(effort = factor(effort, levels = c(1.0, 0.8, 0.4, 0.2))) |>
+    dplyr::mutate(effort = factor(effort, levels = c(1.0, 0.8, 0.6, 0.4, 0.2))) |>
     dplyr::left_join(lmax_panel, by = c("species", "effort"))
   
   # Per-iteration curves (needed to compute SE ribbon over predicted curves)

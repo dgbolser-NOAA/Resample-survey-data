@@ -1,7 +1,7 @@
 #V3.30.24.2;_safe;_compile_date:_
 Mar  9 2026
 ;_Stock_Synthesis_by_Richard_Methot_(NOAA)_using_ADMB_13.2
-Tue May 12 15:10:26 2026
+Thu Jun 18 14:45:26 2026
 Bmark_relF(by_fleet_&seas) (excluding non-scaled bycatch fleets)
  0.747537 0.226351 1e-06 1e-06 1e-06 1e-06 1e-06 0.0261125
 #
@@ -16,7 +16,7 @@ YPR_mask for including catch:
 #V3.30.24.2;_safe;_compile_date:_
 Mar  9 2026
 ;_Stock_Synthesis_by_Richard_Methot_(NOAA)_using_ADMB_13.2
-Tue May 12 15:10:26 2026
+Thu Jun 18 14:45:26 2026
 Bmark_relF(by_fleet_&seas) (excluding non-scaled bycatch fleets)
  0.747537 0.226351 1e-06 1e-06 1e-06 1e-06 1e-06 0.0261125
 #

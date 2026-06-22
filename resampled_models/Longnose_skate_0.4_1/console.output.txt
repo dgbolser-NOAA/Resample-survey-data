@@ -1,6 +1,6 @@
 ###
 console output
-2026-05-12 14:56:10.690446
+2026-06-18 14:24:19.650783
 ###
  
  reading from starter.ss
@@ -12,7 +12,7 @@ Data read successful 999
 End of control file successful! 999
 Begin setting up parameters ...  end of parameter section 
 Evaluating biology calculations once ... done
-Starting optimization of 'ss3' in phase 1 of 5 at Tue May 12 14:55:00 2026
+Starting optimization of 'ss3' in phase 1 of 5 at Thu Jun 18 14:23:17 2026
 1 1 -log(L): 19156  SSBio: 97212.4 95024
 phase= 1 | nvar=  5 | iter=  0 | nll=1.92e+04 | mag=4.81e+04 | par[  2]=SRparm[1]
 1 2 -log(L): 19156  SSBio: 97212.3 95023.8
@@ -450,7 +450,7 @@ phase= 5 | nvar= 52 | iter=160 | nll=2.09e+02 | mag=2.88e-02 | par[ 16]=selparm[
 5 412 -log(L): 208.958  SSBio: 32129.5 25677.8
 5 413 -log(L): 208.958  SSBio: 32129.5 25677.8
 phase= 5 | nvar= 52 | iter=167 | nll=2.09e+02 | mag=9.47e-05 | par[ 14]=selparm[3]
-Optimization completed after 14 s with final statistics:
+Optimization completed after 13 s with final statistics:
   nll=208.958345 | mag=9.47379e-05 | par[ 14]=selparm[3]
 
 5 414 -log(L): 208.958  SSBio: 32129.5 25677.8
@@ -664,11 +664,11 @@ Calculating Hessian (52 variables): 5 415 -log(L): 208.958  SSBio: 32129.5 25677
 5 621 -log(L): 208.958  SSBio: 32129.5 25677.8
 5 622 -log(L): 208.958  SSBio: 32129.5 25677.8
 5 623 -log(L): 208.958  SSBio: 32129.5 25677.8
- done (7.3 s) 
+ done (6.3 s) 
 Differentiating 8 derived quantities: 5 624 -log(L): 208.958  SSBio: 32129.5 25677.8
-1, 2, 3, 4, 5, 6, 7, 8 done (48 s) 
-Inverting Hessian (52 variables): 20%, 40%, 60%, 80%, 100% done (0.002 s) 
-Starting standard error calculations...  done (0.24 s) 
+1, 2, 3, 4, 5, 6, 7, 8 done (43 s) 
+Inverting Hessian (52 variables): 20%, 40%, 60%, 80%, 100% done (0.001 s) 
+Starting standard error calculations...  done (0.23 s) 
 Iterations: 624
 Finished forecast
 Writing wtatage.ss_new
@@ -679,4 +679,4 @@ Begin writing *.ss_new output files ... Finished writing *.ss_new output files
 !!  Run has completed  !! 
 !!  See warning.sso for 5 warnings  and 1 note 
 
-Finished running model 'ss3' after 1 m 10 s.
+Finished running model 'ss3' after 1 m 2.6 s.

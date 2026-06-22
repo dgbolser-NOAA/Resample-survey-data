@@ -1,7 +1,7 @@
 #V3.30.24.2;_safe;_compile_date:_Mar  9 2026;_Stock_Synthesis_by_Richard_Methot_(NOAA)_using_ADMB_13.2
 petrale_data.ss #_DataFile 
 petrale_control.ss #_Control 
-Run_Date: Tue May 12 15:52:54 2026
+Run_Date: Thu Jun 18 15:47:41 2026
 Final_phase: 7  N_iterations: 2313
 #_LIKELIHOOD 
 Label logL*Lambda

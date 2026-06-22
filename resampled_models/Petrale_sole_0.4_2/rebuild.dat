@@ -1,4 +1,4 @@
-#Title, #runnumber: 6 petrale_data.ss petrale_control.ss 763.755 21.4503 7.62668 StartTime: Tue May 12 15:49:32 2026
+#Title, #runnumber: 12 petrale_data.ss petrale_control.ss 763.755 21.4503 7.62668 StartTime: Thu Jun 18 15:51:02 2026
 SSv3_default_rebuild.dat
 # Number of sexes
 2
@@ -29,7 +29,7 @@ SSv3_default_rebuild.dat
 # Pre-specify the year of recovery (or -1) to ignore
 -1
 # Fecundity-at-age
-# 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 #runnumber: 6 petrale_data.ss petrale_control.ss 763.755 21.4503 7.62668
+# 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 #runnumber: 12 petrale_data.ss petrale_control.ss 763.755 21.4503 7.62668
  0 0 0 2.27229e-07 6.8142e-06 5.44093e-05 0.000172928 0.000336023 0.000507776 0.0006704 0.000817979 0.00094915 0.00106414 0.00116385 0.00124949 0.00132246 0.00138422 0.00143619 0.00147849 0.00151375 0.00154305 0.00156733 0.00158742 0.00160401 0.00161769 0.00162895 0.00163822 0.00164584 0.00165211 0.00165725 0.00166147 0.00166493 0.00166778 0.00167011 0.00167202 0.00167358 0.00167487 0.00167592 0.00167678 0.00167749 0.00167837 #female fecundity; weighted by N in year Y_init across morphs and areas
 # Age specific selectivity and weight adjusted for discard and discard mortality
  #wt and selex for gender,fleet: 1 1 North

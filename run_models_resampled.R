@@ -92,7 +92,7 @@ df_list <- split(df, seq(nrow(df)))
 # I DON'T KNOW WHY.
 
 start.time <- Sys.time()
-all_wl_df <- purrr::map(df_list[5], ~ run_model(species_name = .x$species_name,
+all_wl_df <- purrr::map(df_list, ~ run_model(species_name = .x$species_name,
                     scientific_name = .x$scientific_name,
                     original_model_dir = .x$original_model_dir,
                     sdm_dir = .x$sdm_dir,
@@ -211,7 +211,7 @@ run_model <- function(
     pattern = "*._indices_df",
     full.names = TRUE
   )) |>
-    filter(effort %in% c(0.2, 0.4, 0.8, 1)) |>
+    filter(effort %in% c(0.2, 0.4, 0.6, 0.8, 1)) |>
     filter(effort != 0.1) |>
     mutate(model_iter = paste0(effort,"_", replicate)) |>
     filter(!is.na(se))

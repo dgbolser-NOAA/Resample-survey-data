@@ -112,7 +112,7 @@ rec_0 <- ts |>
     color = "grey80",
     linewidth = 0.6
   ) +
-  scale_fill_manual(values = rev(LaCroixColoR::lacroix_palette('Orange', 3))) +
+  scale_fill_manual(values = rev(LaCroixColoR::lacroix_palette('Orange', 4))) +
   theme_classic() +
   labs(x = 'Species', y = 'Relative error to 100% effort of \nlog(terminal year recruitment)')
 
@@ -155,7 +155,7 @@ unfished_rec <- scalar |>
     color = "grey80",
     linewidth = 0.6
   ) +
-  scale_fill_manual(values = rev(LaCroixColoR::lacroix_palette('Orange', 3))) +
+  scale_fill_manual(values = rev(LaCroixColoR::lacroix_palette('Orange', 4))) +
   theme_classic() +
   labs(x = 'Species', y = 'Relative error to 100% effort of \nlog(unfished recruitment)')
   ggsave("unfished_rec_plot.png", plot = unfished_rec, path = here::here("plots"))
@@ -193,7 +193,7 @@ nat_M <- scalar |>
     color = "grey80",
     linewidth = 0.6
   ) +
-  scale_fill_manual(values = rev(LaCroixColoR::lacroix_palette('Orange', 3))) +
+  scale_fill_manual(values = rev(LaCroixColoR::lacroix_palette('Orange', 4))) +
   theme_classic() +
   labs(x = 'Species', y = 'Relative error to 100% effort of \nlog(natural mortality)')
 ggsave("nat_M_plot.png", plot = nat_M, path = here::here("plots"))
@@ -254,7 +254,7 @@ mare_ts <- dq_long |>
     color = NA
   ) +
   geom_line(aes(x = year, y = mare, col = factor(effort), group = effort)) +
-  scale_color_manual(values = rev(LaCroixColoR::lacroix_palette('Orange', 3))) +
+  scale_color_manual(values = rev(LaCroixColoR::lacroix_palette('Orange', 4))) +
   labs(x = 'Year', color = 'Effort') +
   theme_classic() +
   scale_x_continuous(

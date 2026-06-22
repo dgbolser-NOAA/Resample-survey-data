@@ -7,7 +7,7 @@
 
 #C LSKT control file
 #C file created using an r4ss function
-#C file write time: 2026-05-12  14:54:56
+#C file write time: 2026-06-18  14:23:11
 #_data_and_control_files: LSKT2019_data.ss // LSKT2019_control.ss
 0  # 0 means do not read wtatage.ss; 1 means read and use wtatage.ss and also read and use growth parameters
 1  #_N_Growth_Patterns (Growth Patterns, Morphs, Bio Patterns, GP are terms used interchangeably in SS3)

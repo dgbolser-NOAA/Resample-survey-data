@@ -6,7 +6,7 @@
 #_Source_code_at:_https://github.com/nmfs-ost/ss3-source-code
 
 #C file created using an r4ss function
-#C file write time: 2026-05-12  16:35:00
+#C file write time: 2026-06-18  16:47:00
 #_data_and_control_files: 2025_sablefish_dat.ss // 2025_sablefish_ctl.ss
 1  # 0 means do not read wtatage.ss; 1 means read and use wtatage.ss and also read and use growth parameters
 1  #_N_Growth_Patterns (Growth Patterns, Morphs, Bio Patterns, GP are terms used interchangeably in SS3)

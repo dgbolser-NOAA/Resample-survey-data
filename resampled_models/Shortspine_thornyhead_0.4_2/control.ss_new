@@ -10,7 +10,7 @@
 #C transitionning the 2013 (SS V3.24) model to SS V3.30 format
 #C Matthieu VERON - February 2023
 #C file created using an r4ss function
-#C file write time: 2026-06-03  16:04:34
+#C file write time: 2026-06-18  18:02:49
 #_data_and_control_files: SST_data.ss // SST_control.ss
 0  # 0 means do not read wtatage.ss; 1 means read and use wtatage.ss and also read and use growth parameters
 1  #_N_Growth_Patterns (Growth Patterns, Morphs, Bio Patterns, GP are terms used interchangeably in SS3)
@@ -161,7 +161,7 @@
 #
 # all recruitment deviations
 #  1900E 1901R 1902R 1903R 1904R 1905R 1906R 1907R 1908R 1909R 1910R 1911R 1912R 1913R 1914R 1915R 1916R 1917R 1918R 1919R 1920R 1921R 1922R 1923R 1924R 1925R 1926R 1927R 1928R 1929R 1930R 1931R 1932R 1933R 1934R 1935R 1936R 1937R 1938R 1939R 1940R 1941R 1942R 1943R 1944R 1945R 1946R 1947R 1948R 1949R 1950R 1951R 1952R 1953R 1954R 1955R 1956R 1957R 1958R 1959R 1960R 1961R 1962R 1963R 1964R 1965R 1966R 1967R 1968R 1969R 1970R 1971R 1972R 1973R 1974R 1975R 1976R 1977R 1978R 1979R 1980R 1981R 1982R 1983R 1984R 1985R 1986R 1987R 1988R 1989R 1990R 1991R 1992R 1993R 1994R 1995R 1996R 1997R 1998R 1999R 2000R 2001R 2002R 2003R 2004R 2005R 2006R 2007R 2008R 2009R 2010R 2011R 2012R 2013R 2014R 2015R 2016R 2017R 2018R 2019F 2020F 2021F 2022F 2023F 2024F 2025F 2026F 2027F 2028F 2029F 2030F 2031F 2032F 2033F 2034F
-#  0.0352221 0.0450538 0.0470799 0.0493148 0.0499771 0.0501532 0.0507356 0.0523493 0.0522721 0.0543209 0.0551159 0.0593533 0.0637436 0.0721188 0.0796148 0.0760268 0.0790274 0.0826768 0.084404 0.0904478 0.0892841 0.0845817 0.0907271 0.0922011 0.0929078 0.093337 0.0935406 0.0935921 0.0935867 0.0936389 0.0938783 0.0944424 0.0954666 0.0970705 0.0993394 0.102301 0.105902 0.109974 0.114206 0.118109 0.121001 0.122008 0.120098 0.114166 0.103167 0.0862819 0.063073 0.0335839 -0.00164884 -0.0416715 -0.0852462 -0.13085 -0.177134 -0.222751 -0.266422 -0.306937 -0.343168 -0.373984 -0.398293 -0.414917 -0.422464 -0.419352 -0.403972 -0.374559 -0.329845 -0.269856 -0.196637 -0.115509 -0.0351293 0.0345295 0.0884191 0.130669 0.170512 0.21153 0.245933 0.258245 0.236343 0.187227 0.130714 0.0852606 0.0586165 0.0437882 0.0224582 -0.0158037 -0.0614835 -0.0991177 -0.124899 -0.137537 -0.137741 -0.145266 -0.173317 -0.251748 -0.336642 -0.41076 -0.512465 -0.573015 -0.552764 -0.539621 -0.507112 -0.395521 -0.226244 -0.0237918 0.162207 0.564279 0.659055 0.821785 0.82381 0.741338 0.522966 0.342683 0.212704 0.0680653 0.00107303 -0.0757909 -0.0751428 -0.0398573 0.00527019 0.00993732 0.00131519 0.0123213 0.0188267 0.00469733 0 0 0 0 0 0 0 0 0 0 0 0 0
+#  0.0352221 0.0450538 0.0470798 0.0493148 0.049977 0.0501532 0.0507356 0.0523493 0.0522721 0.0543209 0.0551159 0.0593533 0.0637437 0.0721188 0.0796148 0.0760268 0.0790274 0.0826768 0.084404 0.0904478 0.0892841 0.0845817 0.0907271 0.0922011 0.0929078 0.093337 0.0935406 0.0935921 0.0935867 0.0936389 0.0938782 0.0944424 0.0954666 0.0970705 0.0993394 0.102301 0.105902 0.109974 0.114206 0.118109 0.121001 0.122008 0.120098 0.114166 0.103167 0.0862819 0.0630729 0.0335839 -0.00164881 -0.0416715 -0.0852462 -0.13085 -0.177134 -0.222751 -0.266422 -0.306937 -0.343168 -0.373984 -0.398293 -0.414917 -0.422464 -0.419352 -0.403972 -0.374559 -0.329845 -0.269856 -0.196637 -0.115509 -0.0351293 0.0345295 0.0884191 0.130669 0.170512 0.21153 0.245933 0.258245 0.236343 0.187227 0.130714 0.0852606 0.0586166 0.0437882 0.0224582 -0.0158037 -0.0614835 -0.0991177 -0.124899 -0.137537 -0.137741 -0.145266 -0.173317 -0.251748 -0.336642 -0.41076 -0.512465 -0.573015 -0.552764 -0.539621 -0.507112 -0.395521 -0.226244 -0.0237918 0.162207 0.564279 0.659055 0.821785 0.82381 0.741338 0.522966 0.342683 0.212704 0.0680653 0.00107306 -0.0757909 -0.0751428 -0.0398573 0.0052702 0.00993732 0.00131518 0.0123213 0.0188267 0.00469732 0 0 0 0 0 0 0 0 0 0 0 0 0
 #
 #Fishing Mortality info 
 0.06 # F ballpark value in units of annual_F
@@ -211,7 +211,7 @@
 #_          LO            HI          INIT         PRIOR         PR_SD       PR_type      PHASE    env-var    use_dev   dev_mnyr   dev_mxyr     dev_PH      Block    Blk_Fxn  #  parm_name
             -5             5     -0.243757             0             1             0         -1          0          0          0          0          0          0          0  #  LnQ_base_Triennial1(4)
           0.01           0.5      0.163076          0.05           0.1             0          4          0          0          0          0          0          0          0  #  Q_extraSD_Triennial1(4)
-            -5             5      0.666753             0             1             0         -1          0          0          0          0          0          0          0  #  LnQ_base_NWFSCcombo(6)
+            -5             5      0.901513             0             1             0         -1          0          0          0          0          0          0          0  #  LnQ_base_NWFSCcombo(6)
 #_no timevary Q parameters
 #
 #_size_selex_patterns
@@ -333,7 +333,7 @@
           -999            15          -999             0             5             0        -99          0          0          0          0          0          0          0  #  Size_DblN_start_logit_NWFSCcombo(6)
           -999            15          -999             0             5             0        -99          0          0          0          0          0          0          0  #  Size_DblN_end_logit_NWFSCcombo(6)
            -15            15      -2.46511             0             5             0          3          0          0          0          0        0.5          0          0  #  SzSel_Male_Peak_NWFSCcombo(6)
-           -15            15     0.0360635             0             5             0          3          0          0          0          0        0.5          0          0  #  SzSel_Male_Ascend_NWFSCcombo(6)
+           -15            15     0.0360637             0             5             0          3          0          0          0          0        0.5          0          0  #  SzSel_Male_Ascend_NWFSCcombo(6)
            -15            15             0             0             5             0         -3          0          0          0          0        0.5          0          0  #  SzSel_Male_Descend_NWFSCcombo(6)
            -15            15             0             0             5             0         -3          0          0          0          0        0.5          0          0  #  SzSel_Male_Final_NWFSCcombo(6)
            -15            15             1             0             5             0         -4          0          0          0          0        0.5          0          0  #  SzSel_Male_Scale_NWFSCcombo(6)
@@ -353,11 +353,11 @@
            -10            10      -1.60709             0             5             6      4  # Retain_L_infl_Trawl_N(1)_BLK1delta_2011
            -10            10      -8.16271             0             5             6      4  # Retain_L_infl_Trawl_N(1)_BLK1delta_2015
            -10            10       6.47259             0             5             6      4  # Retain_L_infl_Trawl_N(1)_BLK1delta_2020
-          -0.5           0.5   0.000656413             0           0.2             6      4  # Retain_L_asymptote_logit_Trawl_N(1)_BLK1delta_1989
-          -0.5           0.5   0.000821018             0           0.2             6      4  # Retain_L_asymptote_logit_Trawl_N(1)_BLK1delta_2007
-          -0.5           0.5   0.000680193             0           0.2             6      4  # Retain_L_asymptote_logit_Trawl_N(1)_BLK1delta_2011
-          -0.5           0.5   0.000276325             0           0.2             6      4  # Retain_L_asymptote_logit_Trawl_N(1)_BLK1delta_2015
-          -0.5           0.5  -4.03886e-05             0           0.2             6      4  # Retain_L_asymptote_logit_Trawl_N(1)_BLK1delta_2020
+          -0.5           0.5   0.000656422             0           0.2             6      4  # Retain_L_asymptote_logit_Trawl_N(1)_BLK1delta_1989
+          -0.5           0.5   0.000821021             0           0.2             6      4  # Retain_L_asymptote_logit_Trawl_N(1)_BLK1delta_2007
+          -0.5           0.5   0.000680201             0           0.2             6      4  # Retain_L_asymptote_logit_Trawl_N(1)_BLK1delta_2011
+          -0.5           0.5   0.000276326             0           0.2             6      4  # Retain_L_asymptote_logit_Trawl_N(1)_BLK1delta_2015
+          -0.5           0.5  -4.04002e-05             0           0.2             6      4  # Retain_L_asymptote_logit_Trawl_N(1)_BLK1delta_2020
            -15            15       11.1898             0             5             6      2  # Size_DblN_peak_Trawl_S(2)_BLK3delta_2003
            -15            15      0.408663             0             5             6      2  # Size_DblN_peak_Trawl_S(2)_BLK3delta_2011
            -10            10      -2.30772             0             5             6      4  # Retain_L_infl_Trawl_S(2)_BLK2delta_1989
@@ -365,11 +365,11 @@
            -10            10      -4.02861             0             5             6      4  # Retain_L_infl_Trawl_S(2)_BLK2delta_2011
            -10            10       7.66982             0             5             6      4  # Retain_L_infl_Trawl_S(2)_BLK2delta_2017
            -10            10     -0.880458             0             5             6      4  # Retain_L_infl_Trawl_S(2)_BLK2delta_2020
-          -0.5           0.5   0.000173038             0           0.2             6      4  # Retain_L_asymptote_logit_Trawl_S(2)_BLK2delta_1989
-          -0.5           0.5   0.000690412             0           0.2             6      4  # Retain_L_asymptote_logit_Trawl_S(2)_BLK2delta_2007
-          -0.5           0.5   0.000271906             0           0.2             6      4  # Retain_L_asymptote_logit_Trawl_S(2)_BLK2delta_2011
-          -0.5           0.5  -0.000488384             0           0.2             6      4  # Retain_L_asymptote_logit_Trawl_S(2)_BLK2delta_2017
-          -0.5           0.5  -9.74996e-05             0           0.2             6      4  # Retain_L_asymptote_logit_Trawl_S(2)_BLK2delta_2020
+          -0.5           0.5   0.000173035             0           0.2             6      4  # Retain_L_asymptote_logit_Trawl_S(2)_BLK2delta_1989
+          -0.5           0.5   0.000690421             0           0.2             6      4  # Retain_L_asymptote_logit_Trawl_S(2)_BLK2delta_2007
+          -0.5           0.5   0.000271903             0           0.2             6      4  # Retain_L_asymptote_logit_Trawl_S(2)_BLK2delta_2011
+          -0.5           0.5  -0.000488375             0           0.2             6      4  # Retain_L_asymptote_logit_Trawl_S(2)_BLK2delta_2017
+          -0.5           0.5   -9.7502e-05             0           0.2             6      4  # Retain_L_asymptote_logit_Trawl_S(2)_BLK2delta_2020
 # info on dev vectors created for selex parms are reported with other devs after tag parameter section 
 #
 0   #  use 2D_AR1 selectivity? (0/1)

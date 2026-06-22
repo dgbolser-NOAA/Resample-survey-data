@@ -5,9 +5,9 @@
 #_User_info_available_at:_https://nmfs-ost.github.io/ss3-website/
 #_Source_code_at:_https://github.com/nmfs-ost/ss3-source-code
 
-StartTime: Tue May 12 15:52:54 2026
-EndTime: Tue May 12 16:04:32 2026
-This run took: 0 hours, 11 minutes, 38 seconds.
+StartTime: Thu Jun 18 15:47:41 2026
+EndTime: Thu Jun 18 16:02:32 2026
+This run took: 0 hours, 14 minutes, 51 seconds.
 Data_File: petrale_data.ss
 Control_File: petrale_control.ss
 Start_parm_values_from_control_file
@@ -20,20 +20,20 @@ total_LogL: 639.477
 
 Starter_Comments
 #C file created using an r4ss function
-#C file write time: 2026-05-12  15:34:31
+#C file write time: 2026-06-18  15:32:38
 
 Data_Comments
 #C should work with SS version:
 #C file created using an r4ss function
-#C file write time: 2026-05-12  15:34:31
+#C file write time: 2026-06-18  15:32:38
 
 Control_Comments
 #C file created using an r4ss function
-#C file write time: 2026-05-12  15:52:54
+#C file write time: 2026-06-18  15:47:41
 
 Forecast_Comments
 #C file created using an r4ss function
-#C file write time: 2026-05-12  15:34:31
+#C file write time: 2026-06-18  15:32:38
 
 #_KeyWords_of_tables_available_in_report_sso
 #_NOTE: table_number_is_order_in_which_tables_are_output
