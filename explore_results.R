@@ -3,6 +3,7 @@
 library(ggplot2)
 library(purrr)
 library(dplyr)
+library(tidyverse)
 library(here)
 library(r4ss)
 library(viridis)
@@ -12,8 +13,11 @@ library(patchwork)
 library(ggtext)
 library(patchwork)
 library(ss3sim)
+library(LaCroixColoR)
+library(viridis)
 source(here::here("model_output_plots.R"))
 
+# wl_df <- read.csv(here::here("resampled_models", "wl_efforts_resampled.csv"))
 resampled_dirs <- list.dirs("resampled_models", full.names = TRUE, recursive = FALSE)
 
 # Plot indices -----------------------------------------------------------------
@@ -36,6 +40,7 @@ fleet_lookup <- c(
   "Shortspine_thornyhead" = 6,
   "Yellowtail_rockfish" = 6
 )
+
 plot_composition_comparisons(dir_list = resampled_dirs,
                              fleet_lookup,
                              plot_save_dir = here::here("plots"))
@@ -46,6 +51,22 @@ all_models <- r4ss::SSgetoutput(dirvec = resampled_dirs, modelnames = basename(r
 summaryoutput <- r4ss::SSsummarize(all_models, )
 summaryoutput$modelnames <- basename(resampled_dirs)
 
+# The following models did not invert the hessian and need to be sorted out
+# Make sure that the uncertainty plots are working correctly when there are iterations
+# that did not run
+# summaryoutput$modelnames[which(summaryoutput$BratioSD |> dplyr::filter(Yr == 2010) == 0)]
+
+plot_comparisons_ggplot(
+  # Add an option to get results and then plot? Do SSgetoutput and SSsummarize for people?
+  # Add input of fleet numbers for each species - important when scaling up 
+  summaryoutput,
+  all_output = all_models,
+  subplots = c(1,2,3,4,5,6,7),
+  models = "all",
+  legendlabels = basename(resampled_dirs),
+  show_equilibrium = TRUE,
+  plot_save_dir = here::here("plots")
+)
 
 #### TRY KIVA'S VIOLIN PLOTS OF ESTIMATED PARAMETERS ####
 extract_ss3sim_style <- function(report, model_name = NA_character_) {
@@ -116,7 +137,7 @@ rec_0 <- ts |>
   theme_classic() +
   labs(x = 'Species', y = 'Relative error to 100% effort of \nlog(terminal year recruitment)')
 
-  ggsave("endyr_rec_plot.png", plot = rec_0, path = here::here("plots"))
+ggsave("endyr_rec_plot.png", plot = rec_0, path = here::here("plots"))
 
 
 
@@ -265,22 +286,7 @@ mare_ts <- dq_long |>
   facet_wrap(~ species, scales = 'free_y', nrow = 2, strip.position = 'right')
 ggsave("mare_ts_Bratio_plot.png", plot = mare_ts, path = here::here("plots"))
 
-# The following models did not invert the hessian and need to be sorted out
-# Make sure that the uncertainty plots are working correctly when there are iterations
-# that did not run
-# summaryoutput$modelnames[which(summaryoutput$BratioSD |> dplyr::filter(Yr == 2010) == 0)]
 
-plot_comparisons_ggplot(
-  # Add an option to get results and then plot? Do SSgetoutput and SSsummarize for people?
-  # Add input of fleet numbers for each species - important when scaling up 
-  summaryoutput,
-  all_output = all_models,
-  subplots = c(1,2,3,4,5,6,7),
-  models = "all",
-  legendlabels = basename(resampled_dirs),
-  show_equilibrium = TRUE,
-  plot_save_dir = here::here("plots")
-)
 
 
 ### All of Ian's stuff
