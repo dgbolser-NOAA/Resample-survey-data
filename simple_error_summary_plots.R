@@ -55,8 +55,8 @@ ssbsd<-as.data.frame(t(SSB_SD))
 ssbsd<-ssbsd[,143:151]
 
 #make the label the column names
-colnames(ssbsd) <- as.character(unlist(ssbsd[61, ]))
-ssbsd<-ssbsd[1:60,]
+colnames(ssbsd) <- as.character(unlist(ssbsd[79, ]))
+ssbsd<-ssbsd[1:78,]
 
 #bring in row names
 ssbsd<- tibble::rownames_to_column(ssbsd, var = "model")
@@ -95,8 +95,8 @@ ssb<-as.data.frame(t(SSB))
 ssb<-ssb[,143:151]
 
 #make the label the column names
-colnames(ssb) <- as.character(unlist(ssb[61, ]))
-ssb<-ssb[1:60,]
+colnames(ssb) <- as.character(unlist(ssb[79, ]))
+ssb<-ssb[1:78,]
 
 #bring in row names
 ssb<- tibble::rownames_to_column(ssb, var = "model")
@@ -157,7 +157,7 @@ edf<-redf %>%
   group_by(species_name) %>%
   mutate(
     ref_cv = ssb_cv[effort_level == 1.0][1],
-    cv_dif = abs(ssb_cv - ref_cv)
+    cv_difference_from_reference = abs(ssb_cv - ref_cv)
   ) %>%
   ungroup() %>%
   select(-ref_cv)
@@ -198,7 +198,7 @@ ggplot(edf,
   )
 
 setwd(plots)
-ggsave(filename = 'OFL_sigma_panel_boxplot.png',plot = last_plot() , path = plots, width = 9.5, height = 6.5, device = 'png', dpi = 300)
+#ggsave(filename = 'OFL_sigma_panel_boxplot.png',plot = last_plot() , path = plots, width = 9.5, height = 6.5, device = 'png', dpi = 300)
 
 #CVs --------------------------------------------------------
 #panel with colors
