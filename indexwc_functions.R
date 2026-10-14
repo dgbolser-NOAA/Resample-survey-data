@@ -79,8 +79,8 @@ resample_by_strata <- function(df, strata) {
   
   # Assign each tow to a sampling stratum
   df$stratum <- purrr::map2_chr(
-    abs(df$depth),
-    df$latitude,
+    abs(df[[depth_col]]),
+    df[[lat_col]],
     function(depth, lat) {
       
       i <- which(

@@ -32,7 +32,10 @@ include_or_exclude <- function(df, proportions) {
   result_list <- lapply(proportions, function(p) {
     # Generate a random vector of 1s and 0s based on the specified proportion
     set.seed(1)
-    random_vectors <- replicate(3, sample(c(1, 0), size = num_rows, replace = TRUE, prob = c(p, 1 - p)), simplify = F)
+    random_vectors <- replicate(
+      10, 
+      sample(c(1, 0), size = num_rows, replace = TRUE, prob = c(p, 1 - p)), 
+      simplify = F)
 
     # Create a new dataframe with the random assignments
     lapply(random_vectors, function(rv) {
@@ -44,7 +47,7 @@ include_or_exclude <- function(df, proportions) {
   result_list <- do.call(c, result_list)
 
   # Set names for the list elements based on proportions
-  names(result_list) <- paste0(rep(proportions, each = 3), "_", rep(1:3, times = length(proportions)))
+  names(result_list) <- paste0(rep(proportions, each = 10), "_", rep(1:10, times = length(proportions)))
 
   # Return the list of dataframes
   return(result_list)

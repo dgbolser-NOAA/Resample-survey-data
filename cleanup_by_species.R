@@ -25,7 +25,7 @@ cleanup_by_species <- function(df, species) {
   
   # remove replicates of the 1 effort level
   tows_assigned <- lapply(tows_assigned, function(x) {
-    x <- x[!grepl("^1_[2-9]+", names(x))]
+    x <- x[!grepl("^1_(2|3|4|5|6|7|8|9|10)$", names(x))]
     return(x)
   })
   

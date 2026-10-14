@@ -16,6 +16,7 @@ library(furrr)
 source("cleanup_by_species.R")
 source("smaller_functions.R")
 source("run_model_efforts.R")
+source("indexwc_functions.R")
 
 
 #### Load in catch and bio data from nwfscSurvey package #### ------------------
@@ -208,32 +209,56 @@ run_model <- function(
   #### Get sdm data frame #### -------------------------------------------------------------------
   sdm_model <- read.csv(list.files(
     sdm_dir,
-    pattern = "*._indices_df",
+    pattern = "stratified_resampled_.*",
     full.names = TRUE
   )) |>
     filter(effort %in% c(0.2, 0.4, 0.6, 0.8, 1)) |>
     filter(effort != 0.1) |>
-    mutate(model_iter = paste0(effort,"_", replicate)) |>
-    filter(!is.na(se))
+    mutate(
+      replicate = as.numeric(replicate),
+      model_iter = paste0(effort,"_", replicate)) |>
+    filter(!is.na(se)) |>
+    arrange(effort, replicate, Year)
   
-  # randomly sample 3 replicates from each effort
-  sdm_model_reps <- sdm_model |>
-    mutate(replicate_num = as.integer(str_extract(model_iter, "(?<=_)[0-9]+"))) |>
-    arrange(Year, effort, replicate_num) |>
-    dplyr::group_by(Year, effort) |>
-    slice_head(n = 3) |>
-    ungroup()
+  sdm_model_filt <- sdm_model
   
-  sdm_model_filt <- sdm_model_reps
-  
-  rm(sdm_model_reps, sdm_model, resampled_mean_index, og_mean_index, rescale_num)
+  rm(sdm_model)
 
   #### Get Bio data #### --------------------------------------------------------------------------
-  catch_filtered <- cleanup_by_species(catch_df, species = species_name)
-  catch_filtered <- catch_filtered[names(catch_filtered) %in% sdm_model_filt$model_iter]
+  strata <- nwfscSurvey::create_strata(
+    names = paste(
+      sep = "_",
+      rep(times = 4, c("55m-183m", "183m-549m", "549m-900m", "900m-1280m")),
+      rep(each = 4, c("32-34.5", "34.5-42.0", "42.0-46.0", "46.0-49"))
+    ),
+    depths_shallow = rep(times = 4, x = c(55, 183, 549, 900)),
+    depths_deep = rep(times = 4, x = c(183, 549, 900, 1280)),
+    lats_south = rep(each = 4, x = c(32, 34.5, 42, 46.0)),
+    lats_north = rep(each = 4, x = c(34.5, 42.0, 46.0, 49))
+  )
+  
+  catch_species <- catch_df |>
+    dplyr::filter(Common_name == species_name) |>
+    dplyr::rename(
+      year = Year,
+      trawl_id = Trawl_id,
+      latitude = Latitude_dd,
+      depth = Depth_m
+    )
+  
+  catch_filtered <- resample_by_strata(catch_species, strata)
+  
+  catch_filtered <- catch_filtered[names(catch_filtered) %in% unique(sdm_model_filt$model_iter)]
+  
   catch_filtered <- lapply(catch_filtered, function(df) {
-    df <- df[df$Year <= ss3_inputs_old$dat$endyr, ]
-    return(df)
+    df |>
+      dplyr::mutate(
+        Year = year,
+        Trawl_id = trawl_id,
+        Latitude_dd = latitude,
+        Depth_m = depth
+      ) |>
+      dplyr::filter(Year <= ss3_inputs_old$dat$endyr)
   })
   
   bio_filtered <- lapply(catch_filtered, function(catch_data) {
