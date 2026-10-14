@@ -368,7 +368,7 @@ run_model_efforts <- function(catch_filtered,
     #### Add Index Data #### -----------------------------------------------------------------------
     message("Insert resampled index for: ", model_name, model_iter)
     sdm_model_i <- sdm_model_filt |>
-      dplyr::filter(model_iter == unique(bio_filtered$source)) |>
+      dplyr::filter(model_iter == unique(catch_filtered$source)) |>
       dplyr::filter(Year <= ss3_inputs$dat$endyr) |>
       dplyr::mutate(month = 7, index = fleet_number) |>
       dplyr::select(Year, month, index, est, se) |>
