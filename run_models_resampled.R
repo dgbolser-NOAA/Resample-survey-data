@@ -114,7 +114,6 @@ readr::write_csv(
 
 # TESTING/DEBUGGING
 # run just the ith species
-# i <- 6
 # run_model(species_name = df_list[[i]]$species_name,
 #           scientific_name = df_list[[i]]$scientific_name,
 #           original_model_dir = df_list[[i]]$original_model_dir,
@@ -126,7 +125,7 @@ readr::write_csv(
 #           resampled_model_dir = resampled_model_dir,
 #           catch_df = catch,
 #           bio_df = bio)
- 
+# i <- 1
 # species_name <- df_list[[i]]$species_name
 # scientific_name <- df_list[[i]]$scientific_name
 # original_model_dir <- df_list[[i]]$original_model_dir
