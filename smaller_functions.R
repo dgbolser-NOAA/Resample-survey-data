@@ -10,7 +10,7 @@ tow_fn <- function(x) {
   tows <- as.data.frame(x$Trawl_id)
   tows <- unique(tows)
   tows <- as.data.frame(tows[!is.na(tows)])
-  names(tows) <- "Trawl_id"
+  names(tows) <- "trawl_id"
   return(tows)
 }
 

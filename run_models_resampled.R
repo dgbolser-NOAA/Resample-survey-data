@@ -325,15 +325,19 @@ run_model <- function(
 
   plan(multisession, workers = 11)
 
-  wl_list <- furrr::future_map2(.x = catch_filtered,
-                     .y = bio_filtered,
-                     .f = run_model_efforts,
-                     resampled_model_dir,
-                     original_model_dir,
-                     sdm_model_filt = sdm_model_filt,
-                     model_name = model_name,
-                     strata = strata,
-                     fleet_number = fleet_number
+  wl_list <- furrr::future_map2(
+    .x = catch_filtered,
+    .y = bio_filtered,
+    .f = ~ run_model_efforts(
+      catch_filtered = .x,
+      bio_filtered = .y,
+      resampled_model_dir = resampled_model_dir,
+      original_model_dir = original_model_dir,
+      sdm_model_filt = sdm_model_filt,
+      model_name = model_name,
+      strata = strata,
+      fleet_number = fleet_number
+    )
   )
   
   # FOR TESTING
