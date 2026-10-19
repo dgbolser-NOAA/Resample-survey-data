@@ -171,6 +171,15 @@ resample_by_strata <- function(df, strata) {
     species_all_yrs$effort_replicate
   )
   
+  # Reorder list by effort and replicate numerically
+  nm <- names(species_all_yrs)
+  parts <- do.call(rbind, strsplit(nm, "_"))
+  effort <- as.numeric(parts[, 1])
+  replicate <- as.integer(parts[, 2])
+  
+  ord <- order(effort, replicate)
+  species_all_yrs <- species_all_yrs[ord]
+  
   # Remove the helper column
   species_all_yrs <- lapply(
     species_all_yrs,

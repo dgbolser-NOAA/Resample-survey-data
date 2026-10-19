@@ -346,13 +346,13 @@ run_model_efforts <- function(catch_filtered,
         Weight_kg > 0
       )
     
-    species_col <- if ("Common_name" %in% names(catch_filtered)) "Common_name" else "common_name"
+    species_col <- if ("Common_name" %in% names(bio_filtered)) "Common_name" else "common_name"
     
     # not actually using the w-l recalculated in the models (thus far) because 
     # some models use combo of those plus triennial, hesitant to try to recreate those
     wl_out <- wl |>
       dplyr::mutate(
-        species = unique(catch_filtered[[species_col]]),
+        species = unique(bio_filtered[[species_col]]),
         effort = effort_val,
         iteration = iter_val,
         model_iter = model_iter,     # optional but often handy to keep

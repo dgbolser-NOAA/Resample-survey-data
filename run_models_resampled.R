@@ -125,18 +125,18 @@ readr::write_csv(
 #           resampled_model_dir = resampled_model_dir,
 #           catch_df = catch,
 #           bio_df = bio)
-# i <- 1
-# species_name <- df_list[[i]]$species_name
-# scientific_name <- df_list[[i]]$scientific_name
-# original_model_dir <- df_list[[i]]$original_model_dir
-# sdm_dir <- df_list[[i]]$sdm_dir
-# lat_filter <- df_list[[i]]$lat_filter
-# depth_filter <- df_list[[i]]$depth_filter
-# strata_type <- df_list[[i]]$strata_type
-# fleet_number <- df_list[[i]]$fleet_number
-# resampled_model_dir <- resampled_model_dir
-# catch_df <- catch
-# bio_df <- bio
+i <- 1
+species_name <- df_list[[i]]$species_name
+scientific_name <- df_list[[i]]$scientific_name
+original_model_dir <- df_list[[i]]$original_model_dir
+sdm_dir <- df_list[[i]]$sdm_dir
+lat_filter <- df_list[[i]]$lat_filter
+depth_filter <- df_list[[i]]$depth_filter
+strata_type <- df_list[[i]]$strata_type
+fleet_number <- df_list[[i]]$fleet_number
+resampled_model_dir <- resampled_model_dir
+catch_df <- catch
+bio_df <- bio
 
 
 
@@ -206,7 +206,7 @@ run_model <- function(
   ss3_inputs_old <- r4ss::SS_read(original_model_dir)
   
   #### Get sdm data frame #### -------------------------------------------------------------------
-  sdm_model <- read.csv(list.files(
+  sdm_model_filt <- read.csv(list.files(
     sdm_dir,
     pattern = "stratified_resampled_.*",
     full.names = TRUE
@@ -218,10 +218,6 @@ run_model <- function(
       model_iter = paste0(effort,"_", replicate)) |>
     filter(!is.na(se)) |>
     arrange(effort, replicate, Year)
-  
-  sdm_model_filt <- sdm_model
-  
-  rm(sdm_model)
 
   #### Get Bio data #### --------------------------------------------------------------------------
   strata <- nwfscSurvey::create_strata(
@@ -235,6 +231,10 @@ run_model <- function(
     lats_south = rep(each = 4, x = c(32, 34.5, 42, 46.0)),
     lats_north = rep(each = 4, x = c(34.5, 42.0, 46.0, 49))
   )
+  
+  clean_source <- function(x) {
+    sub("^.*\\.(0\\.[0-9]+_[0-9]+)$", "\\1", x)
+  }
   
   catch_species <- catch_df |>
     dplyr::filter(Common_name == species_name) |>
@@ -253,24 +253,36 @@ run_model <- function(
     df |>
       dplyr::mutate(
         Year = year,
-        Trawl_id = trawl_id,
         Latitude_dd = latitude,
-        Depth_m = depth
+        Depth_m = depth,
+        source = clean_source(df$source)
       ) |>
-      dplyr::filter(Year <= ss3_inputs_old$dat$endyr)
+      dplyr::filter(Year <= ss3_inputs_old$dat$endyr) |>
+      dplyr::select(-any_of(c("year", "latitude", "depth")))
   })
   
-  bio_filtered <- lapply(catch_filtered, function(catch_data) {
-    replicate_id <- unique(catch_data$source) # Get replicate ID
-    bio_df$Trawl_id <- as.double(bio_df$Trawl_id)
-    bio_df <- bio_df |>
-              filter(Year <= ss3_inputs_old$dat$endyr, 
-                     Scientific_name == scientific_name) # Filter bio data for the species and years
-    matched_bio <- bio_df[bio_df$Trawl_id %in% catch_data$Trawl_id, ] # Filter bio data based on tow IDs
-    matched_bio <- matched_bio |>
-      mutate(source = replicate_id) # Add replicate ID as a column
-    return(matched_bio)
+  
+  bio_df2 <- bio_df |>
+    mutate(trawl_id = as.double(Trawl_id)) |>
+    select(-Trawl_id) |>
+    filter(
+      Year <= ss3_inputs_old$dat$endyr,
+      Scientific_name == scientific_name
+    )
+  
+  bio_filtered <- lapply(names(catch_filtered), function(nm) {
+    catch_data <- catch_filtered[[nm]]
+    
+    bio_df2 |>
+      dplyr::filter(trawl_id %in% catch_data$trawl_id) |>
+      dplyr::mutate(source = nm) |>
+      dplyr::mutate(source = source = clean_source(df$source))
+      dplyr::select(-any_of(c("year", "latitude", "depth")))
   })
+  
+  names(bio_filtered) <- names(catch_filtered)
+  
+
 
   # apply lat and depth filters
   if (is.null(lat_filter) || is.na(lat_filter)) {
@@ -306,23 +318,23 @@ run_model <- function(
   
   # choose correct strata
   if (strata_type == "mid") {
-    strata <- nwfscSurvey::CreateStrataDF.fn(
+    strata <- nwfscSurvey::create_strata(
       names = c("shallow_s", "mid_s", "shallow_n", "mid_n"),
-      depths.shallow = c(55, 183, 55, 183),
-      depths.deep = c(183, 549, 183, 549),
-      lats.south = c(32, 32, 42, 42),
-      lats.north = c(42, 42, 49, 49)
+      depths_shallow = c(55, 183, 55, 183),
+      depths_deep = c(183, 549, 183, 549),
+      lats_south = c(32, 32, 42, 42),
+      lats_north = c(42, 42, 49, 49)
     )
   } else {
-    strata <- nwfscSurvey::CreateStrataDF.fn(
+    strata <- nwfscSurvey::create_strata(
       names = c("shallow_s", "mid_s", "deep_s", "shallow_n", "mid_n", "deep_n"),
-      depths.shallow = c(55, 183, 549, 55, 183, 549),
-      depths.deep = c(183, 549, 1280, 183, 549, 1280),
-      lats.south = c(32, 32, 32, 42, 42, 42),
-      lats.north = c(42, 42, 42, 49, 49, 49)
+      depths_shallow = c(55, 183, 549, 55, 183, 549),
+      depths_deep = c(183, 549, 1280, 183, 549, 1280),
+      lats_south = c(32, 32, 32, 42, 42, 42),
+      lats_north = c(42, 42, 42, 49, 49, 49)
     )
   }
-
+  
   plan(multisession, workers = 11)
 
   wl_list <- furrr::future_map2(
@@ -342,14 +354,14 @@ run_model <- function(
   
   # FOR TESTING
   # run_model_efforts(
-  # catch_filtered <- catch_filtered[[i]]
-  # bio_filtered <- bio_filtered[[i]]
-  # resampled_model_dir <- resampled_model_dir
-  # original_model_dir <- original_model_dir
-  # sdm_model_filt <- sdm_model_filt
-  # model_name <- model_name
-  # strata <- strata
-  # fleet_number <- fleet_number
+  catch_filtered <- catch_filtered[[i]]
+  bio_filtered <- bio_filtered[[i]]
+  resampled_model_dir <- resampled_model_dir
+  original_model_dir <- original_model_dir
+  sdm_model_filt <- sdm_model_filt
+  model_name <- model_name
+  strata <- strata
+  fleet_number <- fleet_number
   # )
   
   wl_df <- dplyr::bind_rows(wl_list)

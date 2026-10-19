@@ -7,7 +7,7 @@
 #' @param x catch_split data frame
 #'
 tow_fn <- function(x) {
-  tows <- as.data.frame(x$Trawl_id)
+  tows <- as.data.frame(x$trawl_id)
   tows <- unique(tows)
   tows <- as.data.frame(tows[!is.na(tows)])
   names(tows) <- "trawl_id"
@@ -22,7 +22,7 @@ tow_fn <- function(x) {
 #' @param df tows data frame
 #' @param proportions proportions developed using: props <- as.data.frame(seq
 #' (0.2,1.0, by = 0.2)) replicated by the length of the tows dataframe. The name
-#' of the props is "Trawl_id".
+#' of the props is "trawl_id".
 #'
 include_or_exclude <- function(df, proportions) {
   # Get the number of rows in the dataframe

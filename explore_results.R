@@ -289,9 +289,10 @@ ggsave("mare_ts_Bratio_plot.png", plot = mare_ts, path = here::here("plots"))
 
 
 
-### All of Ian's stuff
+### All of Ian's stuff ####
 # temporary stuff for exploring scale of index estimates
-all_indices <- read.csv(here::here("Results/Shortspine_thornyhead/shortspine_indices_df.csv")) |>
+all_indices <- read.csv(here::here("Results/Shortspine_thornyhead/stratified_resampled_shortspine_thornyhead_indices_df.csv")) |>
+  dplyr::mutate(replicate = as.numeric(replicate)) |>
   filter(!is.na(se)) |>
   filter(effort == 1.0)
 # petrale_indices <- all_indices |>
