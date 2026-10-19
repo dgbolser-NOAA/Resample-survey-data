@@ -255,12 +255,11 @@ run_model <- function(
         Year = year,
         Latitude_dd = latitude,
         Depth_m = depth,
-        source = clean_source(df$source)
+        source = clean_source(source)
       ) |>
       dplyr::filter(Year <= ss3_inputs_old$dat$endyr) |>
       dplyr::select(-any_of(c("year", "latitude", "depth")))
   })
-  
   
   bio_df2 <- bio_df |>
     mutate(trawl_id = as.double(Trawl_id)) |>
@@ -276,13 +275,17 @@ run_model <- function(
     bio_df2 |>
       dplyr::filter(trawl_id %in% catch_data$trawl_id) |>
       dplyr::mutate(source = nm) |>
-      dplyr::mutate(source = source = clean_source(df$source))
+      dplyr::mutate(source = clean_source(source)) |>
       dplyr::select(-any_of(c("year", "latitude", "depth")))
   })
   
   names(bio_filtered) <- names(catch_filtered)
   
-
+  keep_names <- names(catch_filtered)
+  keep_names <- keep_names[!(grepl("^1_", keep_names) & keep_names != "1_1")]
+  
+  catch_filtered <- catch_filtered[keep_names]
+  bio_filtered   <- bio_filtered[keep_names]
 
   # apply lat and depth filters
   if (is.null(lat_filter) || is.na(lat_filter)) {
