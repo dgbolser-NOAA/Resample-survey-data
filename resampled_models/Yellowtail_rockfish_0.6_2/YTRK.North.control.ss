@@ -1,5 +1,5 @@
 #C file created using an r4ss function
-#C file write time: 2026-06-18  20:04:47
+#C file write time: 2026-10-20  18:54:22
 #
 0 # 0 means do not read wtatage.ss; 1 means read and usewtatage.ss and also read and use growth parameters
 1 #_N_Growth_Patterns
@@ -247,18 +247,18 @@
 #
 # Input variance adjustments factors: 
 #_factor	fleet	value
-    4	1	0.055607	#_Variance_adjustment_list1 
-    4	2	0.162113	#_Variance_adjustment_list2 
-    4	3	0.019652	#_Variance_adjustment_list3 
-    4	4	 0.04885	#_Variance_adjustment_list4 
-    4	5	0.075554	#_Variance_adjustment_list5 
-    4	6	0.293623	#_Variance_adjustment_list6 
-    5	1	0.242889	#_Variance_adjustment_list7 
+    4	1	0.055727	#_Variance_adjustment_list1 
+    4	2	0.164403	#_Variance_adjustment_list2 
+    4	3	0.019554	#_Variance_adjustment_list3 
+    4	4	0.049275	#_Variance_adjustment_list4 
+    4	5	0.075317	#_Variance_adjustment_list5 
+    4	6	 0.13317	#_Variance_adjustment_list6 
+    5	1	0.245151	#_Variance_adjustment_list7 
     5	4	0.021984	#_Variance_adjustment_list8 
-    5	5	0.136252	#_Variance_adjustment_list9 
-    5	6	0.221483	#_Variance_adjustment_list10
-    5	3	0.018478	#_Variance_adjustment_list11
-    5	2	0.134921	#_Variance_adjustment_list12
+    5	5	0.136845	#_Variance_adjustment_list9 
+    5	6	0.168307	#_Variance_adjustment_list10
+    5	3	0.018559	#_Variance_adjustment_list11
+    5	2	0.134983	#_Variance_adjustment_list12
 -9999	0	       0	#_terminator                
 #
 5 #_maxlambdaphase

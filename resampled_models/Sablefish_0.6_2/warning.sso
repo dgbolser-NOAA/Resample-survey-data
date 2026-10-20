@@ -73,5 +73,4 @@ Warning 72 : WTATAGE.SS has positive fecundity at age 0 for year = 2035 Are you 
 Warning 73 : WTATAGE.SS has positive fecundity at age 0 for year = 2036 Are you sure? fecundity is for the time of spawning and age 0 fish normally do not exist at time of spawning
 Warning 74 : WTATAGE.SS has positive fecundity at age 0 for year = 2036 Are you sure? fecundity is for the time of spawning and age 0 fish normally do not exist at time of spawning
 Warning 75 : WTATAGE.SS has positive fecundity at age 0 for year = 9999 Are you sure? fecundity is for the time of spawning and age 0 fish normally do not exist at time of spawning
-Note 1 Information:  N parameters that are on or within 1% of min-max bound: 1; check results, variance may be suspect
- 75 warnings  and 1 note 
+ 75 warnings 

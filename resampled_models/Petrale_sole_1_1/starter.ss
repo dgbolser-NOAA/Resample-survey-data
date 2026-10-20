@@ -1,5 +1,5 @@
 #C file created using an r4ss function
-#C file write time: 2026-06-18  16:02:40
+#C file write time: 2026-10-20  07:34:13
 #
 petrale_data.ss #_datfile
 petrale_control.ss #_ctlfile
