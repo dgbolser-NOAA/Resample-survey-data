@@ -6,13 +6,16 @@ plot_effort_vs_og_indices <- function(species_fleet_df, plot_save_dir) {
     species_fleet_df,
     function(name, fleet) {
       og_mod <- r4ss::SS_read(here("original_models", name))
+      
       og_index <- og_mod$dat$CPUE |>
-        filter(index == fleet) |>
-        select(year, obs, se_log) |>
-        rename(se = se_log) |>
-        mutate(effort = "original model",
-               replicate = NA,
-               effort_rep = "original model")
+        dplyr::filter(index == fleet) |>
+        dplyr::select(year, obs, se_log) |>
+        dplyr::rename(se = se_log) |>
+        dplyr::mutate(
+          effort = "original model",
+          replicate = NA_real_,
+          effort_rep = "original model"
+        )
       
       i_files <- list.files(here("Results", name), recursive = TRUE, full.names = TRUE)
       i_csv <- i_files[grepl("stratified_resampled_.*\\.csv$", basename(i_files))]
@@ -27,10 +30,13 @@ plot_effort_vs_og_indices <- function(species_fleet_df, plot_save_dir) {
         dplyr::select(Year, est, se, effort, replicate) |>
         dplyr::rename(year = Year, obs = est) |>
         dplyr::mutate(
-          effort = as.character(effort),
+          effort = as.character(effort),   # make type match og_index before bind
           effort_rep = paste0(effort, "_", replicate)
         ) |>
         dplyr::filter(year <= og_mod$dat$endyr)
+      
+      dplyr::bind_rows(og_index, effort_indices) |>
+        dplyr::mutate(species = gsub("_", " ", name))
     }
   )
   
