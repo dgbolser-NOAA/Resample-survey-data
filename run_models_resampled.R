@@ -106,6 +106,8 @@ all_wl_df <- purrr::map(df_list, ~ run_model(species_name = .x$species_name,
                     bio_df = bio))
 Sys.time()-start.time
 
+## WHAT IS GOING ON WITH SHORTSPINE THORNYHEAD
+
 # Write single CSV
 readr::write_csv(
   do.call(rbind, all_wl_df),
@@ -125,19 +127,18 @@ readr::write_csv(
 #           resampled_model_dir = resampled_model_dir,
 #           catch_df = catch,
 #           bio_df = bio)
-i <- 1
-species_name <- df_list[[i]]$species_name
-scientific_name <- df_list[[i]]$scientific_name
-original_model_dir <- df_list[[i]]$original_model_dir
-sdm_dir <- df_list[[i]]$sdm_dir
-lat_filter <- df_list[[i]]$lat_filter
-depth_filter <- df_list[[i]]$depth_filter
-strata_type <- df_list[[i]]$strata_type
-fleet_number <- df_list[[i]]$fleet_number
-resampled_model_dir <- resampled_model_dir
-catch_df <- catch
-bio_df <- bio
-
+# i <- 1
+# species_name <- df_list[[i]]$species_name
+# scientific_name <- df_list[[i]]$scientific_name
+# original_model_dir <- df_list[[i]]$original_model_dir
+# sdm_dir <- df_list[[i]]$sdm_dir
+# lat_filter <- df_list[[i]]$lat_filter
+# depth_filter <- df_list[[i]]$depth_filter
+# strata_type <- df_list[[i]]$strata_type
+# fleet_number <- df_list[[i]]$fleet_number
+# resampled_model_dir <- resampled_model_dir
+# catch_df <- catch
+# bio_df <- bio
 
 
 
@@ -213,12 +214,13 @@ run_model <- function(
   )) |>
     filter(effort %in% c(0.2, 0.4, 0.6, 0.8, 1)) |>
     filter(effort != 0.1) |>
+    filter(est >= 0) |>
     mutate(
       replicate = as.numeric(replicate),
       model_iter = paste0(effort,"_", replicate)) |>
     filter(!is.na(se)) |>
     arrange(effort, replicate, Year)
-
+  
   #### Get Bio data #### --------------------------------------------------------------------------
   strata <- nwfscSurvey::create_strata(
     names = paste(
@@ -233,7 +235,7 @@ run_model <- function(
   )
   
   clean_source <- function(x) {
-    sub("^.*\\.(0\\.[0-9]+_[0-9]+)$", "\\1", x)
+    sub("^.*\\.((?:0\\.[0-9]+|1)_[0-9]+)$", "\\1", x)
   }
   
   catch_species <- catch_df |>
@@ -357,14 +359,14 @@ run_model <- function(
   
   # FOR TESTING
   # run_model_efforts(
-  catch_filtered <- catch_filtered[[i]]
-  bio_filtered <- bio_filtered[[i]]
-  resampled_model_dir <- resampled_model_dir
-  original_model_dir <- original_model_dir
-  sdm_model_filt <- sdm_model_filt
-  model_name <- model_name
-  strata <- strata
-  fleet_number <- fleet_number
+  # catch_filtered <- catch_filtered[[i]]
+  # bio_filtered <- bio_filtered[[i]]
+  # resampled_model_dir <- resampled_model_dir
+  # original_model_dir <- original_model_dir
+  # sdm_model_filt <- sdm_model_filt
+  # model_name <- model_name
+  # strata <- strata
+  # fleet_number <- fleet_number
   # )
   
   wl_df <- dplyr::bind_rows(wl_list)

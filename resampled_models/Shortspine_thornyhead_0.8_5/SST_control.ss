@@ -3,7 +3,7 @@
 #C transitionning the 2013 (SS V3.24) model to SS V3.30 format
 #C Matthieu VERON - February 2023
 #C file created using an r4ss function
-#C file write time: 2026-10-20  17:23:38
+#C file write time: 2026-10-21  15:58:14
 #
 0 # 0 means do not read wtatage.ss; 1 means read and usewtatage.ss and also read and use growth parameters
 1 #_N_Growth_Patterns
@@ -267,12 +267,12 @@
 #
 # Input variance adjustments factors: 
 #_factor	fleet	value
-    4	1	0.036909	#_Variance_adjustment_list1 
-    4	2	 0.08848	#_Variance_adjustment_list2 
-    4	3	0.046561	#_Variance_adjustment_list3 
-    4	4	0.150731	#_Variance_adjustment_list4 
-    4	5	0.129522	#_Variance_adjustment_list5 
-    4	6	 0.03538	#_Variance_adjustment_list6 
+    4	1	0.098849	#_Variance_adjustment_list1 
+    4	2	0.195422	#_Variance_adjustment_list2 
+    4	3	0.053658	#_Variance_adjustment_list3 
+    4	4	0.178263	#_Variance_adjustment_list4 
+    4	5	0.096099	#_Variance_adjustment_list5 
+    4	6	0.002704	#_Variance_adjustment_list6 
     5	1	       1	#_Variance_adjustment_list7 
     5	2	       1	#_Variance_adjustment_list8 
     5	3	       1	#_Variance_adjustment_list9 
